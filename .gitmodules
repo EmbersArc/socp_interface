@@ -1,0 +1,3 @@
+[submodule "solvers/ecos"]
+	path = solvers/ecos
+	url = https://github.com/embotech/ecos.git
