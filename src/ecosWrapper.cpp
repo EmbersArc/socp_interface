@@ -253,7 +253,7 @@ inline vector<double> get_parameter_values(const vector<op::Parameter> &params, 
     return result;
 }
 
-void EcosWrapper::solveProblem(bool verbose)
+int EcosWrapper::solveProblem(bool verbose)
 {
     vector<double> ecos_cost_function_weights_values = get_parameter_values(ecos_cost_function_weights, 1.0);
     vector<double> ecos_h_values = get_parameter_values(ecos_h, 1.0);
@@ -280,6 +280,8 @@ void EcosWrapper::solveProblem(bool verbose)
         ecos_h_values.data(),
         ecos_b_values.data());
 
+    int ecos_exitflag;
+
     if (mywork != nullptr)
     {
         mywork->stgs->verbose = verbose;
@@ -298,6 +300,8 @@ void EcosWrapper::solveProblem(bool verbose)
     {
         throw std::runtime_error("Could not set up problem.");
     }
+
+    return ecos_exitflag;
 }
 
 double EcosWrapper::getSolutionValue(size_t problem_index) const

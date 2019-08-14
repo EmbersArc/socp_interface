@@ -44,12 +44,11 @@ class EcosWrapper
 
     /* ECOS result */
     std::vector<double> ecos_solution_vector;
-    idxint ecos_exitflag;
 
   public:
     explicit EcosWrapper(op::SecondOrderConeProgram &_socp);
 
-    void solveProblem(bool verbose = false);
+    int solveProblem(bool verbose = false);
 
     double getSolutionValue(size_t problem_index) const;
     double getSolutionValue(const std::string &name, const std::vector<size_t> &indices);
