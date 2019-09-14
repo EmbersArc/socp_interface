@@ -286,29 +286,32 @@ void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &c)
 
 void SecondOrderConeProgram::printProblem(std::ostream &out) const
 {
-    using std::endl;
-    out << "Minimize" << endl;
-    out << costFunction.print() << endl;
+    out << "Minimize"
+        << "\n";
+    out << costFunction.print() << "\n";
 
-    out << endl
-        << "Subject to equality constraints" << endl;
+    out << "\n"
+        << "Subject to equality constraints"
+        << "\n";
     for (const auto &equalityConstraint : equalityConstraints)
     {
-        out << equalityConstraint.print() << endl;
+        out << equalityConstraint.print() << "\n";
     }
 
-    out << endl
-        << "Subject to linear inequalities" << endl;
+    out << "\n"
+        << "Subject to linear inequalities"
+        << "\n";
     for (const auto &postiveConstraint : postiveConstraints)
     {
-        out << postiveConstraint.print() << endl;
+        out << postiveConstraint.print() << "\n";
     }
 
-    out << endl
-        << "Subject to cone constraints" << endl;
+    out << "\n"
+        << "Subject to cone constraints"
+        << "\n";
     for (const auto &secondOrderConeConstraint : secondOrderConeConstraints)
     {
-        out << secondOrderConeConstraint.print() << endl;
+        out << secondOrderConeConstraint.print() << "\n";
     }
 }
 
