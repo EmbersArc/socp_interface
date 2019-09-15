@@ -23,11 +23,11 @@ bool check_unique_variables_in_affine_expression(const op::AffineExpression &aff
     // check if a variable is used more than once in an expression
 
     vector<size_t> variable_indices;
-    for (auto const &term : affineExpression.terms)
+    for (const auto &term : affineExpression.terms)
     {
         if (term.variable)
         { // only consider linear terms, not constant terms
-            size_t idx = term.variable.value().problem_index;
+            const size_t idx = term.variable.value().problem_index;
             if (contains(variable_indices, idx))
             {
                 // duplicate found!
@@ -103,14 +103,14 @@ void sparse_DOK_to_CCS(
 
     // create CCS format
     vector<size_t> non_zero_count_per_column(n_columns, 0);
-    for (size_t i = 0; i < sparse_COO.size(); i++)
+    for (const auto &s : sparse_COO)
     {
-        data_CCS.push_back(get<2>(sparse_COO[i]));
-        rows_CCS.push_back(get<0>(sparse_COO[i]));
-        non_zero_count_per_column[get<1>(sparse_COO[i])]++;
+        data_CCS.push_back(get<2>(s));
+        rows_CCS.push_back(get<0>(s));
+        non_zero_count_per_column[get<1>(s)]++;
     }
     columns_CCS.push_back(0);
-    for (auto column_count : non_zero_count_per_column)
+    for (const auto column_count : non_zero_count_per_column)
     {
         columns_CCS.push_back(column_count + columns_CCS.back());
     }
@@ -121,7 +121,7 @@ void copy_affine_expression_linear_parts_to_sparse_DOK(
     const op::AffineExpression &affineExpression,
     size_t row_index)
 {
-    for (auto const &term : affineExpression.terms)
+    for (const auto &term : affineExpression.terms)
     {
         if (term.variable)
         { // only consider linear terms, not constant terms
@@ -152,26 +152,26 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
     ecos_n_positive_constraints = socp.postiveConstraints.size();
     ecos_n_constraint_rows = socp.postiveConstraints.size();
     ecos_n_exponential_cones = 0; // Exponential cones are not supported.
-    for (auto const &cone : socp.secondOrderConeConstraints)
+    for (const auto &cone : socp.secondOrderConeConstraints)
     {
         ecos_n_constraint_rows += 1 + cone.lhs.arguments.size();
         ecos_cone_constraint_dimensions.push_back(1 + cone.lhs.arguments.size());
     }
 
     /* Error checking for the problem description */
-    for (auto const &cone : socp.secondOrderConeConstraints)
+    for (const auto &cone : socp.secondOrderConeConstraints)
     {
         error_check_affine_expression(cone.rhs);
-        for (auto const &affine_expression : cone.lhs.arguments)
+        for (const auto &affine_expression : cone.lhs.arguments)
         {
             error_check_affine_expression(affine_expression);
         }
     }
-    for (auto const &postiveConstraint : socp.postiveConstraints)
+    for (const auto &postiveConstraint : socp.postiveConstraints)
     {
         error_check_affine_expression(postiveConstraint.lhs);
     }
-    for (auto const &equalityConstraint : socp.equalityConstraints)
+    for (const auto &equalityConstraint : socp.equalityConstraints)
     {
         error_check_affine_expression(equalityConstraint.lhs);
     }
@@ -185,7 +185,7 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
 
         for (size_t i = 0; i < socp.equalityConstraints.size(); i++)
         {
-            auto const &affine_expression = socp.equalityConstraints[i].lhs;
+            const auto &affine_expression = socp.equalityConstraints[i].lhs;
             b[i] = get_constant_or_zero(affine_expression);
             copy_affine_expression_linear_parts_to_sparse_DOK(A_sparse_DOK, affine_expression, i);
         }
