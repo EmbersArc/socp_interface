@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <utility>
 #include <tuple>
-#include <iostream>
 
 #include "ecosWrapper.hpp"
 
@@ -11,6 +10,10 @@ using std::map;
 using std::pair;
 using std::tuple;
 using std::vector;
+
+static_assert(std::is_same_v<idxint, long>,
+              "Definitions of idxint might not be consistent."
+              "Make sure ECOS is compiled with USE_LONG = 1.");
 
 template <typename T>
 inline bool contains(const vector<T> &v, const T &x)
@@ -280,7 +283,7 @@ int EcosWrapper::solveProblem(bool verbose)
         ecos_h_values.data(),
         ecos_b_values.data());
 
-    int ecos_exitflag;
+    idxint ecos_exitflag;
 
     if (mywork != nullptr)
     {

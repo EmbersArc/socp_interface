@@ -9,6 +9,9 @@
 #include <utility>
 #include <functional>
 
+#define DCTRLC = 1
+#define DLONG
+#define LDL_LONG
 #include "ecos.h"
 
 #include "optimizationProblem.hpp"
@@ -45,7 +48,7 @@ class EcosWrapper
     /* ECOS result */
     std::vector<double> ecos_solution_vector;
 
-  public:
+public:
     explicit EcosWrapper(op::SecondOrderConeProgram &_socp);
 
     int solveProblem(bool verbose = false);
