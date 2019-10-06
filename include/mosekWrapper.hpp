@@ -27,7 +27,7 @@ public:
         return solution_vector[socp.getVariable(name, indices).problem_index];
     }
 
-    std::vector<double> getSolutionVector()
+    std::vector<double> getSolutionVector() const
     {
         if (socp.getNumVariables() > 0 && solution_vector.size() == size_t(socp.getNumVariables()))
         {
