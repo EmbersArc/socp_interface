@@ -15,12 +15,6 @@ static_assert(std::is_same_v<idxint, long>,
               "Definitions of idxint might not be consistent."
               "Make sure ECOS is compiled with USE_LONG = 1.");
 
-template <typename T>
-inline bool contains(const vector<T> &v, const T &x)
-{
-    return std::find(v.begin(), v.end(), x) != v.end();
-}
-
 bool check_unique_variables_in_affine_expression(const op::AffineExpression &affineExpression)
 {
     // check if a variable is used more than once in an expression
@@ -31,7 +25,7 @@ bool check_unique_variables_in_affine_expression(const op::AffineExpression &aff
         if (term.variable)
         { // only consider linear terms, not constant terms
             const size_t idx = term.variable.value().problem_index;
-            if (contains(variable_indices, idx))
+            if (std::find(variable_indices.begin(), variable_indices.end(), idx) != variable_indices.end())
             {
                 // duplicate found!
                 return false;
@@ -72,7 +66,7 @@ op::Parameter get_constant_or_zero(const op::AffineExpression &affineExpression)
     }
 }
 
-// convert sparse matrix format "Dictionary of keys" to "column compressed storage"
+// convert sparse matrix format "dictionary of keys" to "column compressed storage"
 void sparse_DOK_to_CCS(
     const map<pair<idxint, idxint>, op::Parameter> &sparse_DOK,
     vector<op::Parameter> &data_CCS,
