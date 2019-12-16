@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(scop_interface)
+project(socp_interface)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -10,7 +10,7 @@ set(TARGET_INCLUDE_SYS
     solvers/ecos/include
     solvers/ecos/external/SuiteSparse_config
 )
-set(SCOP_SOURCES
+set(SOCP_SOURCES
     src/ecosWrapper.cpp
     src/optimizationProblem.cpp
 )
@@ -32,8 +32,8 @@ link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 #         ${TARGET_INCLUDE_SYS}
 #         $ENV{MOSEK_ROOT}/h
 #         )
-#     set(SCOP_SOURCES
-#         ${SCOP_SOURCES}
+#     set(SOCP_SOURCES
+#         ${SOCP_SOURCES}
 #         src/mosekWrapper.cpp
 #         )
 # else()
@@ -42,9 +42,9 @@ link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
-add_library(scop_lib SHARED ${SCOP_SOURCES})
-target_include_directories(scop_lib PUBLIC ${TARGET_INCLUDE})
-target_include_directories(scop_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
+add_library(socp_lib SHARED ${SOCP_SOURCES})
+target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
+target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
 
 add_executable(example src/example.cpp)
-target_link_libraries(example scop_lib)
+target_link_libraries(example socp_lib)
