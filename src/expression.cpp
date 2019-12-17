@@ -18,13 +18,12 @@ AffineTerm::operator AffineExpression()
     return result;
 }
 
-std::string AffineTerm::print() const
+std::ostream &operator<<(std::ostream &os, const AffineTerm &constraint)
 {
-    std::ostringstream s;
-    s << parameter.print();
-    if (variable)
-        s << "*" << variable.value().print();
-    return s.str();
+    os << constraint.parameter;
+    if (constraint.variable)
+        os << "*" << constraint.variable.value();
+    return os;
 }
 
 double AffineTerm::evaluate(const std::vector<double> &soln_values) const
@@ -40,16 +39,15 @@ double AffineTerm::evaluate(const std::vector<double> &soln_values) const
     }
 }
 
-std::string AffineExpression::print() const
+std::ostream &operator<<(std::ostream &os, const AffineExpression &constraint)
 {
-    std::ostringstream s;
-    for (size_t i = 0; i < terms.size(); i++)
+    for (size_t i = 0; i < constraint.terms.size(); i++)
     {
-        if (i)
-            s << "  + ";
-        s << terms[i].print();
+        if (i > 0)
+            os << "  + ";
+        os << constraint.terms[i];
     }
-    return s.str();
+    return os;
 }
 
 double AffineExpression::evaluate(const std::vector<double> &soln_values) const
@@ -58,18 +56,17 @@ double AffineExpression::evaluate(const std::vector<double> &soln_values) const
     return std::accumulate(terms.begin(), terms.end(), 0., sum_terms);
 }
 
-std::string Norm2::print() const
+std::ostream &operator<<(std::ostream &os, const Norm2 &constraint)
 {
-    std::ostringstream s;
-    s << "norm2([ ";
-    for (size_t i = 0; i < arguments.size(); i++)
+    os << "norm2([ ";
+    for (size_t i = 0; i < constraint.arguments.size(); i++)
     {
-        if (i)
-            s << ", ";
-        s << arguments[i].print();
+        if (i > 0)
+            os << ", ";
+        os << constraint.arguments[i];
     }
-    s << " ])";
-    return s.str();
+    os << " ])";
+    return os;
 }
 
 double Norm2::evaluate(const std::vector<double> &soln_values) const

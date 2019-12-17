@@ -19,7 +19,7 @@ struct AffineTerm
 
     Parameter parameter = Parameter(0.0);
     std::optional<Variable> variable; // a missing Variable represents a constant 1.0
-    std::string print() const;
+    friend std::ostream& operator<<(std::ostream& os, const AffineTerm& term);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
@@ -30,7 +30,7 @@ struct AffineExpression
     AffineExpression(const Parameter &parameter);
 
     std::vector<AffineTerm> terms;
-    std::string print() const;
+    friend std::ostream& operator<<(std::ostream& os, const AffineExpression& term);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
@@ -38,7 +38,7 @@ struct AffineExpression
 struct Norm2
 {
     std::vector<AffineExpression> arguments;
-    std::string print() const;
+    friend std::ostream& operator<<(std::ostream& os, const Norm2& term);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 

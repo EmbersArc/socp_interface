@@ -11,7 +11,6 @@
 #include <map>
 #include <string>
 
-
 void sparse_DOK_to_CCS(
     const std::map<std::pair<idxint, idxint>, op::Parameter> &sparse_DOK,
     std::vector<op::Parameter> &data_CCS,

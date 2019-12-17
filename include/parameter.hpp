@@ -2,11 +2,12 @@
 
 #include <functional>
 #include <string>
+#include <variant>
 
 namespace op
 {
 
-enum class ParameterSource
+enum class ParameterSourceType
 {
     Constant,
     Pointer,
@@ -17,43 +18,25 @@ enum class ParameterSource
 // The parameter value can either be constant or dynamically accessed through a pointer or callback.
 class Parameter
 {
-    std::function<double()> callback;
-    const double *dynamic_value_ptr = nullptr;
-    double const_value = 0;
-    ParameterSource parameterSource;
+    std::variant<std::function<double()>,
+                 const double *,
+                 double>
+        source;
+
+    ParameterSourceType sourceType;
 
 public:
-    explicit Parameter(std::function<double()> callback) : callback(callback), parameterSource(ParameterSource::Callback)
-    {
-        if (!callback)
-            throw std::runtime_error("Parameter(callback), Invalid Callback Error");
-    }
+    Parameter();
 
-    explicit Parameter(const double *dynamic_value_ptr) : dynamic_value_ptr(dynamic_value_ptr), parameterSource(ParameterSource::Pointer)
-    {
-        if (dynamic_value_ptr == nullptr)
-            throw std::runtime_error("Parameter(NULL), Null Pointer Error");
-    }
+    explicit Parameter(std::function<double()> callback);
 
-    explicit Parameter(double const_value) : const_value(const_value), parameterSource(ParameterSource::Constant) {}
+    explicit Parameter(const double *dynamic_value_ptr);
 
-    Parameter() : const_value(0), parameterSource(ParameterSource::Constant) {}
+    explicit Parameter(double const_value);
 
-    double get_value() const
-    {
-        if (parameterSource == ParameterSource::Callback)
-        {
-            return callback();
-        }
+    double get_value() const;
 
-        if (parameterSource == ParameterSource::Pointer)
-        {
-            return *dynamic_value_ptr;
-        }
-
-        return const_value;
-    }
-    std::string print() const;
+    friend std::ostream& operator<<(std::ostream& os, const Parameter& parameter);
 };
 
 } // namespace op

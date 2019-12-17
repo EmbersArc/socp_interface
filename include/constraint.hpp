@@ -3,6 +3,7 @@
 #include "expression.hpp"
 
 #include <vector>
+#include <ostream>
 
 namespace op
 {
@@ -14,7 +15,7 @@ struct SecondOrderConeConstraint
 {
     Norm2 lhs;
     AffineExpression rhs;
-    std::string print() const;
+    friend std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
@@ -23,7 +24,7 @@ struct SecondOrderConeConstraint
 struct PostiveConstraint
 {
     AffineExpression lhs;
-    std::string print() const;
+    friend std::ostream &operator<<(std::ostream &os, const PostiveConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
@@ -32,7 +33,7 @@ struct PostiveConstraint
 struct EqualityConstraint
 {
     AffineExpression lhs;
-    std::string print() const;
+    friend std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 

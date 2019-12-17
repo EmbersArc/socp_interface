@@ -6,25 +6,22 @@
 namespace op
 {
 
-std::string PostiveConstraint::print() const
+std::ostream &operator<<(std::ostream &os, const PostiveConstraint &constraint)
 {
-    std::ostringstream s;
-    s << lhs.print() << " >= 0";
-    return s.str();
+    os << constraint.lhs << " >= 0";
+    return os;
 }
 
-std::string EqualityConstraint::print() const
+std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint)
 {
-    std::ostringstream s;
-    s << lhs.print() << " == 0";
-    return s.str();
+    os << constraint.lhs << " == 0";
+    return os;
 }
 
-std::string SecondOrderConeConstraint::print() const
+std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint)
 {
-    std::ostringstream s;
-    s << lhs.print() << " <= " << rhs.print();
-    return s.str();
+    os << constraint.lhs << " <= " << constraint.rhs;
+    return os;
 }
 
 Norm2 norm2(const std::vector<AffineExpression> &affineExpressions)

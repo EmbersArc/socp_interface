@@ -5,23 +5,22 @@
 namespace op
 {
 
-std::string Variable::print() const
+std::ostream& operator<<(std::ostream& os, const Variable& variable)
 {
-    std::ostringstream s;
-    s << name;
-    if (tensor_indices.size() > 0)
+    os << variable.name;
+    if (variable.tensor_indices.size() > 0)
     {
-        s << "[";
-        for (size_t i = 0; i < tensor_indices.size(); i++)
+        os << "[";
+        for (size_t i = 0; i < variable.tensor_indices.size(); i++)
         {
             if (i)
-                s << ",";
-            s << tensor_indices[i];
+                os << ",";
+            os << variable.tensor_indices[i];
         }
-        s << "]";
+        os << "]";
     }
-    s << "@" << problem_index;
-    return s.str();
+    os << "@" << variable.problem_index;
+    return os;
 }
 
 } // namespace op

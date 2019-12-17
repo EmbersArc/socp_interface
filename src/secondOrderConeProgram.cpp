@@ -30,14 +30,14 @@ void SecondOrderConeProgram::printProblem(std::ostream &out) const
 {
     out << "Minimize"
         << "\n";
-    out << costFunction.print() << "\n";
+    out << costFunction << "\n";
 
     out << "\n"
         << "Subject to equality constraints"
         << "\n";
     for (const auto &equalityConstraint : equalityConstraints)
     {
-        out << equalityConstraint.print() << "\n";
+        out << equalityConstraint << "\n";
     }
 
     out << "\n"
@@ -45,7 +45,7 @@ void SecondOrderConeProgram::printProblem(std::ostream &out) const
         << "\n";
     for (const auto &postiveConstraint : postiveConstraints)
     {
-        out << postiveConstraint.print() << "\n";
+        out << postiveConstraint << "\n";
     }
 
     out << "\n"
@@ -53,7 +53,7 @@ void SecondOrderConeProgram::printProblem(std::ostream &out) const
         << "\n";
     for (const auto &secondOrderConeConstraint : secondOrderConeConstraints)
     {
-        out << secondOrderConeConstraint.print() << "\n";
+        out << secondOrderConeConstraint << "\n";
     }
 }
 
@@ -63,7 +63,7 @@ bool feasibility_check_message(double tol, double val, const T &constraint)
     if (val > tol)
     {
         std::cout << "Infeasible solution, constraint value: " + std::to_string(val) << "\n"
-                  << constraint.print() << "\n";
+                  << constraint << "\n";
 
         return false;
     }
