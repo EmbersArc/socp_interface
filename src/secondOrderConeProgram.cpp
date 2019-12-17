@@ -1,7 +1,5 @@
 #include "secondOrderConeProgram.hpp"
 
-#include "constraint.hpp"
-
 #include <iostream>
 #include <cmath>
 

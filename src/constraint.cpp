@@ -6,7 +6,6 @@
 namespace op
 {
 
-
 std::string PostiveConstraint::print() const
 {
     std::ostringstream s;
@@ -102,4 +101,4 @@ double EqualityConstraint::evaluate(const std::vector<double> &soln_values) cons
     return -lhs.evaluate(soln_values);
 }
 
-}
+} // namespace op

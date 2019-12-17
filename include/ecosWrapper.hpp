@@ -2,14 +2,15 @@
 
 #include "secondOrderConeProgram.hpp"
 
-#include <vector>
-#include <map>
-#include <string>
-
 #define DCTRLC = 1
 #define DLONG
 #define LDL_LONG
 #include "ecos.h"
+
+#include <vector>
+#include <map>
+#include <string>
+
 
 void sparse_DOK_to_CCS(
     const std::map<std::pair<idxint, idxint>, op::Parameter> &sparse_DOK,

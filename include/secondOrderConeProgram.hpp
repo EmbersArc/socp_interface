@@ -13,7 +13,7 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
     std::vector<PostiveConstraint> postiveConstraints;
     std::vector<EqualityConstraint> equalityConstraints;
-    AffineExpression costFunction = Parameter(0.0);
+    AffineExpression costFunction = Parameter();
 
     void addConstraint(SecondOrderConeConstraint c);
     void addConstraint(PostiveConstraint c);
