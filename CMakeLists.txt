@@ -3,6 +3,8 @@ project(socp_interface)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+
 set(TARGET_INCLUDE
     include
 )
@@ -20,31 +22,12 @@ set(SOCP_SOURCES
 execute_process(COMMAND make shared WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/solvers/ecos)
 link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 
-# Use MOSEK if available
-# You need to set the environment variable: e.g. 'export MOSEK_ROOT=.../mosek/9.0/tools/platform/linux64x86'
-# if(DEFINED ENV{MOSEK_ROOT})
-#     message("MOSEK_ROOT: " $ENV{MOSEK_ROOT})
-#     execute_process(COMMAND make install WORKING_DIRECTORY $ENV{MOSEK_ROOT}/src/fusion_cxx)
-#     link_libraries($ENV{MOSEK_ROOT}/bin/libmosek64.so)
-#     link_libraries($ENV{MOSEK_ROOT}/bin/libfusion64.so)
-#     add_definitions(-DMOSEK_AVAILABLE=true)
-#     set(TARGET_INCLUDE_SYS
-#         ${TARGET_INCLUDE_SYS}
-#         $ENV{MOSEK_ROOT}/h
-#         )
-#     set(SOCP_SOURCES
-#         ${SOCP_SOURCES}
-#         src/mosekWrapper.cpp
-#         )
-# else()
-#     message("MOSEK_ROOT is not defined. Mosek will not be available.")
-# endif()
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 add_library(socp_lib SHARED ${SOCP_SOURCES})
 target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
 target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
+# target_link_libraries(socp_lib Eigen3::Eigen)
 
 add_executable(example src/example.cpp)
 target_link_libraries(example socp_lib)
