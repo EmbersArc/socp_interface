@@ -1,7 +1,9 @@
 #include <stdexcept>
 #include <algorithm>
-#include <utility>
 #include <tuple>
+#include <utility>
+#include <functional>
+#include <cassert>
 
 #include "ecosWrapper.hpp"
 

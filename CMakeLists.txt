@@ -8,13 +8,20 @@ set(CMAKE_CXX_STANDARD 17)
 set(TARGET_INCLUDE
     include
 )
+
 set(TARGET_INCLUDE_SYS
     solvers/ecos/include
     solvers/ecos/external/SuiteSparse_config
 )
+
 set(SOCP_SOURCES
-    src/ecosWrapper.cpp
+    src/parameter.cpp
+    src/variable.cpp
+    src/expression.cpp
+    src/constraint.cpp
     src/optimizationProblem.cpp
+    src/secondOrderConeProgram.cpp
+    src/ecosWrapper.cpp
 )
 
 # ECOS
@@ -22,7 +29,7 @@ set(SOCP_SOURCES
 execute_process(COMMAND make shared WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/solvers/ecos)
 link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Wpedantic")
 
 add_library(socp_lib SHARED ${SOCP_SOURCES})
 target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
