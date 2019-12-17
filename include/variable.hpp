@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 
+namespace op
+{
+
 // represents an optimization variable x_i
 struct Variable
 {
@@ -11,3 +14,5 @@ struct Variable
     size_t problem_index;
     std::string print() const;
 };
+
+} // namespace op

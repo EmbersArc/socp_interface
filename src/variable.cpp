@@ -2,6 +2,9 @@
 
 #include <sstream>
 
+namespace op
+{
+
 std::string Variable::print() const
 {
     std::ostringstream s;
@@ -20,3 +23,5 @@ std::string Variable::print() const
     s << "@" << problem_index;
     return s.str();
 }
+
+} // namespace op
