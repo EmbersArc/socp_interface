@@ -24,6 +24,8 @@ int main()
     auto param = [](double &param_value) { return op::Parameter(&param_value); };
     auto param_fn = [](std::function<double()> callback) { return op::Parameter(callback); };
 
+    op::AffineTerm test = var("X", {0}) * 1.0;
+    
     // ||X||
     std::vector<op::AffineExpression> norm2_args({1.0 * var("X", {0}),
                                                   1.0 * var("X", {1}),

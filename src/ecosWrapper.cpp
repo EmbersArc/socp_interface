@@ -1,7 +1,10 @@
 #include <stdexcept>
 #include <algorithm>
-#include <utility>
 #include <tuple>
+#include <utility>
+#include <functional>
+#include <cassert>
+#include <sstream>
 
 #include "ecosWrapper.hpp"
 
@@ -45,11 +48,16 @@ void error_check_affine_expression(const op::AffineExpression &affineExpression)
 {
     if (!check_unique_variables_in_affine_expression(affineExpression))
     {
-        throw std::runtime_error("Error: Duplicate variable in the expression: \n" + affineExpression.print());
+        std::stringstream ss;
+        ss << "Error: Duplicate variable in the expression: \n"
+           << affineExpression;
+        throw std::runtime_error(ss.str());
     }
     if (count_constants_in_affine_expression(affineExpression) > 1)
     {
-        throw std::runtime_error("Error: More than one constant in the expression: \n" + affineExpression.print());
+        std::stringstream ss;
+        ss << "Error: More than one constant in the expression: \n" << affineExpression;
+        throw std::runtime_error(ss.str());
     }
 }
 
