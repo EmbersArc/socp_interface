@@ -21,11 +21,9 @@ int main()
 
     // Shortcut functions to access solver variables and create parameters
     auto var = [&socp](const std::string &name, const std::vector<size_t> &indices = {}) { return socp.getVariable(name, indices); };
-    auto param = [](double &param_value) { return op::Parameter(&param_value); };
-    auto param_fn = [](std::function<double()> callback) { return op::Parameter(callback); };
 
     op::AffineTerm test = var("X", {0}) * 1.0;
-    
+
     // ||X||
     std::vector<op::AffineExpression> norm2_args({1.0 * var("X", {0}),
                                                   1.0 * var("X", {1}),
@@ -39,10 +37,9 @@ int main()
     // x_max >= X(0)
     // y_max >= Y(1)
     // z_min <= Z(2)
-    socp.addConstraint(-1.0 * var("X", {0}) + param(x_max) >= 0.);
-    socp.addConstraint(-1.0 * var("X", {1}) + param(y_max) >= 0.);
-    // use param_fn to multiply z_min by -1.
-    socp.addConstraint(1.0 * var("X", {2}) + param_fn([&z_min]() { return -1.0 * z_min; }) >= 0.);
+    socp.addConstraint(-1.0 * var("X", {0}) + op::Parameter(&x_max) >= 0.);
+    socp.addConstraint(-1.0 * var("X", {1}) + op::Parameter(&y_max) >= 0.);
+    socp.addConstraint(1.0 * var("X", {2}) + -op::Parameter(&z_min) >= 0.);
 
     // Objective:
     // minimize ||X||
@@ -55,9 +52,10 @@ int main()
     solver.solveProblem(true); // pass false for quiet solver
 
     // Print solution variables
-    std::cout << solver.getSolutionValue("X", {0}) << '\n'
-              << solver.getSolutionValue("X", {1}) << '\n'
-              << solver.getSolutionValue("X", {2}) << '\n';
+    std::cout << "Result:\n"
+              << "X:  " << solver.getSolutionValue("X", {0}) << '\n'
+              << "Y:  " << solver.getSolutionValue("X", {1}) << '\n'
+              << "Z:  " << solver.getSolutionValue("X", {2}) << '\n';
 
     // Change parameters
     x_max = -1.;
@@ -71,7 +69,8 @@ int main()
     const unsigned int X0_index = socp.getTensorVariableIndex("X", {0});
     const unsigned int X1_index = socp.getTensorVariableIndex("X", {1});
     const unsigned int X2_index = socp.getTensorVariableIndex("X", {2});
-    std::cout << solver.getSolutionValue(X0_index) << '\n'
-              << solver.getSolutionValue(X1_index) << '\n'
-              << solver.getSolutionValue(X2_index) << '\n';
+    std::cout << "Result:\n"
+              << "X:  " << solver.getSolutionValue(X0_index) << '\n'
+              << "Y:  " << solver.getSolutionValue(X1_index) << '\n'
+              << "Z:  " << solver.getSolutionValue(X2_index) << '\n';
 }
