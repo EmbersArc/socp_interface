@@ -78,11 +78,6 @@ EqualityConstraint operator==(const AffineExpression &lhs, const double &zero)
     return result;
 }
 
-EqualityConstraint operator==(const double &zero, const AffineExpression &rhs)
-{
-    return rhs == zero;
-}
-
 double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_values) const
 {
     return (lhs.evaluate(soln_values) - rhs.evaluate(soln_values));
