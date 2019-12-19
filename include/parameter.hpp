@@ -14,7 +14,6 @@ enum class ParameterSourceType
     Constant,
     Pointer,
     Callback,
-    Operation
 };
 
 struct ParameterOperation;
@@ -25,8 +24,7 @@ class Parameter
 {
     using parameter_variant_t = std::variant<double,
                                              const double *,
-                                             std::function<double()>,
-                                             std::shared_ptr<ParameterOperation>>;
+                                             std::function<double()>>;
     parameter_variant_t source;
     ParameterSourceType sourceType;
 
@@ -47,16 +45,6 @@ public:
     friend Parameter operator-(const Parameter &par);
     friend Parameter operator*(const Parameter &lhs, const Parameter &rhs);
     friend Parameter operator/(const Parameter &lhs, const Parameter &rhs);
-};
-
-struct ParameterOperation
-{
-    ParameterOperation(const Parameter &lhs, const Parameter &rhs,
-                       const std::function<double(double, double)> &operation);
-    ~ParameterOperation();
-    std::pair<const Parameter, const Parameter> terms;
-    std::function<double(double, double)> operation;
-    double get_value() const;
 };
 
 } // namespace op

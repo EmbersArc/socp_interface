@@ -25,9 +25,6 @@ Parameter::Parameter(std::function<double()> callback)
         throw std::runtime_error("Parameter(callback), Invalid Callback Error");
 }
 
-Parameter::Parameter(std::shared_ptr<ParameterOperation> operation)
-    : source(operation), sourceType(ParameterSourceType::Operation) {}
-
 Parameter::~Parameter() {}
 
 double Parameter::get_value() const
@@ -45,9 +42,6 @@ double Parameter::get_value() const
     case ParameterSourceType::Callback:
         value = std::get<2>(source)();
         break;
-    case ParameterSourceType::Operation:
-        value = std::get<3>(source)->get_value();
-        break;
     }
 
     return value;
@@ -59,40 +53,29 @@ std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
     return os;
 }
 
-ParameterOperation::ParameterOperation(const Parameter &lhs, const Parameter &rhs,
-                                       const std::function<double(double, double)> &operation)
-    : terms(lhs, rhs), operation(operation) {}
-
-ParameterOperation::~ParameterOperation() {}
-
-double ParameterOperation::get_value() const
-{
-    return operation(terms.first.get_value(), terms.second.get_value());
-}
-
 Parameter operator+(const Parameter &lhs, const Parameter &rhs)
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::plus<double>()));
+    return Parameter([lhs, rhs]() { return lhs.get_value() + rhs.get_value(); });
 }
 
 Parameter operator-(const Parameter &lhs, const Parameter &rhs)
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::minus<double>()));
+    return Parameter([lhs, rhs]() { return lhs.get_value() - rhs.get_value(); });
 }
 
 Parameter operator-(const Parameter &par)
 {
-    return Parameter(std::make_shared<ParameterOperation>(-1.0, par, std::multiplies<double>()));
+    return Parameter([par]() { return -par.get_value(); });
 }
 
 Parameter operator*(const Parameter &lhs, const Parameter &rhs)
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::multiplies<double>()));
+    return Parameter([lhs, rhs]() { return lhs.get_value() * rhs.get_value(); });
 }
 
 Parameter operator/(const Parameter &lhs, const Parameter &rhs)
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::divides<double>()));
+    return Parameter([lhs, rhs]() { return lhs.get_value() / rhs.get_value(); });
 }
 
 } // namespace op
