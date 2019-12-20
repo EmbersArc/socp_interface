@@ -6,20 +6,20 @@
 namespace op
 {
 
-Parameter::Parameter() : source(0), sourceType(ParameterSourceType::Constant) {}
+Parameter::Parameter() : source(0) {}
 
 Parameter::Parameter(double const_value)
-    : source(const_value), sourceType(ParameterSourceType::Constant) {}
+    : source(const_value) {}
 
 Parameter::Parameter(const double *dynamic_value_ptr)
-    : source(dynamic_value_ptr), sourceType(ParameterSourceType::Pointer)
+    : source(dynamic_value_ptr)
 {
     if (dynamic_value_ptr == nullptr)
         throw std::runtime_error("Parameter(nullptr), Null Pointer Error");
 }
 
 Parameter::Parameter(std::function<double()> callback)
-    : source(callback), sourceType(ParameterSourceType::Callback)
+    : source(callback)
 {
     if (!callback)
         throw std::runtime_error("Parameter(callback), Invalid Callback Error");
@@ -29,22 +29,15 @@ Parameter::~Parameter() {}
 
 double Parameter::get_value() const
 {
-    double value = 0.;
-
-    switch (sourceType)
+    switch (source.index())
     {
-    case ParameterSourceType::Constant:
-        value = std::get<0>(source);
-        break;
-    case ParameterSourceType::Pointer:
-        value = *std::get<1>(source);
-        break;
-    case ParameterSourceType::Callback:
-        value = std::get<2>(source)();
-        break;
+    case 0: // constant
+        return std::get<0>(source);
+    case 1: // pointer
+        return *std::get<1>(source);
+    default: // callback
+        return std::get<2>(source)();
     }
-
-    return value;
 }
 
 std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
@@ -53,29 +46,29 @@ std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
     return os;
 }
 
-Parameter operator+(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator+(const Parameter &par)
 {
-    return Parameter([lhs, rhs]() { return lhs.get_value() + rhs.get_value(); });
+    return Parameter([*this, par]() { return this->get_value() + par.get_value(); });
 }
 
-Parameter operator-(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator-(const Parameter &par)
 {
-    return Parameter([lhs, rhs]() { return lhs.get_value() - rhs.get_value(); });
+    return Parameter([*this, par]() { return this->get_value() - par.get_value(); });
 }
 
-Parameter operator-(const Parameter &par)
+Parameter Parameter::operator-()
 {
-    return Parameter([par]() { return -par.get_value(); });
+    return Parameter([*this]() { return -this->get_value(); });
 }
 
-Parameter operator*(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator*(const Parameter &par)
 {
-    return Parameter([lhs, rhs]() { return lhs.get_value() * rhs.get_value(); });
+    return Parameter([*this, par]() { return this->get_value() * par.get_value(); });
 }
 
-Parameter operator/(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator/(const Parameter &par)
 {
-    return Parameter([lhs, rhs]() { return lhs.get_value() / rhs.get_value(); });
+    return Parameter([*this, par]() { return this->get_value() / par.get_value(); });
 }
 
 } // namespace op
