@@ -14,10 +14,7 @@ enum class ParameterSourceType
     Constant,
     Pointer,
     Callback,
-    Operation
 };
-
-struct ParameterOperation;
 
 // Represents a parameter p_i in the opt-problem that can be changed between problem evaluations.
 // The parameter value can either be constant or dynamically accessed through a pointer or callback.
@@ -25,38 +22,42 @@ class Parameter
 {
     using parameter_variant_t = std::variant<double,
                                              const double *,
-                                             std::function<double()>,
-                                             std::shared_ptr<ParameterOperation>>;
+                                             std::function<double()>>;
     parameter_variant_t source;
     ParameterSourceType sourceType;
 
 public:
     Parameter();
-    Parameter(double const_value);
+    Parameter(const double const_value);
     explicit Parameter(const double *dynamic_value_ptr);
     explicit Parameter(std::function<double()> callback);
-    explicit Parameter(std::shared_ptr<ParameterOperation> operation);
     ~Parameter();
 
     double get_value() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);
 
-    friend Parameter operator+(const Parameter &lhs, const Parameter &rhs);
-    friend Parameter operator-(const Parameter &lhs, const Parameter &rhs);
-    friend Parameter operator-(const Parameter &par);
-    friend Parameter operator*(const Parameter &lhs, const Parameter &rhs);
-    friend Parameter operator/(const Parameter &lhs, const Parameter &rhs);
+    Parameter operator+(const Parameter &other) const;
+    Parameter operator-(const Parameter &other) const;
+    Parameter operator*(const Parameter &other) const;
+    Parameter operator/(const Parameter &other) const;
+    Parameter operator-() const;
 };
 
-struct ParameterOperation
+class ParameterMatrix
 {
-    ParameterOperation(const Parameter &lhs, const Parameter &rhs,
-                       const std::function<double(double, double)> &operation);
-    ~ParameterOperation();
-    std::pair<const Parameter, const Parameter> terms;
-    std::function<double(double, double)> operation;
-    double get_value() const;
+public:
+    explicit ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix);
+    size_t rows() const;
+    size_t cols() const;
+    std::pair<size_t, size_t> shape() const;
+    Parameter operator()(const size_t row, const size_t col) const;
+    ParameterMatrix operator+(const ParameterMatrix &other) const;
+    ParameterMatrix operator-(const ParameterMatrix &other) const;
+    ParameterMatrix operator*(const ParameterMatrix &other) const;
+
+private:
+    std::vector<std::vector<Parameter>> matrix;
 };
 
 } // namespace op

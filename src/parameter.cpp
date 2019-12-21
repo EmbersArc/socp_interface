@@ -2,13 +2,14 @@
 
 #include <sstream>
 #include <iostream>
+#include <cassert>
 
 namespace op
 {
 
 Parameter::Parameter() : source(0), sourceType(ParameterSourceType::Constant) {}
 
-Parameter::Parameter(double const_value)
+Parameter::Parameter(const double const_value)
     : source(const_value), sourceType(ParameterSourceType::Constant) {}
 
 Parameter::Parameter(const double *dynamic_value_ptr)
@@ -25,32 +26,19 @@ Parameter::Parameter(std::function<double()> callback)
         throw std::runtime_error("Parameter(callback), Invalid Callback Error");
 }
 
-Parameter::Parameter(std::shared_ptr<ParameterOperation> operation)
-    : source(operation), sourceType(ParameterSourceType::Operation) {}
-
 Parameter::~Parameter() {}
 
 double Parameter::get_value() const
 {
-    double value = 0.;
-
     switch (sourceType)
     {
     case ParameterSourceType::Constant:
-        value = std::get<0>(source);
-        break;
+        return std::get<0>(source);
     case ParameterSourceType::Pointer:
-        value = *std::get<1>(source);
-        break;
-    case ParameterSourceType::Callback:
-        value = std::get<2>(source)();
-        break;
-    case ParameterSourceType::Operation:
-        value = std::get<3>(source)->get_value();
-        break;
+        return *std::get<1>(source);
+    default: // case ParameterSourceType::Callback:
+        return std::get<2>(source)();
     }
-
-    return value;
 }
 
 std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
@@ -59,40 +47,111 @@ std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
     return os;
 }
 
-ParameterOperation::ParameterOperation(const Parameter &lhs, const Parameter &rhs,
-                                       const std::function<double(double, double)> &operation)
-    : terms(lhs, rhs), operation(operation) {}
-
-ParameterOperation::~ParameterOperation() {}
-
-double ParameterOperation::get_value() const
+Parameter Parameter::operator+(const Parameter &other) const
 {
-    return operation(terms.first.get_value(), terms.second.get_value());
+    return Parameter([*this, other]() { return this->get_value() + other.get_value(); });
 }
 
-Parameter operator+(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator-(const Parameter &other) const
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::plus<double>()));
+    return Parameter([*this, other]() { return this->get_value() - other.get_value(); });
 }
 
-Parameter operator-(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator-() const
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::minus<double>()));
+    return Parameter([*this]() { return -this->get_value(); });
 }
 
-Parameter operator-(const Parameter &par)
+Parameter Parameter::operator*(const Parameter &other) const
 {
-    return Parameter(std::make_shared<ParameterOperation>(-1.0, par, std::multiplies<double>()));
+    return Parameter([*this, other]() { return this->get_value() * other.get_value(); });
 }
 
-Parameter operator*(const Parameter &lhs, const Parameter &rhs)
+Parameter Parameter::operator/(const Parameter &other) const
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::multiplies<double>()));
+    return Parameter([*this, other]() { return this->get_value() / other.get_value(); });
 }
 
-Parameter operator/(const Parameter &lhs, const Parameter &rhs)
+ParameterMatrix::ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix)
 {
-    return Parameter(std::make_shared<ParameterOperation>(lhs, rhs, std::divides<double>()));
+    this->matrix = matrix;
+}
+
+size_t ParameterMatrix::rows() const
+{
+    return matrix.size();
+}
+
+size_t ParameterMatrix::cols() const
+{
+    return matrix.front().size();
+}
+
+std::pair<size_t, size_t> ParameterMatrix::shape() const
+{
+    return {rows(), cols()};
+}
+
+Parameter ParameterMatrix::operator()(const size_t row, const size_t col) const
+{
+    return matrix[row][col];
+}
+
+ParameterMatrix ParameterMatrix::operator+(const ParameterMatrix &other) const
+{
+    assert(shape() == other.shape());
+    std::vector<std::vector<Parameter>> result;
+    for (size_t row = 0; row < rows(); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            result_row.push_back(operator()(row, col) + other(row, col));
+        }
+        result.push_back(result_row);
+    }
+    return ParameterMatrix(result);
+}
+
+ParameterMatrix ParameterMatrix::operator-(const ParameterMatrix &other) const
+{
+    assert(shape() == other.shape());
+    std::vector<std::vector<Parameter>> result;
+    for (size_t row = 0; row < rows(); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            result_row.push_back(operator()(row, col) - other(row, col));
+        }
+        result.push_back(result_row);
+    }
+    return ParameterMatrix(result);
+}
+
+ParameterMatrix ParameterMatrix::operator*(const ParameterMatrix &other) const
+{
+    assert(cols() == other.rows());
+    std::vector<std::vector<Parameter>> result;
+    for (size_t row = 0; row < rows(); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < other.cols(); col++)
+        {
+            auto sum_operation = [row, col, this, &other]() {
+                double result = 0;
+                for (size_t inner = 0; inner < cols(); inner++)
+                {
+                    result += this->operator()(row, inner).get_value() *
+                              other(inner, col).get_value();
+                }
+                return result;
+            };
+            result_row.emplace_back(sum_operation);
+        }
+        result.push_back(result_row);
+    }
+    return ParameterMatrix(result);
 }
 
 } // namespace op
