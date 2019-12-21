@@ -3,7 +3,7 @@ project(socp_interface)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(TARGET_INCLUDE
     include
@@ -17,11 +17,10 @@ set(TARGET_INCLUDE_SYS
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
-    src/expression.cpp
-    src/constraint.cpp
-    src/optimizationProblem.cpp
-    src/secondOrderConeProgram.cpp
-    src/ecosWrapper.cpp
+    # src/expression.cpp
+    # src/constraint.cpp
+    # src/secondOrderConeProgram.cpp
+    # src/ecosWrapper.cpp
 )
 
 # ECOS
@@ -34,7 +33,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Wpedantic")
 add_library(socp_lib SHARED ${SOCP_SOURCES})
 target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
 target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
-# target_link_libraries(socp_lib Eigen3::Eigen)
+target_link_libraries(socp_lib Eigen3::Eigen)
 
 add_executable(example src/example.cpp)
 target_link_libraries(example socp_lib)

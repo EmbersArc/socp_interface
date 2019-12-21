@@ -1,18 +1,24 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include <utility>
+#include <cstddef>
 
 namespace op
 {
 
 // represents an optimization variable x_i
-struct Variable
+class Variable
 {
-    std::string name;
-    std::vector<size_t> tensor_indices;
-    size_t problem_index;
-    friend std::ostream& operator<<(std::ostream& os, const Variable& variable);
+};
+
+class VariableVector : public Variable
+{
+    size_t dimension;
+};
+
+class VariableMatrix : public Variable
+{
+    std::pair<size_t, size_t> dimension;
 };
 
 } // namespace op
