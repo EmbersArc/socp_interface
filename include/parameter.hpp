@@ -16,6 +16,8 @@ enum class ParameterSourceType
     Callback,
 };
 
+class ParameterMatrix;
+
 // Represents a parameter p_i in the opt-problem that can be changed between problem evaluations.
 // The parameter value can either be constant or dynamically accessed through a pointer or callback.
 class Parameter
@@ -42,6 +44,7 @@ public:
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
     Parameter operator-() const;
+    ParameterMatrix operator*(const ParameterMatrix &other) const;
 };
 
 class ParameterMatrix
@@ -55,6 +58,8 @@ public:
     ParameterMatrix operator+(const ParameterMatrix &other) const;
     ParameterMatrix operator-(const ParameterMatrix &other) const;
     ParameterMatrix operator*(const ParameterMatrix &other) const;
+    ParameterMatrix operator*(const Parameter &other) const;
+    ParameterMatrix operator/(const Parameter &other) const;
 
 private:
     std::vector<std::vector<Parameter>> matrix;

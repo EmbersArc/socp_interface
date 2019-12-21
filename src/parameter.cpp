@@ -57,11 +57,6 @@ Parameter Parameter::operator-(const Parameter &other) const
     return Parameter([*this, other]() { return this->get_value() - other.get_value(); });
 }
 
-Parameter Parameter::operator-() const
-{
-    return Parameter([*this]() { return -this->get_value(); });
-}
-
 Parameter Parameter::operator*(const Parameter &other) const
 {
     return Parameter([*this, other]() { return this->get_value() * other.get_value(); });
@@ -70,6 +65,16 @@ Parameter Parameter::operator*(const Parameter &other) const
 Parameter Parameter::operator/(const Parameter &other) const
 {
     return Parameter([*this, other]() { return this->get_value() / other.get_value(); });
+}
+
+Parameter Parameter::operator-() const
+{
+    return Parameter([*this]() { return -this->get_value(); });
+}
+
+ParameterMatrix Parameter::operator*(const ParameterMatrix &other) const
+{
+    return other * (*this);
 }
 
 ParameterMatrix::ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix)
@@ -148,6 +153,36 @@ ParameterMatrix ParameterMatrix::operator*(const ParameterMatrix &other) const
                 return result;
             };
             result_row.emplace_back(sum_operation);
+        }
+        result.push_back(result_row);
+    }
+    return ParameterMatrix(result);
+}
+
+ParameterMatrix ParameterMatrix::operator*(const Parameter &other) const
+{
+    std::vector<std::vector<Parameter>> result;
+    for (size_t row = 0; row < rows(); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            result_row.push_back(operator()(row, col) * other.get_value());
+        }
+        result.push_back(result_row);
+    }
+    return ParameterMatrix(result);
+}
+
+ParameterMatrix ParameterMatrix::operator/(const Parameter &other) const
+{
+    std::vector<std::vector<Parameter>> result;
+    for (size_t row = 0; row < rows(); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            result_row.push_back(operator()(row, col) / other.get_value());
         }
         result.push_back(result_row);
     }
