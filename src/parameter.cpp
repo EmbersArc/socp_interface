@@ -7,20 +7,20 @@
 namespace op
 {
 
-Parameter::Parameter() : source(0), sourceType(ParameterSourceType::Constant) {}
+Parameter::Parameter() : source(0) {}
 
 Parameter::Parameter(const double const_value)
-    : source(const_value), sourceType(ParameterSourceType::Constant) {}
+    : source(const_value) {}
 
 Parameter::Parameter(const double *dynamic_value_ptr)
-    : source(dynamic_value_ptr), sourceType(ParameterSourceType::Pointer)
+    : source(dynamic_value_ptr)
 {
     if (dynamic_value_ptr == nullptr)
         throw std::runtime_error("Parameter(nullptr), Null Pointer Error");
 }
 
 Parameter::Parameter(std::function<double()> callback)
-    : source(callback), sourceType(ParameterSourceType::Callback)
+    : source(callback)
 {
     if (!callback)
         throw std::runtime_error("Parameter(callback), Invalid Callback Error");
@@ -30,13 +30,13 @@ Parameter::~Parameter() {}
 
 double Parameter::get_value() const
 {
-    switch (sourceType)
+    switch (source.index())
     {
-    case ParameterSourceType::Constant:
+    case 0: // constant
         return std::get<0>(source);
-    case ParameterSourceType::Pointer:
+    case 1: // pointer
         return *std::get<1>(source);
-    default: // case ParameterSourceType::Callback:
+    default: // callback
         return std::get<2>(source)();
     }
 }

@@ -29,38 +29,20 @@ int main()
     // std::cout << operation1.get_value() << "\n";
 
     // Matrix:
-    // double param = 2.;
+    // Eigen::MatrixXd m1_eigen(20,30);
+    // m1_eigen.setIdentity();
+    // Eigen::MatrixXd m2_eigen(30,20);
+    // m2_eigen.setIdentity();
 
-    // op::Parameter one(1.);
-    // op::Parameter two(&param);
-    // op::Parameter three(3.);
-    // op::Parameter four(4.);
-    // op::Parameter five(5.);
-    // op::Parameter six(6.);
+    // op::ParameterMatrix m1(&m1_eigen);
+    // op::ParameterMatrix m2(&m2_eigen);
 
-    // op::ParameterMatrix m1({{one, two, three}, {four, five, six}});
-    // op::ParameterMatrix m2({{three, four}, {five, six}, {one, two}});
-
-    // Eigen::MatrixXd m1_eigen(2, 3);
-    // m1_eigen << 1, 2, 3, 4, 5, 6;
-    // Eigen::MatrixXd m2_eigen(3, 2);
-    // m2_eigen << 3, 4, 5, 6, 1, 2;
-
-    // std::cout << m1_eigen << "\n\n";
-    // std::cout << m2_eigen << "\n\n";
-    // std::cout << m1_eigen * m2_eigen << "\n\n";
+    // std::cout << "m_1_eigen: \n"
+    //           << m1_eigen << "\n\n";
+    // std::cout << "m2_eigen:\n"
+    //           << m2_eigen << "\n\n";
+    // std::cout << "result_eigen:\n"
+    //           << m1_eigen * m2_eigen << "\n\n";
 
     // op::ParameterMatrix result = m1 * m2;
-
-    // std::cout << result(0, 0).get_value() << result(0, 1).get_value() << "\n";
-    // std::cout << result(1, 0).get_value() << result(1, 1).get_value() << "\n";
-
-    // param *= 2;
-
-    // m1_eigen << 1, param, 3, 4, 5, 6;
-    // m2_eigen << 3, 4, 5, 6, 1, param;
-    // std::cout << m1_eigen * m2_eigen << "\n\n";
-
-    // std::cout << result(0, 0).get_value() << result(0, 1).get_value() << "\n";
-    // std::cout << result(1, 0).get_value() << result(1, 1).get_value() << "\n";
 }

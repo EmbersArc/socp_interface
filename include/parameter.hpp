@@ -6,15 +6,12 @@
 #include <variant>
 #include <memory>
 
+#ifdef EIGEN_AVAILABLE
+#include <Eigen/Dense>
+#endif
+
 namespace op
 {
-
-enum class ParameterSourceType
-{
-    Constant,
-    Pointer,
-    Callback,
-};
 
 class ParameterMatrix;
 
@@ -26,7 +23,6 @@ class Parameter
                                              const double *,
                                              std::function<double()>>;
     parameter_variant_t source;
-    ParameterSourceType sourceType;
 
 public:
     Parameter();
@@ -51,6 +47,14 @@ class ParameterMatrix
 {
 public:
     explicit ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix);
+
+#if EIGEN_AVAILABLE
+    template <typename Derived>
+    explicit ParameterMatrix(const Eigen::PlainObjectBase<Derived> &matrix);
+    template <typename Derived>
+    explicit ParameterMatrix(Eigen::PlainObjectBase<Derived> *matrix);
+#endif
+
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
@@ -64,5 +68,35 @@ public:
 private:
     std::vector<std::vector<Parameter>> matrix;
 };
+
+#ifdef EIGEN_AVAILABLE
+template <typename Derived>
+ParameterMatrix::ParameterMatrix(const Eigen::PlainObjectBase<Derived> &matrix)
+{
+    for (size_t row = 0; row < size_t(matrix.rows()); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < size_t(matrix.cols()); col++)
+        {
+            result_row.emplace_back(&matrix.coeff(row, col));
+        }
+        this->matrix.push_back(result_row);
+    }
+}
+
+template <typename Derived>
+ParameterMatrix::ParameterMatrix(Eigen::PlainObjectBase<Derived> *matrix)
+{
+    for (size_t row = 0; row < size_t(matrix->rows()); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < size_t(matrix->cols()); col++)
+        {
+            result_row.emplace_back(&matrix->coeff(row, col));
+        }
+        this->matrix.push_back(result_row);
+    }
+}
+#endif
 
 } // namespace op
