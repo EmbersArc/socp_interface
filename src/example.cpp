@@ -1,76 +1,66 @@
 #include "activeSolver.hpp"
 
 #include <iostream>
+#include <Eigen/Dense>
 
 // This example solves a simple second order cone problem
 
 int main()
 {
-    op::SecondOrderConeProgram socp;
+    // op::SecondOrderConeProgram socp;
 
-    // Create tensor variables:
-    // solution variable vector X with dimension 3 (more dimensions can be added as needed)
-    socp.createTensorVariable("X", {3 /*, 20, ...*/});
-    // upper bound of 2-norm of X
-    socp.createTensorVariable("norm2_X");
+    // op::Variable v_sigma = socp.createVariableScalar();
+    // op::Variable v_Delta = socp.createVariableVector(K);
+    // op::Variable v_X = socp.createVariableMatrix(Model::state_dim, td.n_X());
+    // op::Variable v_U = socp.createVariableMatrix(Model::input_dim, td.n_U());
 
-    // Define variables:
-    double x_max = 0.;
-    double y_max = -1.;
-    double z_min = 2.;
+    // Scalar:
+    // double param = 1.;
 
-    // Shortcut functions to access solver variables and create parameters
-    auto var = [&socp](const std::string &name, const std::vector<size_t> &indices = {}) { return socp.getVariable(name, indices); };
+    // op::Parameter scalar_parameter_constant(1.0);
+    // op::Parameter scalar_parameter_pointer(&param);
+    // op::Parameter scalar_parameter_callback([&param](){return 2. * param;});
 
-    op::AffineTerm test = var("X", {0}) * 1.0;
+    // op::Parameter operation1 = scalar_parameter_constant - scalar_parameter_pointer + scalar_parameter_callback;
 
-    // ||X||
-    std::vector<op::AffineExpression> norm2_args({1.0 * var("X", {0}),
-                                                  1.0 * var("X", {1}),
-                                                  1.0 * var("X", {2})});
-    op::Norm2 norm2_X = op::norm2(norm2_args);
-    // Add second order cone constraint:
-    // ||X|| <= norm2_X
-    socp.addConstraint(norm2_X <= 1.0 * var("norm2_X"));
+    // std::cout << operation1.get_value() << "\n";
 
-    // Add linear constraints:
-    // x_max >= X(0)
-    // y_max >= Y(1)
-    // z_min <= Z(2)
-    socp.addConstraint(-1.0 * var("X", {0}) + op::Parameter(&x_max) >= 0.);
-    socp.addConstraint(-1.0 * var("X", {1}) + op::Parameter(&y_max) >= 0.);
-    socp.addConstraint(1.0 * var("X", {2}) + -op::Parameter(&z_min) >= 0.);
+    // param = 5.;
+    // std::cout << operation1.get_value() << "\n";
 
-    // Objective:
-    // minimize ||X||
-    socp.addMinimizationTerm(1.0 * var("norm2_X"));
+    // Matrix:
+    // double param = 2.;
 
-    // Create solver
-    Solver solver(socp);
+    // op::Parameter one(1.);
+    // op::Parameter two(&param);
+    // op::Parameter three(3.);
+    // op::Parameter four(4.);
+    // op::Parameter five(5.);
+    // op::Parameter six(6.);
 
-    // Solve first problem
-    solver.solveProblem(true); // pass false for quiet solver
+    // op::ParameterMatrix m1({{one, two, three}, {four, five, six}});
+    // op::ParameterMatrix m2({{three, four}, {five, six}, {one, two}});
 
-    // Print solution variables
-    std::cout << "Result:\n"
-              << "X:  " << solver.getSolutionValue("X", {0}) << '\n'
-              << "Y:  " << solver.getSolutionValue("X", {1}) << '\n'
-              << "Z:  " << solver.getSolutionValue("X", {2}) << '\n';
+    // Eigen::MatrixXd m1_eigen(2, 3);
+    // m1_eigen << 1, 2, 3, 4, 5, 6;
+    // Eigen::MatrixXd m2_eigen(3, 2);
+    // m2_eigen << 3, 4, 5, 6, 1, 2;
 
-    // Change parameters
-    x_max = -1.;
-    y_max = -2.;
-    z_min = 3.;
+    // std::cout << m1_eigen << "\n\n";
+    // std::cout << m2_eigen << "\n\n";
+    // std::cout << m1_eigen * m2_eigen << "\n\n";
 
-    // Solve second problem with new parameters
-    solver.solveProblem(true);
+    // op::ParameterMatrix result = m1 * m2;
 
-    // It is also possible to index variables for performance
-    const unsigned int X0_index = socp.getTensorVariableIndex("X", {0});
-    const unsigned int X1_index = socp.getTensorVariableIndex("X", {1});
-    const unsigned int X2_index = socp.getTensorVariableIndex("X", {2});
-    std::cout << "Result:\n"
-              << "X:  " << solver.getSolutionValue(X0_index) << '\n'
-              << "Y:  " << solver.getSolutionValue(X1_index) << '\n'
-              << "Z:  " << solver.getSolutionValue(X2_index) << '\n';
+    // std::cout << result(0, 0).get_value() << result(0, 1).get_value() << "\n";
+    // std::cout << result(1, 0).get_value() << result(1, 1).get_value() << "\n";
+
+    // param *= 2;
+
+    // m1_eigen << 1, param, 3, 4, 5, 6;
+    // m2_eigen << 3, 4, 5, 6, 1, param;
+    // std::cout << m1_eigen * m2_eigen << "\n\n";
+
+    // std::cout << result(0, 0).get_value() << result(0, 1).get_value() << "\n";
+    // std::cout << result(1, 0).get_value() << result(1, 1).get_value() << "\n";
 }
