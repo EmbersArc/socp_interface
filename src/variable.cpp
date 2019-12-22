@@ -2,6 +2,23 @@
 
 namespace op
 {
+size_t VariableMatrix::rows() const
+{
+    return variables.size();
+}
+size_t VariableMatrix::cols() const
+{
+    return variables.front().size();
+}
+std::pair<size_t, size_t> VariableMatrix::shape() const
+{
+    return {rows(), cols()};
+}
+
+Variable VariableMatrix::operator()(const size_t row, const size_t col) const
+{
+    return variables[row][col];
+}
 
 std::ostream &operator<<(std::ostream &os, const Variable &variable)
 {

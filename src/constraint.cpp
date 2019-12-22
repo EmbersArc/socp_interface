@@ -15,6 +15,18 @@ EqualityConstraint operator==(const AffineExpression &affine, const double &zero
     return EqualityConstraint(affine);
 }
 
+std::vector<EqualityConstraint> operator==(const AffineMatrix &affine, const double &zero)
+{
+    assert(zero == 0.0);
+    assert(affine.cols() == 1);
+    std::vector<EqualityConstraint> constraints;
+    for (size_t row = 0; row < affine.cols(); row++)
+    {
+        constraints.push_back(affine(row, 0) == 0.0);
+    }
+    return constraints;
+}
+
 std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint)
 {
     os << constraint.affine << " == 0";
@@ -51,6 +63,23 @@ PositiveConstraint operator<=(const double &zero, const AffineExpression &affine
     return affine >= zero;
 }
 
+std::vector<PositiveConstraint> operator>=(const AffineMatrix &affine, const double &zero)
+{
+    assert(zero == 0.0);
+    assert(affine.cols() == 1);
+    std::vector<PositiveConstraint> constraints;
+    for (size_t row = 0; row < affine.cols(); row++)
+    {
+        constraints.push_back(affine(row, 0) >= 0.0);
+    }
+    return constraints;
+}
+
+std::vector<PositiveConstraint> operator<=(const double &zero, const AffineMatrix &affine)
+{
+    return affine >= zero;
+}
+
 SecondOrderConeConstraint::SecondOrderConeConstraint(const Norm2 &norm2, const AffineExpression &affine)
     : norm2(norm2), affine(affine) {}
 
@@ -70,9 +99,9 @@ SecondOrderConeConstraint operator<=(const Norm2 &norm2, const AffineExpression 
     return SecondOrderConeConstraint(norm2, affine);
 }
 
-SecondOrderConeConstraint operator>=(const AffineExpression &lhs, const Norm2 &rhs)
+SecondOrderConeConstraint operator>=(const AffineExpression &affine, const Norm2 &norm2)
 {
-    return rhs <= lhs;
+    return norm2 <= affine;
 }
 
 SecondOrderConeConstraint operator<=(const Norm2 &norm2, const double &constant)
@@ -80,9 +109,9 @@ SecondOrderConeConstraint operator<=(const Norm2 &norm2, const double &constant)
     return SecondOrderConeConstraint(norm2, Parameter(constant));
 }
 
-SecondOrderConeConstraint operator>=(const double &lhs, const Norm2 &rhs)
+SecondOrderConeConstraint operator>=(const double &constant, const Norm2 &norm2)
 {
-    return rhs <= lhs;
+    return norm2 <= constant;
 }
 
 } // namespace op

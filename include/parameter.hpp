@@ -43,6 +43,7 @@ public:
 class ParameterMatrix
 {
 public:
+    ParameterMatrix(const Parameter &parameter);
     explicit ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix);
 
 #if EIGEN_AVAILABLE

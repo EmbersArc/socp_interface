@@ -12,10 +12,12 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
     AffineExpression costFunction = Parameter();
 
-    void addConstraint(EqualityConstraint c);
-    void addConstraint(PositiveConstraint c);
-    void addConstraint(SecondOrderConeConstraint c);
-    void addMinimizationTerm(const AffineExpression &c);
+    void addConstraint(EqualityConstraint constraint);
+    void addConstraint(PositiveConstraint constraint);
+    void addConstraint(std::vector<EqualityConstraint> constraints);
+    void addConstraint(std::vector<PositiveConstraint> constraints);
+    void addConstraint(SecondOrderConeConstraint constraint);
+    void addMinimizationTerm(const AffineExpression &affine);
     void printProblem(std::ostream &out) const;
     bool feasibilityCheck(const std::vector<double> &soln_values) const;
 };

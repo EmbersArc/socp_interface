@@ -72,10 +72,11 @@ Parameter Parameter::operator-() const
     return Parameter([*this]() { return -this->get_value(); });
 }
 
+ParameterMatrix::ParameterMatrix(const Parameter &parameter)
+    : matrix({{parameter}}) {}
+
 ParameterMatrix::ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix)
-{
-    this->matrix = matrix;
-}
+    : matrix(matrix) {}
 
 size_t ParameterMatrix::rows() const
 {

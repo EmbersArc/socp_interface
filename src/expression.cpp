@@ -7,10 +7,14 @@
 namespace op
 {
 
-AffineTerm::AffineTerm(const Parameter &parameter) : parameter(parameter) {}
+AffineTerm::AffineTerm(const Parameter &parameter)
+    : parameter(parameter) {}
+AffineTerm::AffineTerm(const Variable &variable)
+    : parameter(1.0), variable(variable) {}
+AffineTerm::AffineTerm(const Parameter &parameter, const Variable &variable)
+    : parameter(parameter), variable(variable) {}
 
 AffineExpression::AffineExpression(const Parameter &parameter) : terms({parameter}) {}
-
 AffineExpression::AffineExpression(const AffineTerm &term) : terms{term} {}
 
 AffineMatrix::AffineMatrix(const AffineExpression &expression) : expressions({{expression}}) {}
@@ -55,10 +59,7 @@ double AffineExpression::evaluate(const std::vector<double> &soln_values) const
 
 AffineTerm operator*(const Parameter &parameter, const Variable &variable)
 {
-    AffineTerm affineTerm;
-    affineTerm.parameter = parameter;
-    affineTerm.variable = variable;
-    return affineTerm;
+    return AffineTerm(parameter, variable);
 }
 
 AffineTerm operator*(const Variable &variable, const Parameter &parameter)
@@ -68,10 +69,7 @@ AffineTerm operator*(const Variable &variable, const Parameter &parameter)
 
 AffineTerm operator*(const double &const_parameter, const Variable &variable)
 {
-    AffineTerm affineTerm;
-    affineTerm.parameter = Parameter(const_parameter);
-    affineTerm.variable = variable;
-    return affineTerm;
+    return AffineTerm(const_parameter, variable);
 }
 
 AffineTerm operator*(const Variable &variable, const double &const_parameter)
@@ -100,8 +98,14 @@ AffineExpression operator+(const double &lhs, const AffineExpression &rhs)
     return rhs + lhs;
 }
 
-Norm2::Norm2(const std::vector<AffineExpression> &affineExpressions)
-    : arguments(affineExpressions) {}
+Norm2::Norm2(const AffineMatrix &affineMatrix)
+{
+    assert(affineMatrix.rows() >= 1 and affineMatrix.cols() == 1);
+    for (const auto &row : affineMatrix.expressions)
+    {
+        arguments.push_back(row.front());
+    }
+}
 
 double Norm2::evaluate(const std::vector<double> &soln_values) const
 {
@@ -123,6 +127,80 @@ std::ostream &operator<<(std::ostream &os, const Norm2 &norm2)
     }
     os << " ])";
     return os;
+}
+
+size_t AffineMatrix::rows() const
+{
+    return expressions.size();
+}
+
+size_t AffineMatrix::cols() const
+{
+    return expressions.front().size();
+}
+
+std::pair<size_t, size_t> AffineMatrix::shape() const
+{
+    return {rows(), cols()};
+}
+
+AffineExpression AffineMatrix::operator()(const size_t row, const size_t col) const
+{
+    return expressions[row][col];
+}
+
+AffineMatrix operator+(const AffineMatrix &lhs, const AffineMatrix &rhs)
+{
+    assert(lhs.shape() == rhs.shape());
+    AffineMatrix result;
+    result.expressions = lhs.expressions;
+    for (size_t row = 0; row < lhs.rows(); row++)
+    {
+        for (size_t col = 0; col < lhs.cols(); col++)
+        {
+            result.expressions[row][col] = result(row, col) + rhs(row, col);
+        }
+    }
+    return result;
+}
+
+AffineMatrix operator*(const ParameterMatrix &parameter, const VariableMatrix &variable)
+{
+    assert(parameter.cols() == variable.rows());
+    AffineMatrix result;
+    for (size_t row = 0; row < parameter.rows(); row++)
+    {
+        std::vector<AffineExpression> expression_row;
+        for (size_t col = 0; col < variable.cols(); col++)
+        {
+            AffineExpression expression;
+            for (size_t inner = 0; inner < parameter.cols(); inner++)
+            {
+                AffineTerm term(parameter(row, inner), variable(inner, col));
+                expression.terms.push_back(term);
+            }
+            expression_row.push_back(expression);
+        }
+        result.expressions.push_back(expression_row);
+    }
+    return result;
+}
+
+AffineMatrix operator+(const ParameterMatrix &parameter, const VariableMatrix &variable)
+{
+    assert(parameter.shape() == variable.shape());
+    AffineMatrix result;
+    for (size_t row = 0; row < parameter.rows(); row++)
+    {
+        std::vector<AffineExpression> expression_row;
+        for (size_t col = 0; col < variable.cols(); col++)
+        {
+            AffineTerm term1(parameter(row, col));
+            AffineTerm term2(1.0, variable(row, col));
+            expression_row.push_back(term1 + term2);
+        }
+    }
+    return result;
 }
 
 } // namespace op

@@ -64,7 +64,9 @@ void error_check_affine_expression(const op::AffineExpression &affineExpression)
 
 op::Parameter get_constant_or_zero(const op::AffineExpression &affineExpression)
 {
-    auto constantIterator = std::find_if(affineExpression.terms.begin(), affineExpression.terms.end(), [](const auto &term) { return !term.variable; });
+    auto constantIterator = std::find_if(affineExpression.terms.begin(),
+                                         affineExpression.terms.end(),
+                                         [](const auto &term) { return !term.variable; });
     if (constantIterator != affineExpression.terms.end())
     {
         return constantIterator->parameter;

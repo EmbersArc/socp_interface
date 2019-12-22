@@ -6,24 +6,36 @@
 namespace op
 {
 
-void SecondOrderConeProgram::addConstraint(SecondOrderConeConstraint c)
+void SecondOrderConeProgram::addConstraint(EqualityConstraint constraint)
 {
-    secondOrderConeConstraints.push_back(c);
+    equalityConstraints.push_back(constraint);
 }
 
-void SecondOrderConeProgram::addConstraint(PositiveConstraint c)
+void SecondOrderConeProgram::addConstraint(PositiveConstraint constraint)
 {
-    PositiveConstraints.push_back(c);
+    PositiveConstraints.push_back(constraint);
 }
 
-void SecondOrderConeProgram::addConstraint(EqualityConstraint c)
+void SecondOrderConeProgram::addConstraint(std::vector<EqualityConstraint> constraints)
 {
-    equalityConstraints.push_back(c);
+    for (const EqualityConstraint &c : constraints)
+        addConstraint(c);
 }
 
-void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &c)
+void SecondOrderConeProgram::addConstraint(std::vector<PositiveConstraint> constraints)
 {
-    costFunction = costFunction + c;
+    for (const PositiveConstraint &c : constraints)
+        addConstraint(c);
+}
+
+void SecondOrderConeProgram::addConstraint(SecondOrderConeConstraint constraint)
+{
+    secondOrderConeConstraints.push_back(constraint);
+}
+
+void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &affine)
+{
+    costFunction = costFunction + affine;
 }
 
 void SecondOrderConeProgram::printProblem(std::ostream &out) const
@@ -74,12 +86,20 @@ bool SecondOrderConeProgram::feasibilityCheck(const std::vector<double> &soln_va
 {
     const double tol = 0.1;
     bool feasible = true;
-    auto check_feasibility = [&](const auto &constraint) { return feasibility_check_message(tol, constraint.evaluate(soln_values), constraint); };
-    auto check_feasibility_abs = [&](const auto &constraint) { return feasibility_check_message(tol, std::fabs(constraint.evaluate(soln_values)), constraint); };
+    auto check = [&](const auto &constraint) { return feasibility_check_message(
+                                                   tol, constraint.evaluate(soln_values), constraint); };
+    auto check_abs = [&](const auto &constraint) { return feasibility_check_message(
+                                                       tol, std::fabs(constraint.evaluate(soln_values)), constraint); };
 
-    feasible &= std::all_of(secondOrderConeConstraints.begin(), secondOrderConeConstraints.end(), check_feasibility);
-    feasible &= std::all_of(PositiveConstraints.begin(), PositiveConstraints.end(), check_feasibility);
-    feasible &= std::all_of(equalityConstraints.begin(), equalityConstraints.end(), check_feasibility_abs);
+    feasible &= std::all_of(secondOrderConeConstraints.begin(),
+                            secondOrderConeConstraints.end(),
+                            check);
+    feasible &= std::all_of(PositiveConstraints.begin(),
+                            PositiveConstraints.end(),
+                            check);
+    feasible &= std::all_of(equalityConstraints.begin(),
+                            equalityConstraints.end(),
+                            check_abs);
 
     return feasible;
 }

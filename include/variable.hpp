@@ -8,7 +8,7 @@
 namespace op
 {
 
-// represents an optimization variable x_i
+// An optimization variable x_i
 struct Variable
 {
     std::string name;
@@ -17,9 +17,12 @@ struct Variable
     friend std::ostream &operator<<(std::ostream &os, const Variable &variable);
 };
 
-class VariableMatrix
+struct VariableMatrix
 {
-    std::pair<size_t, size_t> dimension;
+    size_t rows() const;
+    size_t cols() const;
+    std::pair<size_t, size_t> shape() const;
+    Variable operator()(const size_t row, const size_t col) const;
     std::vector<std::vector<Variable>> variables;
 };
 
