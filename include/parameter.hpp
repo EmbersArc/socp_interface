@@ -13,8 +13,6 @@
 namespace op
 {
 
-class ParameterMatrix;
-
 // Represents a parameter p_i in the opt-problem that can be changed between problem evaluations.
 // The parameter value can either be constant or dynamically accessed through a pointer or callback.
 class Parameter
@@ -40,7 +38,6 @@ public:
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
     Parameter operator-() const;
-    ParameterMatrix operator*(const ParameterMatrix &other) const;
 };
 
 class ParameterMatrix
@@ -53,6 +50,8 @@ public:
     explicit ParameterMatrix(const Eigen::PlainObjectBase<Derived> &matrix);
     template <typename Derived>
     explicit ParameterMatrix(Eigen::PlainObjectBase<Derived> *matrix);
+    template <typename Derived>
+    explicit ParameterMatrix(std::function<Eigen::PlainObjectBase<Derived>()> matrix_function);
 #endif
 
     size_t rows() const;
@@ -64,6 +63,7 @@ public:
     ParameterMatrix operator*(const ParameterMatrix &other) const;
     ParameterMatrix operator*(const Parameter &other) const;
     ParameterMatrix operator/(const Parameter &other) const;
+    friend ParameterMatrix operator*(const Parameter &par, const ParameterMatrix &mat);
 
 private:
     std::vector<std::vector<Parameter>> matrix;
@@ -93,6 +93,21 @@ ParameterMatrix::ParameterMatrix(Eigen::PlainObjectBase<Derived> *matrix)
         for (size_t col = 0; col < size_t(matrix->cols()); col++)
         {
             result_row.emplace_back(&matrix->coeff(row, col));
+        }
+        this->matrix.push_back(result_row);
+    }
+}
+
+template <typename Derived>
+ParameterMatrix::ParameterMatrix(std::function<Eigen::PlainObjectBase<Derived>()> matrix_function)
+{
+    auto matrix = matrix_function();
+    for (size_t row = 0; row < size_t(matrix->rows()); row++)
+    {
+        std::vector<Parameter> result_row;
+        for (size_t col = 0; col < size_t(matrix->cols()); col++)
+        {
+            result_row.emplace_back(matrix->coeff(row, col));
         }
         this->matrix.push_back(result_row);
     }

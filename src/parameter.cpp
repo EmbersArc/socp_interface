@@ -72,11 +72,6 @@ Parameter Parameter::operator-() const
     return Parameter([*this]() { return -this->get_value(); });
 }
 
-ParameterMatrix Parameter::operator*(const ParameterMatrix &other) const
-{
-    return other * (*this);
-}
-
 ParameterMatrix::ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix)
 {
     this->matrix = matrix;
@@ -187,6 +182,11 @@ ParameterMatrix ParameterMatrix::operator/(const Parameter &other) const
         result.push_back(result_row);
     }
     return ParameterMatrix(result);
+}
+
+ParameterMatrix operator*(const Parameter &par, const ParameterMatrix &mat)
+{
+    return mat * par;
 }
 
 } // namespace op

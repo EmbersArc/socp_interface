@@ -17,10 +17,11 @@ set(TARGET_INCLUDE_SYS
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
-    # src/expression.cpp
-    # src/constraint.cpp
-    # src/secondOrderConeProgram.cpp
-    # src/ecosWrapper.cpp
+    src/expression.cpp
+    src/constraint.cpp
+    src/optimizationProblem.cpp
+    src/secondOrderConeProgram.cpp
+    src/ecosWrapper.cpp
 )
 
 # ECOS

@@ -29,20 +29,20 @@ int main()
     // std::cout << operation1.get_value() << "\n";
 
     // Matrix:
-    // Eigen::MatrixXd m1_eigen(20,30);
-    // m1_eigen.setIdentity();
-    // Eigen::MatrixXd m2_eigen(30,20);
-    // m2_eigen.setIdentity();
+    Eigen::MatrixXd m1_eigen(20,30);
+    m1_eigen.setIdentity();
+    Eigen::MatrixXd m2_eigen(30,20);
+    m2_eigen.setIdentity();
 
-    // op::ParameterMatrix m1(&m1_eigen);
-    // op::ParameterMatrix m2(&m2_eigen);
+    op::ParameterMatrix m1(&m1_eigen);
+    op::ParameterMatrix m2(&m2_eigen);
 
-    // std::cout << "m_1_eigen: \n"
-    //           << m1_eigen << "\n\n";
-    // std::cout << "m2_eigen:\n"
-    //           << m2_eigen << "\n\n";
-    // std::cout << "result_eigen:\n"
-    //           << m1_eigen * m2_eigen << "\n\n";
+    std::cout << "m_1_eigen: \n"
+              << m1_eigen << "\n\n";
+    std::cout << "m2_eigen:\n"
+              << m2_eigen << "\n\n";
+    std::cout << "result_eigen:\n"
+              << m1_eigen * m2_eigen << "\n\n";
 
-    // op::ParameterMatrix result = m1 * m2;
+    op::ParameterMatrix result = m1 * m2;
 }
