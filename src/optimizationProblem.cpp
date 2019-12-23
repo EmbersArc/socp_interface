@@ -8,10 +8,23 @@ namespace op
 
 size_t allocateVariableIndex();
 
-void GenericOptimizationProblem::createTensorVariable(const std::string &name,
-                                                      const std::vector<size_t> &dimensions)
+VariableMatrix GenericOptimizationProblem::createTensorVariable(const std::string &name,
+                                                                const std::vector<size_t> &dimensions)
 {
-    variables.insert({name, VariableMatrix(name, solution_vector.size(), {0, 0})});
+    assert(dimensions.size() <= 2);
+    std::pair<size_t, size_t> shape;
+    if (dimensions.empty())
+        shape = {1, 1};
+    if (dimensions.size() == 1)
+        shape = {dimensions[0], 1};
+    if (dimensions.size() == 2)
+        shape = {dimensions[0], dimensions[1]};
+
+    VariableMatrix variableMatrix(name, solution_vector.size(), shape);
+    variables.insert({name, variableMatrix});
+    solution_vector.resize(solution_vector.size() + shape.first * shape.second);
+
+    return variableMatrix;
 }
 
 size_t GenericOptimizationProblem::getNumVariables() const

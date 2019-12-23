@@ -7,12 +7,16 @@
 
 int main()
 {
-    // op::SecondOrderConeProgram socp;
+    op::SecondOrderConeProgram socp;
 
-    // op::Variable v_sigma = socp.createVariableScalar();
-    // op::Variable v_Delta = socp.createVariableVector(K);
-    // op::Variable v_X = socp.createVariableMatrix(Model::state_dim, td.n_X());
-    // op::Variable v_U = socp.createVariableMatrix(Model::input_dim, td.n_U());
+    op::VariableMatrix v_a = socp.createTensorVariable("a");
+    // op::VariableMatrix v_M = socp.createTensorVariable("M", {5, 5});
+
+    double par = 5.;
+    op::Parameter param(par);
+
+    socp.addConstraint(op::Parameter(1.0) * v_a + op::Parameter(1.0) * param >= 0);
+    socp.addMinimizationTerm(1.0 * v_a);
 
     // Scalar:
     // double param = 1.;
@@ -29,20 +33,20 @@ int main()
     // std::cout << operation1.get_value() << "\n";
 
     // Matrix:
-    Eigen::MatrixXd m1_eigen(20,30);
-    m1_eigen.setIdentity();
-    Eigen::MatrixXd m2_eigen(30,20);
-    m2_eigen.setIdentity();
+    // Eigen::MatrixXd m1_eigen(20,30);
+    // m1_eigen.setIdentity();
+    // Eigen::MatrixXd m2_eigen(30,20);
+    // m2_eigen.setIdentity();
 
-    op::ParameterMatrix m1(&m1_eigen);
-    op::ParameterMatrix m2(&m2_eigen);
+    // op::ParameterMatrix m1(&m1_eigen);
+    // op::ParameterMatrix m2(&m2_eigen);
 
-    std::cout << "m_1_eigen: \n"
-              << m1_eigen << "\n\n";
-    std::cout << "m2_eigen:\n"
-              << m2_eigen << "\n\n";
-    std::cout << "result_eigen:\n"
-              << m1_eigen * m2_eigen << "\n\n";
+    // std::cout << "m_1_eigen: \n"
+    //           << m1_eigen << "\n\n";
+    // std::cout << "m2_eigen:\n"
+    //           << m2_eigen << "\n\n";
+    // std::cout << "result_eigen:\n"
+    //           << m1_eigen * m2_eigen << "\n\n";
 
-    op::ParameterMatrix result = m1 * m2;
+    // op::ParameterMatrix result = m1 * m2;
 }

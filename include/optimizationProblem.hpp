@@ -11,7 +11,7 @@ namespace op
 class GenericOptimizationProblem
 {
 public:
-    void createTensorVariable(const std::string &name, const std::vector<size_t> &dimensions = {});
+    VariableMatrix createTensorVariable(const std::string &name, const std::vector<size_t> &dimensions = {});
     size_t getNumVariables() const;
     void readSolution(const std::string &name,
                       std::vector<std::vector<double>> &solution);
