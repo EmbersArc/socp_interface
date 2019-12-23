@@ -22,6 +22,7 @@ class VariableMatrix
 {
 public:
     VariableMatrix() = default;
+    VariableMatrix(const Variable &variable);
     VariableMatrix(const std::string &name, size_t start_index,
                    const std::pair<size_t, size_t> shape);
 

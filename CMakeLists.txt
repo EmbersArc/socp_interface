@@ -20,8 +20,8 @@ set(SOCP_SOURCES
     src/expression.cpp
     src/constraint.cpp
     src/optimizationProblem.cpp
-    # src/secondOrderConeProgram.cpp
-    # src/ecosWrapper.cpp
+    src/secondOrderConeProgram.cpp
+    src/ecosWrapper.cpp
 )
 
 # ECOS

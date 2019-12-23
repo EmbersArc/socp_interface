@@ -8,23 +8,23 @@ namespace op
 
 size_t allocateVariableIndex();
 
-VariableMatrix GenericOptimizationProblem::createTensorVariable(const std::string &name,
-                                                                const std::vector<size_t> &dimensions)
+VariableMatrix GenericOptimizationProblem::createVariableMatrix(const std::string &name,
+                                                                size_t rows, size_t cols)
 {
-    assert(dimensions.size() <= 2);
-    std::pair<size_t, size_t> shape;
-    if (dimensions.empty())
-        shape = {1, 1};
-    if (dimensions.size() == 1)
-        shape = {dimensions[0], 1};
-    if (dimensions.size() == 2)
-        shape = {dimensions[0], dimensions[1]};
-
-    VariableMatrix variableMatrix(name, solution_vector.size(), shape);
+    VariableMatrix variableMatrix(name, solution_vector.size(), {rows, cols});
     variables.insert({name, variableMatrix});
-    solution_vector.resize(solution_vector.size() + shape.first * shape.second);
+    solution_vector.resize(solution_vector.size() + rows * cols);
 
     return variableMatrix;
+}
+
+Variable GenericOptimizationProblem::createVariable(const std::string &name)
+{
+    Variable variable(name, solution_vector.size());
+    variables.insert({name, VariableMatrix(variable)});
+    solution_vector.resize(solution_vector.size() + 1);
+
+    return variable;
 }
 
 size_t GenericOptimizationProblem::getNumVariables() const
@@ -36,6 +36,20 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
                                               std::vector<std::vector<double>> &solution)
 {
     const VariableMatrix &variable = variables[name];
+    readSolution(variable, solution);
+}
+
+void GenericOptimizationProblem::readSolution(const std::string &name,
+                                              double &solution)
+{
+    const VariableMatrix &variable = variables[name];
+    assert(variable.shape() == {1, 1});
+    readSolution(variable(0, 0), solution);
+}
+
+void GenericOptimizationProblem::readSolution(const VariableMatrix &variable,
+                                              std::vector<std::vector<double>> &solution)
+{
     solution.clear();
     for (size_t row = 0; row < variable.rows(); row++)
     {
@@ -46,6 +60,12 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
         }
         solution.push_back(solution_row);
     }
+}
+
+void GenericOptimizationProblem::readSolution(const Variable &variable,
+                                              double &solution)
+{
+    solution = solution_vector[variable.problem_index];
 }
 
 } // end namespace op

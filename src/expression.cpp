@@ -45,7 +45,7 @@ std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
     for (size_t i = 0; i < expression.terms.size(); i++)
     {
         if (i > 0)
-            os << "  + ";
+            os << " + ";
         os << expression.terms[i];
     }
     return os;
@@ -118,14 +118,14 @@ double Norm2::evaluate(const std::vector<double> &soln_values) const
 
 std::ostream &operator<<(std::ostream &os, const Norm2 &norm2)
 {
-    os << "norm2([ ";
+    os << "norm2([";
     for (size_t i = 0; i < norm2.arguments.size(); i++)
     {
         if (i > 0)
             os << ", ";
         os << norm2.arguments[i];
     }
-    os << " ])";
+    os << "])";
     return os;
 }
 

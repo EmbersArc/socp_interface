@@ -153,12 +153,11 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
     ecos_b.clear();
 
     /* ECOS size parameters */
-    ecos_solution_vector.resize(socp.getNumVariables());
     ecos_n_variables = socp.getNumVariables();
     ecos_n_cone_constraints = socp.secondOrderConeConstraints.size();
     ecos_n_equalities = socp.equalityConstraints.size();
-    ecos_n_positive_constraints = socp.PositiveConstraints.size();
-    ecos_n_constraint_rows = socp.PositiveConstraints.size();
+    ecos_n_positive_constraints = socp.positiveConstraints.size();
+    ecos_n_constraint_rows = socp.positiveConstraints.size();
     ecos_n_exponential_cones = 0; // Exponential cones are not supported.
     for (const auto &cone : socp.secondOrderConeConstraints)
     {
@@ -175,7 +174,7 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
             error_check_affine_expression(affine_expression);
         }
     }
-    for (const auto &PositiveConstraint : socp.PositiveConstraints)
+    for (const auto &PositiveConstraint : socp.positiveConstraints)
     {
         error_check_affine_expression(PositiveConstraint.affine);
     }
@@ -211,7 +210,7 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
 
         size_t row_index = 0;
 
-        for (const auto &PositiveConstraint : socp.PositiveConstraints)
+        for (const auto &PositiveConstraint : socp.positiveConstraints)
         {
             h[row_index] = get_constant_or_zero(PositiveConstraint.affine);
             copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, PositiveConstraint.affine, row_index);
@@ -300,7 +299,7 @@ int EcosWrapper::solveProblem(bool verbose)
         // copy solution
         for (int i = 0; i < ecos_n_variables; i++)
         {
-            ecos_solution_vector[i] = mywork->x[i];
+            socp.solution_vector[i] = mywork->x[i];
         }
 
         ECOS_cleanup(mywork, 0);
@@ -311,26 +310,4 @@ int EcosWrapper::solveProblem(bool verbose)
     }
 
     return ecos_exitflag;
-}
-
-double EcosWrapper::getSolutionValue(size_t problem_index) const
-{
-    return ecos_solution_vector[problem_index];
-}
-
-double EcosWrapper::getSolutionValue(const std::string &name, const std::vector<size_t> &indices)
-{
-    return ecos_solution_vector[socp.getVariable(name, indices).problem_index];
-}
-
-std::vector<double> EcosWrapper::getSolutionVector() const
-{
-    if (ecos_n_variables > 0 && ecos_solution_vector.size() == size_t(ecos_n_variables))
-    {
-        return ecos_solution_vector;
-    }
-    else
-    {
-        throw std::runtime_error("getSolutionVector(): Solution unavailable.");
-    }
 }

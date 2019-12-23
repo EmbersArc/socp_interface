@@ -8,7 +8,7 @@ namespace op
 struct SecondOrderConeProgram : public GenericOptimizationProblem
 {
     std::vector<EqualityConstraint> equalityConstraints;
-    std::vector<PositiveConstraint> PositiveConstraints;
+    std::vector<PositiveConstraint> positiveConstraints;
     std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
     AffineExpression costFunction = Parameter();
 
@@ -20,6 +20,8 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     void addMinimizationTerm(const AffineExpression &affine);
     void printProblem(std::ostream &out) const;
     bool feasibilityCheck(const std::vector<double> &soln_values) const;
+
+    friend std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp);
 };
 
 } // namespace op

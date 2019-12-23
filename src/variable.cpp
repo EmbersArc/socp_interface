@@ -8,6 +8,12 @@ namespace op
 Variable::Variable(const std::string &name, size_t problem_index)
     : name(name), problem_index(problem_index) {}
 
+VariableMatrix::VariableMatrix(const Variable &variable)
+{
+    variables.resize(1);
+    variables.front().push_back(variable);
+}
+
 VariableMatrix::VariableMatrix(const std::string &name, size_t start_index,
                                const std::pair<size_t, size_t> shape) : name(name)
 {

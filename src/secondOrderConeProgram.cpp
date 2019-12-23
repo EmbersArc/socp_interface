@@ -13,7 +13,7 @@ void SecondOrderConeProgram::addConstraint(EqualityConstraint constraint)
 
 void SecondOrderConeProgram::addConstraint(PositiveConstraint constraint)
 {
-    PositiveConstraints.push_back(constraint);
+    positiveConstraints.push_back(constraint);
 }
 
 void SecondOrderConeProgram::addConstraint(std::vector<EqualityConstraint> constraints)
@@ -38,36 +38,46 @@ void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &affine)
     costFunction = costFunction + affine;
 }
 
-void SecondOrderConeProgram::printProblem(std::ostream &out) const
+std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp)
 {
-    out << "Minimize"
-        << "\n";
-    out << costFunction << "\n";
+    os << "Minimize:"
+       << "\n";
+    os << socp.costFunction << "\n";
 
-    out << "\n"
-        << "Subject to equality constraints"
-        << "\n";
-    for (const auto &equalityConstraint : equalityConstraints)
+    if (not socp.equalityConstraints.empty())
     {
-        out << equalityConstraint << "\n";
+        os << "\n"
+           << "Subject to equality constraints:"
+           << "\n";
+        for (const auto &equalityConstraint : socp.equalityConstraints)
+        {
+            os << equalityConstraint << "\n";
+        }
     }
 
-    out << "\n"
-        << "Subject to linear inequalities"
-        << "\n";
-    for (const auto &PositiveConstraint : PositiveConstraints)
+    if (not socp.positiveConstraints.empty())
     {
-        out << PositiveConstraint << "\n";
+        os << "\n"
+           << "Subject to linear inequalities:"
+           << "\n";
+        for (const auto &PositiveConstraint : socp.positiveConstraints)
+        {
+            os << PositiveConstraint << "\n";
+        }
     }
 
-    out << "\n"
-        << "Subject to cone constraints"
-        << "\n";
-    for (const auto &secondOrderConeConstraint : secondOrderConeConstraints)
+    if (not socp.secondOrderConeConstraints.empty())
     {
-        out << secondOrderConeConstraint << "\n";
+        os << "\n"
+           << "Subject to cone constraints:"
+           << "\n";
+        for (const auto &secondOrderConeConstraint : socp.secondOrderConeConstraints)
+        {
+            os << secondOrderConeConstraint << "\n";
+        }
     }
-}
+    return os;
+} // namespace op
 
 template <typename T>
 bool feasibility_check_message(double tol, double val, const T &constraint)
@@ -94,8 +104,8 @@ bool SecondOrderConeProgram::feasibilityCheck(const std::vector<double> &soln_va
     feasible &= std::all_of(secondOrderConeConstraints.begin(),
                             secondOrderConeConstraints.end(),
                             check);
-    feasible &= std::all_of(PositiveConstraints.begin(),
-                            PositiveConstraints.end(),
+    feasible &= std::all_of(positiveConstraints.begin(),
+                            positiveConstraints.end(),
                             check);
     feasible &= std::all_of(equalityConstraints.begin(),
                             equalityConstraints.end(),

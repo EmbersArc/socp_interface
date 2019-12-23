@@ -40,9 +40,6 @@ class EcosWrapper
     std::vector<op::Parameter> ecos_h;
     std::vector<op::Parameter> ecos_b;
 
-    /* ECOS result */
-    std::vector<double> ecos_solution_vector;
-
 public:
     explicit EcosWrapper(op::SecondOrderConeProgram &_socp);
 

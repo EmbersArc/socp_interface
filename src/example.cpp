@@ -9,14 +9,25 @@ int main()
 {
     op::SecondOrderConeProgram socp;
 
-    op::VariableMatrix v_a = socp.createTensorVariable("a");
+    op::Variable v_a = socp.createVariable("a");
     // op::VariableMatrix v_M = socp.createTensorVariable("M", {5, 5});
 
-    double par = 5.;
+    double par = 1.0;
     op::Parameter param(par);
 
-    socp.addConstraint(op::Parameter(1.0) * v_a + op::Parameter(1.0) * param >= 0);
+    socp.addConstraint(op::Parameter(1.0) * v_a + op::Parameter(-5.0) * param >= 0);
     socp.addMinimizationTerm(1.0 * v_a);
+
+    EcosWrapper solver(socp);
+
+    solver.solveProblem(true);
+
+    double solution;
+    socp.readSolution(v_a, solution);
+
+    std::cout << socp << "\n";
+
+    std::cout << solution << "\n";
 
     // Scalar:
     // double param = 1.;
