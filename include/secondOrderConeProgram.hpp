@@ -17,9 +17,10 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     void addConstraint(std::vector<EqualityConstraint> constraints);
     void addConstraint(std::vector<PositiveConstraint> constraints);
     void addConstraint(SecondOrderConeConstraint constraint);
+    
     void addMinimizationTerm(const AffineExpression &affine);
-    void printProblem(std::ostream &out) const;
-    bool feasibilityCheck(const std::vector<double> &soln_values) const;
+
+    bool isFeasible() const;
 
     friend std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp);
 };

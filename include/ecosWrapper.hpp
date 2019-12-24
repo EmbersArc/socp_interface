@@ -44,8 +44,4 @@ public:
     explicit EcosWrapper(op::SecondOrderConeProgram &_socp);
 
     int solveProblem(bool verbose = false);
-
-    double getSolutionValue(size_t problem_index) const;
-    double getSolutionValue(const std::string &name, const std::vector<size_t> &indices);
-    std::vector<double> getSolutionVector() const;
 };

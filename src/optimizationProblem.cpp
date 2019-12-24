@@ -43,7 +43,7 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
                                               double &solution)
 {
     const VariableMatrix &variable = variables[name];
-    assert(variable.shape() == {1, 1});
+    assert(variable.rows() == 1 and variable.cols() == 1);
     readSolution(variable(0, 0), solution);
 }
 

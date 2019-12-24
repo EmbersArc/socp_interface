@@ -15,7 +15,10 @@ int main()
     double par = 1.0;
     op::Parameter param(par);
 
-    socp.addConstraint(op::Parameter(1.0) * v_a + op::Parameter(-5.0) * param >= 0);
+    socp.addConstraint(op::Parameter(-1.0) * v_a + op::Parameter(2.0) * param >= 0);
+
+    // socp.addConstraint(op::Norm2(op::AffineMatrix(op::Parameter(1.0) * v_a)) <= 0);
+
     socp.addMinimizationTerm(1.0 * v_a);
 
     EcosWrapper solver(socp);
@@ -28,6 +31,7 @@ int main()
     std::cout << socp << "\n";
 
     std::cout << solution << "\n";
+    std::cout << socp.isFeasible() << "\n";
 
     // Scalar:
     // double param = 1.;

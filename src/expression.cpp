@@ -101,10 +101,7 @@ AffineExpression operator+(const double &lhs, const AffineExpression &rhs)
 Norm2::Norm2(const AffineMatrix &affineMatrix)
 {
     assert(affineMatrix.rows() >= 1 and affineMatrix.cols() == 1);
-    for (const auto &row : affineMatrix.expressions)
-    {
-        arguments.push_back(row.front());
-    }
+    arguments = affineMatrix.expressions.front();
 }
 
 double Norm2::evaluate(const std::vector<double> &soln_values) const
@@ -176,8 +173,8 @@ AffineMatrix operator*(const ParameterMatrix &parameter, const VariableMatrix &v
             AffineExpression expression;
             for (size_t inner = 0; inner < parameter.cols(); inner++)
             {
-                AffineTerm term(parameter(row, inner), variable(inner, col));
-                expression.terms.push_back(term);
+                expression.terms.emplace_back(parameter(row, inner),
+                                              variable(inner, col));
             }
             expression_row.push_back(expression);
         }
