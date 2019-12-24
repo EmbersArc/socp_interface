@@ -168,7 +168,7 @@ AffineMatrix operator*(const ParameterMatrix &parameter, const VariableMatrix &v
     for (size_t row = 0; row < parameter.rows(); row++)
     {
         std::vector<AffineExpression> expression_row;
-        for (size_t col = 0; col < variable.cols(); col++)
+        for (size_t col = 0; col < parameter.cols(); col++)
         {
             AffineExpression expression;
             for (size_t inner = 0; inner < parameter.cols(); inner++)
@@ -190,11 +190,25 @@ AffineMatrix operator+(const ParameterMatrix &parameter, const VariableMatrix &v
     for (size_t row = 0; row < parameter.rows(); row++)
     {
         std::vector<AffineExpression> expression_row;
-        for (size_t col = 0; col < variable.cols(); col++)
+        for (size_t col = 0; col < parameter.cols(); col++)
         {
             AffineTerm term1(parameter(row, col));
             AffineTerm term2(1.0, variable(row, col));
             expression_row.push_back(term1 + term2);
+        }
+    }
+    return result;
+}
+
+AffineMatrix operator+(const ParameterMatrix &parameter, const AffineMatrix &affine)
+{
+    assert(parameter.shape() == affine.shape());
+    AffineMatrix result = affine;
+    for (size_t row = 0; row < parameter.rows(); row++)
+    {
+        for (size_t col = 0; col < parameter.cols(); col++)
+        {
+            result.expressions[row][col] = result.expressions[row][col] + parameter(row, col);
         }
     }
     return result;

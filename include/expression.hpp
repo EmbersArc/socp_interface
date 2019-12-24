@@ -70,4 +70,6 @@ AffineMatrix operator+(const AffineMatrix &lhs, const AffineMatrix &rhs);
 AffineMatrix operator*(const ParameterMatrix &parameter, const VariableMatrix &variable);
 AffineMatrix operator+(const ParameterMatrix &parameter, const VariableMatrix &variable);
 
+AffineMatrix operator+(const ParameterMatrix &parameter, const AffineMatrix &affine);
+
 } // namespace op
