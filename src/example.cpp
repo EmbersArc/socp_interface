@@ -3,65 +3,53 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-// This example solves a simple second order cone problem
+// This example solves a simple random second order cone problem
 
 int main()
 {
-    op::SecondOrderConeProgram socp;
+    const size_t n = 3;
+    const size_t p = 3;
+    const size_t n_i = 3;
 
-    op::Variable v_a = socp.createVariable("a");
-    // op::VariableMatrix v_M = socp.createTensorVariable("M", {5, 5});
+    Eigen::VectorXd f(n);
+    f.setRandom();
 
-    double par = 1.0;
-    op::Parameter param(par);
+    Eigen::VectorXd x0(n);
+    x0.setRandom();
 
-    socp.addConstraint(op::Parameter(-1.0) * v_a + op::Parameter(2.0) * param >= 0);
+    Eigen::MatrixXd A(n_i, n);
+    A.setRandom();
+    Eigen::VectorXd b(n_i);
+    b.setRandom();
+    Eigen::VectorXd c(n_i);
+    c.setRandom();
+    double d = (A * x0).norm() - c.dot(x0);
 
-    // socp.addConstraint(op::Norm2(op::AffineMatrix(op::Parameter(1.0) * v_a)) <= 0);
+    std::cout << "A :\n"
+              << A << "\n\n"
+              << "b :\n"
+              << b << "\n\n"
+              << "c :\n"
+              << c << "\n\n"
+              << "d :\n"
+              << d << "\n\n";
 
-    socp.addMinimizationTerm(1.0 * v_a);
+    Eigen::MatrixXd F(p, n);
+    Eigen::VectorXd g = F * x0;
 
-    EcosWrapper solver(socp);
+    std::cout << "F :\n"
+              << A << "\n\n"
+              << "g :\n"
+              << d << "\n\n";
 
-    solver.solveProblem(true);
+    std::cout << "Expected solution: " << x0 << "\n";
 
-    double solution;
-    socp.readSolution(v_a, solution);
+    // op::SecondOrderConeProgram socp;
 
-    std::cout << socp << "\n";
+    // op::VariableMatrix x = socp.createVariableMatrix("x", n);
 
-    std::cout << solution << "\n";
-    std::cout << socp.isFeasible() << "\n";
+    // socp.addConstraint(op::Norm2(op::Parameter(b) + op::Parameter(A) * x) <= op::Parameter(c.T) * x + op::Parameter(d));
+    // socp.addConstraint(op::Parameter(F) * x == op::Parameter(g));
 
-    // Scalar:
-    // double param = 1.;
-
-    // op::Parameter scalar_parameter_constant(1.0);
-    // op::Parameter scalar_parameter_pointer(&param);
-    // op::Parameter scalar_parameter_callback([&param](){return 2. * param;});
-
-    // op::Parameter operation1 = scalar_parameter_constant - scalar_parameter_pointer + scalar_parameter_callback;
-
-    // std::cout << operation1.get_value() << "\n";
-
-    // param = 5.;
-    // std::cout << operation1.get_value() << "\n";
-
-    // Matrix:
-    // Eigen::MatrixXd m1_eigen(20,30);
-    // m1_eigen.setIdentity();
-    // Eigen::MatrixXd m2_eigen(30,20);
-    // m2_eigen.setIdentity();
-
-    // op::ParameterMatrix m1(&m1_eigen);
-    // op::ParameterMatrix m2(&m2_eigen);
-
-    // std::cout << "m_1_eigen: \n"
-    //           << m1_eigen << "\n\n";
-    // std::cout << "m2_eigen:\n"
-    //           << m2_eigen << "\n\n";
-    // std::cout << "result_eigen:\n"
-    //           << m1_eigen * m2_eigen << "\n\n";
-
-    // op::ParameterMatrix result = m1 * m2;
+    // socp.addMinimizationTerm(op::Parameter(f) * x)
 }
