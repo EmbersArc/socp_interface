@@ -55,7 +55,28 @@ std::pair<size_t, size_t> Parameter::shape() const
 
 ValueSource Parameter::operator()(const size_t row, const size_t col) const
 {
+    assert(row < rows() and col < cols());
     return source_matrix[row][col];
+}
+
+double Parameter::getValue(const size_t row, const size_t col) const
+{
+    return source_matrix[row][col].getValue();
+}
+
+std::vector<std::vector<double>> Parameter::getValues() const
+{
+    std::vector<std::vector<double>> result_matrix;
+    for (size_t row = 0; row < rows(); row++)
+    {
+        std::vector<double> result_row;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            result_row.push_back(getValue(row, col));
+        }
+        result_matrix.push_back(result_row);
+    }
+    return result_matrix;
 }
 
 Parameter Parameter::operator+(const Parameter &other) const
