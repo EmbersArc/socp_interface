@@ -68,7 +68,7 @@ Parameter Parameter::operator+(const Parameter &other) const
         std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto add_op = [=]() { return operator()(row, col) + other(row, col); };
+            auto add_op = [=]() { return operator()(row, col).getValue() + other(row, col).getValue(); };
             result_row.emplace_back(add_op);
         }
         sources.push_back(result_row);
@@ -86,7 +86,7 @@ Parameter Parameter::operator-(const Parameter &other) const
         std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto subtract_op = [=]() { return operator()(row, col) - other(row, col); };
+            auto subtract_op = [=]() { return operator()(row, col).getValue() - other(row, col).getValue(); };
             result_row.emplace_back(subtract_op);
         }
         sources.push_back(result_row);
@@ -135,7 +135,7 @@ Parameter Parameter::operator/(const Parameter &other) const
         std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto divide_op = [=]() { return operator()(row, col) / other(); };
+            auto divide_op = [=]() { return operator()(row, col).getValue() / other().getValue(); };
             result_row.emplace_back(divide_op);
         }
         sources.push_back(result_row);

@@ -10,5 +10,5 @@ int main()
 
     op::Parameter result_scalar = scalar_param_const * scalar_param_ptr;
 
-    std::cout << result_scalar.getValue() << "\n";
+    std::cout << result_scalar().getValue() << "\n";
 }
