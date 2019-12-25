@@ -58,12 +58,14 @@ std::pair<size_t, size_t> Parameter::shape() const
 
 value_source_ptr_t Parameter::operator()(const size_t row, const size_t col) const
 {
+    assert(not(rows() == 0 or cols() == 0));
+    assert(row < rows() and col < cols());
     return source_matrix.at(row).at(col);
 }
 
 double Parameter::getValue(const size_t row, const size_t col) const
 {
-    return source_matrix[row][col]->getValue();
+    return operator()(row, col)->getValue();
 }
 
 std::vector<std::vector<double>> Parameter::getValues() const
@@ -83,6 +85,8 @@ std::vector<std::vector<double>> Parameter::getValues() const
 
 Parameter Parameter::operator+(const Parameter &other) const
 {
+    std::cout << "Building addition..."
+              << "\n";
     assert(shape() == other.shape());
     value_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
@@ -90,16 +94,22 @@ Parameter Parameter::operator+(const Parameter &other) const
         value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto add_op = [=]() { return operator()(row, col)->getValue() + other(row, col)->getValue(); };
+            value_source_ptr_t var1 = operator()(row, col);
+            value_source_ptr_t var2 = other(row, col);
+            auto add_op = [=]() { return var1->getValue() + var2->getValue(); };
             result_row.push_back(std::make_shared<ValueSource>(add_op));
         }
         sources.push_back(result_row);
     }
+    std::cout << "Output Matrix shape: " << sources.size() << "," << sources.front().size()
+              << "\n\n";
     return Parameter(sources);
 }
 
 Parameter Parameter::operator-(const Parameter &other) const
 {
+    std::cout << "Building subtraction..."
+              << "\n";
     assert(shape() == other.shape());
 
     value_source_matrix_t sources;
@@ -108,16 +118,22 @@ Parameter Parameter::operator-(const Parameter &other) const
         value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto subtract_op = [=]() { return operator()(row, col)->getValue() - other(row, col)->getValue(); };
+            value_source_ptr_t var1 = operator()(row, col);
+            value_source_ptr_t var2 = other(row, col);
+            auto subtract_op = [=]() { return var1->getValue() - var2->getValue(); };
             result_row.push_back(std::make_shared<ValueSource>(subtract_op));
         }
         sources.push_back(result_row);
     }
+    std::cout << "Output Matrix shape: " << sources.size() << "," << sources.front().size()
+              << "\n\n";
     return Parameter(sources);
 }
 
 Parameter Parameter::operator*(const Parameter &other) const
 {
+    std::cout << "Building multiplication..."
+              << "\n";
     bool first_matrix = rows() > 1 or cols() > 1;
     bool second_matrix = other.rows() > 1 or other.cols() > 1;
     bool both_matrix = first_matrix and second_matrix;
@@ -132,11 +148,17 @@ Parameter Parameter::operator*(const Parameter &other) const
         value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
+            std::shared_ptr<value_source_vector_t> row_vector = std::make_shared<value_source_vector_t>(source_matrix[row]);
+            std::shared_ptr<value_source_vector_t> column_vector;
+            for (size_t inner = 0; inner < cols(); inner++)
+            {
+                column_vector->emplace_back(other(row, inner));
+            }
             auto sum_opt = [=]() {
                 double element = 0;
                 for (size_t inner = 0; inner < cols(); inner++)
                 {
-                    element += operator()(inner, row)->getValue() * other(row, inner)->getValue();
+                    element += row_vector->at(inner)->getValue() * column_vector->at(inner)->getValue();
                 }
                 return element;
             };
@@ -144,11 +166,15 @@ Parameter Parameter::operator*(const Parameter &other) const
         }
         sources.push_back(result_row);
     }
+    std::cout << "Output Matrix shape: " << sources.size() << "," << sources.front().size()
+              << "\n\n";
     return Parameter(sources);
 }
 
 Parameter Parameter::operator/(const Parameter &other) const
 {
+    std::cout << "Building division..."
+              << "\n";
     assert(other.rows() == 1 and other.cols() == 1);
 
     value_source_matrix_t sources;
@@ -163,6 +189,8 @@ Parameter Parameter::operator/(const Parameter &other) const
         sources.push_back(result_row);
     }
     return Parameter(sources);
+    std::cout << "Output Matrix shape: " << sources.size() << "," << sources.front().size()
+              << "\n\n";
 }
 
 } // namespace op
