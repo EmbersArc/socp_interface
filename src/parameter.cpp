@@ -30,13 +30,16 @@ double ValueSource::getValue() const
 }
 
 Parameter::Parameter(const double const_value)
-    : source_matrix({{ValueSource(const_value)}}) {}
+    : source_matrix({{std::make_shared<ValueSource>(const_value)}}) {}
 
 Parameter::Parameter(double *value_ptr)
-    : source_matrix({{ValueSource(value_ptr)}}) {}
+    : source_matrix({{std::make_shared<ValueSource>(value_ptr)}}) {}
 
-Parameter::Parameter(const std::vector<std::vector<ValueSource>> &sources)
-    : source_matrix(sources) {}
+Parameter::Parameter(const value_source_matrix_t &sources)
+    : source_matrix(sources)
+{
+    assert(not sources.empty());
+}
 
 size_t Parameter::rows() const
 {
@@ -53,15 +56,14 @@ std::pair<size_t, size_t> Parameter::shape() const
     return {rows(), cols()};
 }
 
-ValueSource Parameter::operator()(const size_t row, const size_t col) const
+value_source_ptr_t Parameter::operator()(const size_t row, const size_t col) const
 {
-    assert(row < rows() and col < cols());
-    return source_matrix[row][col];
+    return source_matrix.at(row).at(col);
 }
 
 double Parameter::getValue(const size_t row, const size_t col) const
 {
-    return source_matrix[row][col].getValue();
+    return source_matrix[row][col]->getValue();
 }
 
 std::vector<std::vector<double>> Parameter::getValues() const
@@ -82,15 +84,14 @@ std::vector<std::vector<double>> Parameter::getValues() const
 Parameter Parameter::operator+(const Parameter &other) const
 {
     assert(shape() == other.shape());
-
-    std::vector<std::vector<ValueSource>> sources;
+    value_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<ValueSource> result_row;
+        value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto add_op = [=]() { return operator()(row, col).getValue() + other(row, col).getValue(); };
-            result_row.emplace_back(add_op);
+            auto add_op = [=]() { return operator()(row, col)->getValue() + other(row, col)->getValue(); };
+            result_row.push_back(std::make_shared<ValueSource>(add_op));
         }
         sources.push_back(result_row);
     }
@@ -101,14 +102,14 @@ Parameter Parameter::operator-(const Parameter &other) const
 {
     assert(shape() == other.shape());
 
-    std::vector<std::vector<ValueSource>> sources;
+    value_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<ValueSource> result_row;
+        value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto subtract_op = [=]() { return operator()(row, col).getValue() - other(row, col).getValue(); };
-            result_row.emplace_back(subtract_op);
+            auto subtract_op = [=]() { return operator()(row, col)->getValue() - other(row, col)->getValue(); };
+            result_row.push_back(std::make_shared<ValueSource>(subtract_op));
         }
         sources.push_back(result_row);
     }
@@ -125,21 +126,21 @@ Parameter Parameter::operator*(const Parameter &other) const
         assert(cols() == other.rows());
     }
 
-    std::vector<std::vector<ValueSource>> sources;
+    value_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<ValueSource> result_row;
+        value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
             auto sum_opt = [=]() {
                 double element = 0;
                 for (size_t inner = 0; inner < cols(); inner++)
                 {
-                    element += operator()(inner, row).getValue() * other(row, inner).getValue();
+                    element += operator()(inner, row)->getValue() * other(row, inner)->getValue();
                 }
                 return element;
             };
-            result_row.emplace_back(sum_opt);
+            result_row.push_back(std::make_shared<ValueSource>(sum_opt));
         }
         sources.push_back(result_row);
     }
@@ -150,14 +151,14 @@ Parameter Parameter::operator/(const Parameter &other) const
 {
     assert(other.rows() == 1 and other.cols() == 1);
 
-    std::vector<std::vector<ValueSource>> sources;
+    value_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<ValueSource> result_row;
+        value_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto divide_op = [=]() { return operator()(row, col).getValue() / other().getValue(); };
-            result_row.emplace_back(divide_op);
+            auto divide_op = [=]() { return operator()(row, col)->getValue() / other()->getValue(); };
+            result_row.push_back(std::make_shared<ValueSource>(divide_op));
         }
         sources.push_back(result_row);
     }
