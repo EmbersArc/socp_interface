@@ -13,104 +13,75 @@
 namespace op
 {
 
-// Represents a parameter p_i in the opt-problem that can be changed between problem evaluations.
-// The parameter value can either be constant or dynamically accessed through a pointer or callback.
-class Parameter
+class ValueSource
 {
-    using parameter_variant_t = std::variant<double,
-                                             const double *,
-                                             std::function<double()>>;
-    parameter_variant_t source;
-
 public:
-    Parameter();
-    Parameter(const double const_value);
-    explicit Parameter(const double *dynamic_value_ptr);
-    explicit Parameter(std::function<double()> callback);
-    ~Parameter();
+    explicit ValueSource(const double const_value);
+    explicit ValueSource(double *value_ptr);
+    explicit ValueSource(std::function<double()> callback);
 
-    double get_value() const;
+    double getValue() const;
 
-    friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);
-
-    Parameter operator+(const Parameter &other) const;
-    Parameter operator-(const Parameter &other) const;
-    Parameter operator*(const Parameter &other) const;
-    Parameter operator/(const Parameter &other) const;
-    Parameter operator-() const;
+private:
+    using source_variant_t = std::variant<double,
+                                          const double *,
+                                          std::function<double()>>;
+    source_variant_t source;
 };
 
-class ParameterMatrix
+class Parameter
 {
 public:
-    ParameterMatrix(const Parameter &parameter);
-    explicit ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix);
+    explicit Parameter(const double const_value);
+    explicit Parameter(double *value_ptr);
+    explicit Parameter(const std::vector<std::vector<ValueSource>> &sources);
 
 #if EIGEN_AVAILABLE
     template <typename Derived>
-    explicit ParameterMatrix(const Eigen::PlainObjectBase<Derived> &matrix);
+    explicit Parameter(const Eigen::PlainObjectBase<Derived> &matrix);
     template <typename Derived>
-    explicit ParameterMatrix(Eigen::PlainObjectBase<Derived> *matrix);
-    template <typename Derived>
-    explicit ParameterMatrix(std::function<Eigen::PlainObjectBase<Derived>()> matrix_function);
+    explicit Parameter(const Eigen::PlainObjectBase<Derived> *matrix);
 #endif
 
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
-    Parameter operator()(const size_t row, const size_t col) const;
-    ParameterMatrix operator+(const ParameterMatrix &other) const;
-    ParameterMatrix operator-(const ParameterMatrix &other) const;
-    ParameterMatrix operator*(const ParameterMatrix &other) const;
-    ParameterMatrix operator*(const Parameter &other) const;
-    ParameterMatrix operator/(const Parameter &other) const;
-    friend ParameterMatrix operator*(const Parameter &par, const ParameterMatrix &mat);
+    Parameter operator+(const Parameter &other) const;
+    Parameter operator-(const Parameter &other) const;
+    Parameter operator*(const Parameter &other) const;
+    Parameter operator/(const Parameter &other) const;
+    double getValue(const size_t row = 1, const size_t col = 1) const;
+    std::vector<std::vector<double>> getValues() const;
 
 private:
-    std::vector<std::vector<Parameter>> matrix;
+    std::vector<std::vector<ValueSource>> source_matrix;
 };
 
 #ifdef EIGEN_AVAILABLE
 template <typename Derived>
-ParameterMatrix::ParameterMatrix(const Eigen::PlainObjectBase<Derived> &matrix)
+Parameter::Parameter(const Eigen::PlainObjectBase<Derived> &matrix)
 {
     for (size_t row = 0; row < size_t(matrix.rows()); row++)
     {
-        std::vector<Parameter> result_row;
+        std::vector<ValueSource> result_row;
         for (size_t col = 0; col < size_t(matrix.cols()); col++)
         {
-            result_row.emplace_back(&matrix.coeff(row, col));
+            result_row.emplace_back(matrix.coeff(row, col));
         }
-        this->matrix.push_back(result_row);
+        this->source_matrix.push_back(result_row);
     }
 }
-
 template <typename Derived>
-ParameterMatrix::ParameterMatrix(Eigen::PlainObjectBase<Derived> *matrix)
+Parameter::Parameter(const Eigen::PlainObjectBase<Derived> *matrix)
 {
     for (size_t row = 0; row < size_t(matrix->rows()); row++)
     {
-        std::vector<Parameter> result_row;
+        std::vector<ValueSource> result_row;
         for (size_t col = 0; col < size_t(matrix->cols()); col++)
         {
             result_row.emplace_back(&matrix->coeff(row, col));
         }
-        this->matrix.push_back(result_row);
-    }
-}
-
-template <typename Derived>
-ParameterMatrix::ParameterMatrix(std::function<Eigen::PlainObjectBase<Derived>()> matrix_function)
-{
-    auto matrix = matrix_function();
-    for (size_t row = 0; row < size_t(matrix->rows()); row++)
-    {
-        std::vector<Parameter> result_row;
-        for (size_t col = 0; col < size_t(matrix->cols()); col++)
-        {
-            result_row.emplace_back(matrix->coeff(row, col));
-        }
-        this->matrix.push_back(result_row);
+        this->source_matrix.push_back(result_row);
     }
 }
 #endif

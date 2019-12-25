@@ -19,7 +19,6 @@ struct EqualityConstraint
 };
 
 EqualityConstraint operator==(const AffineExpression &affine, const double &zero);
-std::vector<EqualityConstraint> operator==(const AffineMatrix &affine, const double &zero);
 
 // represents a constraint like
 //     p_1*x_1 + p_2*x_2 + ... + b >= 0
@@ -32,10 +31,6 @@ struct PositiveConstraint
 };
 
 PositiveConstraint operator>=(const AffineExpression &affine, const double &zero);
-PositiveConstraint operator<=(const double &zero, const AffineExpression &affine);
-
-std::vector<PositiveConstraint> operator>=(const AffineMatrix &affine, const double &zero);
-std::vector<PositiveConstraint> operator<=(const double &zero, const AffineMatrix &affine);
 
 // represents a constraint like
 //      norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
@@ -50,9 +45,6 @@ struct SecondOrderConeConstraint
 };
 
 SecondOrderConeConstraint operator<=(const Norm2 &norm2, const AffineExpression &affine);
-SecondOrderConeConstraint operator>=(const AffineExpression &affine, const Norm2 &norm2);
-
 SecondOrderConeConstraint operator<=(const Norm2 &norm2, const double &constant);
-SecondOrderConeConstraint operator>=(const double &constant, const Norm2 &norm2);
 
 } // namespace op

@@ -7,187 +7,140 @@
 namespace op
 {
 
-Parameter::Parameter() : source(0) {}
-
-Parameter::Parameter(const double const_value)
+ValueSource::ValueSource(const double const_value)
     : source(const_value) {}
 
-Parameter::Parameter(const double *dynamic_value_ptr)
-    : source(dynamic_value_ptr)
-{
-    if (dynamic_value_ptr == nullptr)
-        throw std::runtime_error("Parameter(nullptr), Null Pointer Error");
-}
+ValueSource::ValueSource(double *value_ptr)
+    : source(value_ptr) {}
 
-Parameter::Parameter(std::function<double()> callback)
-    : source(callback)
-{
-    if (!callback)
-        throw std::runtime_error("Parameter(callback), Invalid Callback Error");
-}
+ValueSource::ValueSource(std::function<double()> callback)
+    : source(callback) {}
 
-Parameter::~Parameter() {}
-
-double Parameter::get_value() const
+double ValueSource::getValue() const
 {
     switch (source.index())
     {
-    case 0: // constant
+    case 0:
         return std::get<0>(source);
-    case 1: // pointer
+    case 1:
         return *std::get<1>(source);
-    default: // callback
+    default:
         return std::get<2>(source)();
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
+Parameter::Parameter(const double const_value)
+    : source_matrix({{ValueSource(const_value)}}) {}
+
+Parameter::Parameter(double *value_ptr)
+    : source_matrix({{ValueSource(value_ptr)}}) {}
+
+Parameter::Parameter(const std::vector<std::vector<ValueSource>> &sources)
+    : source_matrix(sources) {}
+
+size_t Parameter::rows() const
 {
-    os << "(" << parameter.get_value() << ")";
-    return os;
+    return source_matrix.size();
 }
 
-Parameter Parameter::operator+(const Parameter &other) const
+size_t Parameter::cols() const
 {
-    return Parameter([*this, other]() { return this->get_value() + other.get_value(); });
+    return source_matrix.front().size();
 }
 
-Parameter Parameter::operator-(const Parameter &other) const
-{
-    return Parameter([*this, other]() { return this->get_value() - other.get_value(); });
-}
-
-Parameter Parameter::operator*(const Parameter &other) const
-{
-    return Parameter([*this, other]() { return this->get_value() * other.get_value(); });
-}
-
-Parameter Parameter::operator/(const Parameter &other) const
-{
-    return Parameter([*this, other]() { return this->get_value() / other.get_value(); });
-}
-
-Parameter Parameter::operator-() const
-{
-    return Parameter([*this]() { return -this->get_value(); });
-}
-
-ParameterMatrix::ParameterMatrix(const Parameter &parameter)
-    : matrix({{parameter}}) {}
-
-ParameterMatrix::ParameterMatrix(const std::vector<std::vector<Parameter>> &matrix)
-    : matrix(matrix) {}
-
-size_t ParameterMatrix::rows() const
-{
-    return matrix.size();
-}
-
-size_t ParameterMatrix::cols() const
-{
-    return matrix.front().size();
-}
-
-std::pair<size_t, size_t> ParameterMatrix::shape() const
+std::pair<size_t, size_t> Parameter::shape() const
 {
     return {rows(), cols()};
 }
 
-Parameter ParameterMatrix::operator()(const size_t row, const size_t col) const
+double Parameter::getValue(const size_t row, const size_t col) const
 {
-    return matrix[row][col];
+    return source_matrix[row][col].getValue();
 }
 
-ParameterMatrix ParameterMatrix::operator+(const ParameterMatrix &other) const
+Parameter Parameter::operator+(const Parameter &other) const
 {
     assert(shape() == other.shape());
-    std::vector<std::vector<Parameter>> result;
+
+    std::vector<std::vector<ValueSource>> sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<Parameter> result_row;
+        std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            result_row.push_back(operator()(row, col) + other(row, col));
+            auto add_op = [*this, other, row, col]() { return getValue(row, col) + other.getValue(row, col); };
+            result_row.emplace_back(add_op);
         }
-        result.push_back(result_row);
+        sources.push_back(result_row);
     }
-    return ParameterMatrix(result);
+    return Parameter(sources);
 }
 
-ParameterMatrix ParameterMatrix::operator-(const ParameterMatrix &other) const
+Parameter Parameter::operator-(const Parameter &other) const
 {
     assert(shape() == other.shape());
-    std::vector<std::vector<Parameter>> result;
+
+    std::vector<std::vector<ValueSource>> sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<Parameter> result_row;
+        std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            result_row.push_back(operator()(row, col) - other(row, col));
+            auto subtract_op = [=]() { return getValue(row, col) - other.getValue(row, col); };
+            result_row.emplace_back(subtract_op);
         }
-        result.push_back(result_row);
+        sources.push_back(result_row);
     }
-    return ParameterMatrix(result);
+    return Parameter(sources);
 }
 
-ParameterMatrix ParameterMatrix::operator*(const ParameterMatrix &other) const
+Parameter Parameter::operator*(const Parameter &other) const
 {
-    assert(cols() == other.rows());
-    std::vector<std::vector<Parameter>> result;
+    bool first_matrix = rows() > 1 or cols() > 1;
+    bool second_matrix = other.rows() > 1 or other.cols() > 1;
+    bool both_matrix = first_matrix and second_matrix;
+    if (both_matrix)
+    {
+        assert(cols() == other.rows());
+    }
+
+    std::vector<std::vector<ValueSource>> sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<Parameter> result_row;
-        for (size_t col = 0; col < other.cols(); col++)
+        std::vector<ValueSource> result_row;
+        for (size_t col = 0; col < cols(); col++)
         {
-            auto sum_operation = [row, col, this, &other]() {
-                double result = 0;
+            auto sum_opt = [=]() {
+                double element = 0;
                 for (size_t inner = 0; inner < cols(); inner++)
                 {
-                    result += this->operator()(row, inner).get_value() *
-                              other(inner, col).get_value();
+                    element += getValue(inner, row) * other.getValue(row, inner);
                 }
-                return result;
+                return element;
             };
-            result_row.emplace_back(sum_operation);
+            result_row.emplace_back(sum_opt);
         }
-        result.push_back(result_row);
+        sources.push_back(result_row);
     }
-    return ParameterMatrix(result);
+    return Parameter(sources);
 }
 
-ParameterMatrix ParameterMatrix::operator*(const Parameter &other) const
+Parameter Parameter::operator/(const Parameter &other) const
 {
-    std::vector<std::vector<Parameter>> result;
+    assert(other.rows() == 1 and other.cols() == 1);
+
+    std::vector<std::vector<ValueSource>> sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<Parameter> result_row;
+        std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            result_row.push_back(operator()(row, col) * other.get_value());
+            auto divide_op = [=]() { return getValue(row, col) / other.getValue(); };
+            result_row.emplace_back(divide_op);
         }
-        result.push_back(result_row);
+        sources.push_back(result_row);
     }
-    return ParameterMatrix(result);
-}
-
-ParameterMatrix ParameterMatrix::operator/(const Parameter &other) const
-{
-    std::vector<std::vector<Parameter>> result;
-    for (size_t row = 0; row < rows(); row++)
-    {
-        std::vector<Parameter> result_row;
-        for (size_t col = 0; col < cols(); col++)
-        {
-            result_row.push_back(operator()(row, col) / other.get_value());
-        }
-        result.push_back(result_row);
-    }
-    return ParameterMatrix(result);
-}
-
-ParameterMatrix operator*(const Parameter &par, const ParameterMatrix &mat)
-{
-    return mat * par;
+    return Parameter(sources);
 }
 
 } // namespace op
