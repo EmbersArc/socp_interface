@@ -50,7 +50,7 @@ public:
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
-    double getValue(const size_t row = 1, const size_t col = 1) const;
+    ValueSource operator()(const size_t row = 1, const size_t col = 1) const;
     std::vector<std::vector<double>> getValues() const;
 
 private:

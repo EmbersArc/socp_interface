@@ -53,9 +53,9 @@ std::pair<size_t, size_t> Parameter::shape() const
     return {rows(), cols()};
 }
 
-double Parameter::getValue(const size_t row, const size_t col) const
+ValueSource Parameter::operator()(const size_t row, const size_t col) const
 {
-    return source_matrix[row][col].getValue();
+    return source_matrix[row][col];
 }
 
 Parameter Parameter::operator+(const Parameter &other) const
@@ -68,7 +68,7 @@ Parameter Parameter::operator+(const Parameter &other) const
         std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto add_op = [*this, other, row, col]() { return getValue(row, col) + other.getValue(row, col); };
+            auto add_op = [=]() { return operator()(row, col) + other(row, col); };
             result_row.emplace_back(add_op);
         }
         sources.push_back(result_row);
@@ -86,7 +86,7 @@ Parameter Parameter::operator-(const Parameter &other) const
         std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto subtract_op = [=]() { return getValue(row, col) - other.getValue(row, col); };
+            auto subtract_op = [=]() { return operator()(row, col) - other(row, col); };
             result_row.emplace_back(subtract_op);
         }
         sources.push_back(result_row);
@@ -114,7 +114,7 @@ Parameter Parameter::operator*(const Parameter &other) const
                 double element = 0;
                 for (size_t inner = 0; inner < cols(); inner++)
                 {
-                    element += getValue(inner, row) * other.getValue(row, inner);
+                    element += operator()(inner, row).getValue() * other(row, inner).getValue();
                 }
                 return element;
             };
@@ -135,7 +135,7 @@ Parameter Parameter::operator/(const Parameter &other) const
         std::vector<ValueSource> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto divide_op = [=]() { return getValue(row, col) / other.getValue(); };
+            auto divide_op = [=]() { return operator()(row, col) / other(); };
             result_row.emplace_back(divide_op);
         }
         sources.push_back(result_row);
