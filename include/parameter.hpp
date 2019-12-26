@@ -34,7 +34,7 @@ private:
 };
 
 using value_source_ptr_t = std::shared_ptr<ValueSource>;
-using value_source_vector_t = std::vector<value_source_ptr_t>;
+using value_source_vector_t = std::vector<ValueSource>;
 using value_source_matrix_t = std::vector<value_source_vector_t>;
 
 class Parameter
@@ -58,7 +58,7 @@ public:
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
-    value_source_ptr_t operator()(const size_t row = 0, const size_t col = 0) const;
+    ValueSource operator()(const size_t row = 0, const size_t col = 0) const;
     double getValue(const size_t row = 0, const size_t col = 0) const;
     std::vector<std::vector<double>> getValues() const;
 

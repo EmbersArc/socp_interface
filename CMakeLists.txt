@@ -37,7 +37,7 @@ target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
 
 if(${EIGEN3_FOUND})
     message("Eigen found.")
-    # add_definitions(-DEIGEN_AVAILABLE)
+    add_definitions(-DEIGEN_AVAILABLE)
 endif()
 
 target_link_libraries(socp_lib Eigen3::Eigen)
