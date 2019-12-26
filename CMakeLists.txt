@@ -16,7 +16,7 @@ set(TARGET_INCLUDE_SYS
 
 set(SOCP_SOURCES
     src/parameter.cpp
-    # src/variable.cpp
+    src/variable.cpp
     # src/expression.cpp
     # src/constraint.cpp
     # src/optimizationProblem.cpp

@@ -7,16 +7,16 @@
 namespace op
 {
 
-ValueSource::ValueSource(const double const_value)
+ParameterSource::ParameterSource(const double const_value)
     : source(const_value) {}
 
-ValueSource::ValueSource(double *value_ptr)
+ParameterSource::ParameterSource(double *value_ptr)
     : source(value_ptr) {}
 
-ValueSource::ValueSource(std::function<double()> callback)
+ParameterSource::ParameterSource(std::function<double()> callback)
     : source(callback) {}
 
-double ValueSource::getValue() const
+double ParameterSource::getValue() const
 {
     switch (source.index())
     {
@@ -30,12 +30,12 @@ double ValueSource::getValue() const
 }
 
 Parameter::Parameter(const double const_value)
-    : source_matrix({{ValueSource(const_value)}}) {}
+    : source_matrix({{ParameterSource(const_value)}}) {}
 
 Parameter::Parameter(double *value_ptr)
-    : source_matrix({{ValueSource(value_ptr)}}) {}
+    : source_matrix({{ParameterSource(value_ptr)}}) {}
 
-Parameter::Parameter(const value_source_matrix_t &sources)
+Parameter::Parameter(const parameter_source_matrix_t &sources)
     : source_matrix(sources)
 {
     assert(not sources.empty());
@@ -56,7 +56,7 @@ std::pair<size_t, size_t> Parameter::shape() const
     return {rows(), cols()};
 }
 
-ValueSource Parameter::operator()(const size_t row, const size_t col) const
+ParameterSource Parameter::operator()(const size_t row, const size_t col) const
 {
     assert(not(rows() == 0 or cols() == 0));
     assert(row < rows() and col < cols());
@@ -86,15 +86,15 @@ std::vector<std::vector<double>> Parameter::getValues() const
 Parameter Parameter::operator+(const Parameter &other) const
 {
     assert(shape() == other.shape());
-    value_source_matrix_t sources;
+    parameter_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        value_source_vector_t result_row;
+        parameter_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto var1 = std::make_shared<ValueSource>();
+            auto var1 = std::make_shared<ParameterSource>();
             *var1 = operator()(row, col);
-            auto var2 = std::make_shared<ValueSource>();
+            auto var2 = std::make_shared<ParameterSource>();
             *var2 = other(row, col);
             auto add_op = [=]() { return var1->getValue() + var2->getValue(); };
             result_row.emplace_back(add_op);
@@ -108,15 +108,15 @@ Parameter Parameter::operator-(const Parameter &other) const
 {
     assert(shape() == other.shape());
 
-    value_source_matrix_t sources;
+    parameter_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        value_source_vector_t result_row;
+        parameter_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto var1 = std::make_shared<ValueSource>();
+            auto var1 = std::make_shared<ParameterSource>();
             *var1 = operator()(row, col);
-            auto var2 = std::make_shared<ValueSource>();
+            auto var2 = std::make_shared<ParameterSource>();
             *var2 = other(row, col);
             auto subtract_op = [=]() { return var1->getValue() - var2->getValue(); };
             result_row.emplace_back(subtract_op);
@@ -126,28 +126,28 @@ Parameter Parameter::operator-(const Parameter &other) const
     return Parameter(sources);
 }
 
-value_source_matrix_t multiplyScalars(const Parameter &scalar1, const Parameter &scalar2)
+parameter_source_matrix_t multiplyScalars(const Parameter &scalar1, const Parameter &scalar2)
 {
-    auto var1 = std::make_shared<ValueSource>();
+    auto var1 = std::make_shared<ParameterSource>();
     *var1 = scalar1();
-    auto var2 = std::make_shared<ValueSource>();
+    auto var2 = std::make_shared<ParameterSource>();
     *var2 = scalar2();
     auto multiply_op = [=]() { return var1->getValue() * var2->getValue(); };
 
-    return {{ValueSource(multiply_op)}};
+    return {{ParameterSource(multiply_op)}};
 }
 
-value_source_matrix_t scaleMatrix(const Parameter &scalar, const Parameter &matrix)
+parameter_source_matrix_t scaleMatrix(const Parameter &scalar, const Parameter &matrix)
 {
-    value_source_matrix_t sources;
+    parameter_source_matrix_t sources;
     for (size_t row = 0; row < matrix.rows(); row++)
     {
-        value_source_vector_t result_row;
+        parameter_source_vector_t result_row;
         for (size_t col = 0; col < matrix.cols(); col++)
         {
-            auto var1 = std::make_shared<ValueSource>();
+            auto var1 = std::make_shared<ParameterSource>();
             *var1 = scalar();
-            auto var2 = std::make_shared<ValueSource>();
+            auto var2 = std::make_shared<ParameterSource>();
             *var2 = matrix(row, col);
             auto multiply_op = [=]() { return var1->getValue() * var2->getValue(); };
             result_row.emplace_back(multiply_op);
@@ -157,16 +157,16 @@ value_source_matrix_t scaleMatrix(const Parameter &scalar, const Parameter &matr
     return sources;
 }
 
-value_source_matrix_t multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
+parameter_source_matrix_t multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
 {
-    value_source_matrix_t sources;
+    parameter_source_matrix_t sources;
     for (size_t row = 0; row < matrix1.rows(); row++)
     {
-        value_source_vector_t result_row;
+        parameter_source_vector_t result_row;
         for (size_t col = 0; col < matrix1.cols(); col++)
         {
-            auto row_vector = std::make_shared<value_source_vector_t>(matrix1.cols());
-            auto column_vector = std::make_shared<value_source_vector_t>(matrix2.rows());
+            auto row_vector = std::make_shared<parameter_source_vector_t>(matrix1.cols());
+            auto column_vector = std::make_shared<parameter_source_vector_t>(matrix2.rows());
             for (size_t inner = 0; inner < matrix1.cols(); inner++)
             {
                 row_vector->at(inner) = matrix1(row, inner);
@@ -195,7 +195,7 @@ Parameter Parameter::operator*(const Parameter &other) const
     bool both_scalar = first_scalar and second_scalar;
     bool both_matrix = not first_scalar and not second_scalar;
 
-    value_source_matrix_t sources;
+    parameter_source_matrix_t sources;
 
     if (both_scalar)
     {
@@ -221,15 +221,15 @@ Parameter Parameter::operator/(const Parameter &other) const
 {
     assert(other.rows() == 1 and other.cols() == 1);
 
-    value_source_matrix_t sources;
+    parameter_source_matrix_t sources;
     for (size_t row = 0; row < rows(); row++)
     {
-        value_source_vector_t result_row;
+        parameter_source_vector_t result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            auto var1 = std::make_shared<ValueSource>();
+            auto var1 = std::make_shared<ParameterSource>();
             *var1 = operator()(row, col);
-            auto var2 = std::make_shared<ValueSource>();
+            auto var2 = std::make_shared<ParameterSource>();
             *var2 = other(row, col);
             auto divide_op = [=]() { return var1->getValue() / var2->getValue(); };
             result_row.emplace_back(divide_op);

@@ -38,14 +38,14 @@ int main()
 
     // Matrix
     // multiply 2x2/2x2
-    op::value_source_matrix_t matrix = {{op::ValueSource(1.), op::ValueSource(2.)},
-                                        {op::ValueSource(3.), op::ValueSource(4.)}};
+    op::parameter_source_matrix_t matrix = {{1., 2.},
+                                            {3., 4.}};
     op::Parameter matrix_parameter(matrix);
     op::Parameter result_matrix = matrix_parameter * matrix_parameter;
     assert(result_matrix.getValues() == op::double_matrix_t({{7., 10.}, {15., 22.}}));
 
     // multiply 2x1/2x2
-    op::value_source_matrix_t vector = {{op::ValueSource(1.), op::ValueSource(2.)}};
+    op::parameter_source_matrix_t vector = {{1., 2.}};
     op::Parameter vector_parameter(vector);
     result_matrix = vector_parameter * matrix_parameter;
     assert(result_matrix.getValues() == op::double_matrix_t({{7., 10.}}));
