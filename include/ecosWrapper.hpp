@@ -12,8 +12,8 @@
 #include <string>
 
 void sparse_DOK_to_CCS(
-    const std::map<std::pair<idxint, idxint>, op::Parameter> &sparse_DOK,
-    std::vector<op::Parameter> &data_CCS,
+    const std::map<std::pair<idxint, idxint>, op::ParameterSource> &sparse_DOK,
+    std::vector<op::ParameterSource> &data_CCS,
     std::vector<idxint> &columns_CCS,
     std::vector<idxint> &rows_CCS,
     size_t n_columns);
@@ -30,15 +30,15 @@ class EcosWrapper
     idxint ecos_n_cone_constraints;
     std::vector<idxint> ecos_cone_constraint_dimensions;
     idxint ecos_n_exponential_cones;
-    std::vector<op::Parameter> ecos_G_data_CCS;
+    std::vector<op::ParameterSource> ecos_G_data_CCS;
     std::vector<idxint> ecos_G_columns_CCS;
     std::vector<idxint> ecos_G_rows_CCS;
-    std::vector<op::Parameter> ecos_A_data_CCS;
+    std::vector<op::ParameterSource> ecos_A_data_CCS;
     std::vector<idxint> ecos_A_columns_CCS;
     std::vector<idxint> ecos_A_rows_CCS;
-    std::vector<op::Parameter> ecos_cost_function_weights;
-    std::vector<op::Parameter> ecos_h;
-    std::vector<op::Parameter> ecos_b;
+    std::vector<op::ParameterSource> ecos_cost_function_weights;
+    std::vector<op::ParameterSource> ecos_h;
+    std::vector<op::ParameterSource> ecos_b;
 
 public:
     explicit EcosWrapper(op::SecondOrderConeProgram &_socp);

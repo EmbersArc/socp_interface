@@ -18,7 +18,7 @@ struct EqualityConstraint
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-EqualityConstraint operator==(const AffineExpression &affine, const double &zero);
+std::vector<EqualityConstraint> operator==(const Affine &affine, const double &zero);
 
 // represents a constraint like
 //     p_1*x_1 + p_2*x_2 + ... + b >= 0
@@ -30,7 +30,7 @@ struct PositiveConstraint
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-PositiveConstraint operator>=(const AffineExpression &affine, const double &zero);
+std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &zero);
 
 // represents a constraint like
 //      norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
