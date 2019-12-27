@@ -33,7 +33,7 @@ public:
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
-    VariableSource operator()(size_t row, size_t col) const;
+    VariableSource operator()(size_t row = 0, size_t col = 0) const;
     friend std::ostream &operator<<(std::ostream &os, const Variable &variable);
 
 private:

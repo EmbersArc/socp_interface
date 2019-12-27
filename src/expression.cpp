@@ -58,8 +58,12 @@ std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
 }
 double AffineExpression::evaluate(const std::vector<double> &soln_values) const
 {
-    auto sum_terms = [&soln_values](double sum, const auto &term) { return sum + term.evaluate(soln_values); };
-    return std::accumulate(terms.begin(), terms.end(), 0., sum_terms);
+    double sum = 0.;
+    for (const auto &term : terms)
+    {
+        sum += term.evaluate(soln_values);
+    }
+    return sum;
 }
 
 AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs)
@@ -136,23 +140,76 @@ Affine operator+(const Affine &lhs, const Affine &rhs)
 Affine operator*(const Parameter &parameter, const Variable &variable)
 {
     assert(parameter.cols() == variable.rows());
-    Affine result;
-    for (size_t row = 0; row < parameter.rows(); row++)
+
+    bool first_scalar = parameter.rows() == 1 and parameter.cols() == 1;
+    bool second_scalar = variable.rows() == 1 or variable.cols() == 1;
+    bool both_scalar = first_scalar and second_scalar;
+    bool both_matrix = not first_scalar and not second_scalar;
+
+    if (both_scalar)
     {
-        std::vector<AffineExpression> expression_row;
-        for (size_t col = 0; col < variable.cols(); col++)
-        {
-            AffineExpression expression;
-            for (size_t inner = 0; inner < parameter.cols(); inner++)
-            {
-                AffineTerm term(parameter(row, inner), variable(inner, col));
-                expression.terms.push_back(term);
-            }
-            expression_row.push_back(expression);
-        }
-        result.expressions.push_back(expression_row);
+        return Affine(parameter() * variable());
     }
-    return result;
+    else if (both_matrix)
+    {
+        Affine result;
+        for (size_t row = 0; row < parameter.rows(); row++)
+        {
+            std::vector<AffineExpression> expression_row;
+            for (size_t col = 0; col < variable.cols(); col++)
+            {
+                AffineExpression expression;
+                for (size_t inner = 0; inner < parameter.cols(); inner++)
+                {
+                    AffineTerm term(parameter(row, inner), variable(inner, col));
+                    expression.terms.push_back(term);
+                }
+                expression_row.push_back(expression);
+            }
+            result.expressions.push_back(expression_row);
+        }
+        return result;
+    }
+    else if (first_scalar)
+    {
+        Affine result;
+        for (size_t row = 0; row < parameter.rows(); row++)
+        {
+            std::vector<AffineExpression> expression_row;
+            for (size_t col = 0; col < variable.cols(); col++)
+            {
+                AffineExpression expression;
+                for (size_t inner = 0; inner < parameter.cols(); inner++)
+                {
+                    AffineTerm term(parameter(), variable(inner, col));
+                    expression.terms.push_back(term);
+                }
+                expression_row.push_back(expression);
+            }
+            result.expressions.push_back(expression_row);
+        }
+        return result;
+    }
+    else // if (second_scalar)
+    {
+        Affine result;
+        for (size_t row = 0; row < parameter.rows(); row++)
+        {
+            std::vector<AffineExpression> expression_row;
+            for (size_t col = 0; col < variable.cols(); col++)
+            {
+                AffineExpression expression;
+                for (size_t inner = 0; inner < parameter.cols(); inner++)
+                {
+                    AffineTerm term(parameter(row, inner), variable());
+                    expression.terms.push_back(term);
+                }
+                expression_row.push_back(expression);
+            }
+            result.expressions.push_back(expression_row);
+        }
+        return result;
+    }
 }
 
 Norm2::Norm2(const Affine &affine)
