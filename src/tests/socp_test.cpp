@@ -48,9 +48,16 @@ int main()
 
     op::Variable x = socp.createVariable("x", n);
 
-    socp.addConstraint(op::Norm2(op::Parameter(b) + op::Parameter(A) * x) <=
-                       op::Parameter(c.T) * x + op::Parameter(d));
-    // socp.addConstraint(op::Parameter(F) * x == op::Parameter(g));
+    Eigen::MatrixXd c_T = c.transpose();
+    Eigen::VectorXd g_m = -g;
 
-    // socp.addMinimizationTerm(op::Parameter(f) * x)
+    // socp.addConstraint(op::Norm2(op::Parameter(b) + op::Parameter(A) * x) <=
+    //                    op::Parameter(c_T) * x + op::Parameter(d));
+    socp.addConstraint(op::Parameter(F) * x + op::Parameter(g_m) == 0.);
+
+    Eigen::MatrixXd f_T = f.transpose();
+
+    socp.addMinimizationTerm((op::Parameter(f_T) * x)());
+
+    EcosWrapper solver(socp);
 }

@@ -44,15 +44,17 @@ AffineExpression operator+(const AffineExpression &lhs, const double &rhs);
 struct Affine
 {
     Affine() = default;
+    Affine(const Parameter &parameter);
     explicit Affine(const AffineExpression &expression);
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
-    AffineExpression operator()(size_t row, size_t col) const;
+    AffineExpression operator()(size_t row = 0, size_t col = 0) const;
     std::vector<std::vector<AffineExpression>> expressions;
 };
 Affine operator+(const Affine &lhs, const Affine &rhs);
 Affine operator*(const Parameter &parameter, const Variable &variable);
+Affine operator*(const Variable &variable, const Parameter &parameter);
 Affine operator*(const double &const_parameter, const Variable &variable);
 
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])

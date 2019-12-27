@@ -21,7 +21,7 @@ std::vector<EqualityConstraint> operator==(const Affine &affine, const double &z
     assert(affine.cols() == 1);
 
     std::vector<EqualityConstraint> constraints;
-    for (size_t row = 0; row < affine.cols(); row++)
+    for (size_t row = 0; row < affine.rows(); row++)
     {
         constraints.push_back(affine(row, 0) == 0.0);
     }
@@ -95,12 +95,12 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
     return (norm2.evaluate(soln_values) - affine.evaluate(soln_values));
 }
 
-SecondOrderConeConstraint operator<=(const Norm2 &norm2, const AffineExpression &affine)
+SecondOrderConeConstraint operator<=(const Norm2 &norm2, const Affine &affine)
 {
-    return SecondOrderConeConstraint(norm2, affine);
+    return SecondOrderConeConstraint(norm2, affine());
 }
 
-SecondOrderConeConstraint operator>=(const AffineExpression &affine, const Norm2 &norm2)
+SecondOrderConeConstraint operator>=(const Affine &affine, const Norm2 &norm2)
 {
     return norm2 <= affine;
 }

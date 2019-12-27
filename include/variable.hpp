@@ -27,6 +27,7 @@ private:
 class Variable
 {
 public:
+    Variable() = default;
     Variable(const std::string &name, size_t start_index,
              size_t rows = 1, size_t cols = 1);
 

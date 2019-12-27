@@ -87,7 +87,20 @@ AffineExpression operator+(const double &rhs, const AffineExpression &lhs)
     return lhs + rhs;
 }
 
-Affine::Affine(const AffineExpression &expression) : expressions({{expression}}) {}
+Affine::Affine(const Parameter &parameter)
+{
+    for (size_t row = 0; row < parameter.rows(); row++)
+    {
+        expressions.push_back({});
+        for (size_t col = 0; col < parameter.cols(); col++)
+        {
+            expressions.back().emplace_back(parameter(row, col));
+        }
+    }
+}
+
+Affine::Affine(const AffineExpression &expression)
+    : expressions({{expression}}) {}
 
 size_t Affine::rows() const
 {
