@@ -17,7 +17,7 @@ set(TARGET_INCLUDE_SYS
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
-    # src/expression.cpp
+    src/expression.cpp
     # src/constraint.cpp
     # src/optimizationProblem.cpp
     # src/secondOrderConeProgram.cpp
@@ -42,8 +42,8 @@ endif()
 
 target_link_libraries(socp_lib Eigen3::Eigen)
 
-# add_executable(example src/example.cpp)
-# target_link_libraries(example socp_lib)
+add_executable(socp_test src/tests/socp_test.cpp)
+target_link_libraries(socp_test socp_lib)
 
 add_executable(parameter_test src/tests/parameter_test.cpp)
 target_link_libraries(parameter_test socp_lib)

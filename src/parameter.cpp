@@ -126,18 +126,18 @@ Parameter Parameter::operator-(const Parameter &other) const
     return Parameter(sources);
 }
 
-parameter_source_matrix_t multiplyScalars(const Parameter &scalar1, const Parameter &scalar2)
+parameter_source_matrix_t multiplyScalars(const ParameterSource &scalar1, const ParameterSource &scalar2)
 {
     auto var1 = std::make_shared<ParameterSource>();
-    *var1 = scalar1();
+    *var1 = scalar1;
     auto var2 = std::make_shared<ParameterSource>();
-    *var2 = scalar2();
+    *var2 = scalar2;
     auto multiply_op = [=]() { return var1->getValue() * var2->getValue(); };
 
     return {{ParameterSource(multiply_op)}};
 }
 
-parameter_source_matrix_t scaleMatrix(const Parameter &scalar, const Parameter &matrix)
+parameter_source_matrix_t scaleMatrix(const ParameterSource &scalar, const Parameter &matrix)
 {
     parameter_source_matrix_t sources;
     for (size_t row = 0; row < matrix.rows(); row++)
@@ -146,7 +146,7 @@ parameter_source_matrix_t scaleMatrix(const Parameter &scalar, const Parameter &
         for (size_t col = 0; col < matrix.cols(); col++)
         {
             auto var1 = std::make_shared<ParameterSource>();
-            *var1 = scalar();
+            *var1 = scalar;
             auto var2 = std::make_shared<ParameterSource>();
             *var2 = matrix(row, col);
             auto multiply_op = [=]() { return var1->getValue() * var2->getValue(); };
@@ -199,7 +199,7 @@ Parameter Parameter::operator*(const Parameter &other) const
 
     if (both_scalar)
     {
-        multiplyScalars(*this, other);
+        sources = multiplyScalars(operator()(), other());
     }
     if (both_matrix)
     {
@@ -207,11 +207,11 @@ Parameter Parameter::operator*(const Parameter &other) const
     }
     if (first_scalar)
     {
-        sources = scaleMatrix(*this, other);
+        sources = scaleMatrix(operator()(), other);
     }
     else if (second_scalar)
     {
-        sources = scaleMatrix(other, *this);
+        sources = scaleMatrix(other(), *this);
     }
 
     return Parameter(sources);

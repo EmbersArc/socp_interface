@@ -14,7 +14,7 @@ class VariableSource
 public:
     VariableSource(const std::string &name, size_t problem_index,
                    size_t row, size_t col);
-    size_t getProblemIndex();
+    size_t getProblemIndex() const;
     friend std::ostream &operator<<(std::ostream &os, const VariableSource &variable);
 
 private:
@@ -33,7 +33,7 @@ public:
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
-    size_t operator()(size_t row, size_t col) const;
+    VariableSource operator()(size_t row, size_t col) const;
     friend std::ostream &operator<<(std::ostream &os, const Variable &variable);
 
 private:

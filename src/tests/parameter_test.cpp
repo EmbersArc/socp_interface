@@ -59,16 +59,17 @@ int main()
     assert(result_matrix.getValues() == op::double_matrix_t({{2., 4.}, {6., 8.}}));
 
 #ifdef EIGEN_AVAILABLE
-    Eigen::Matrix3d m1;
-    Eigen::Matrix3d m2;
+    Eigen::Matrix3d m1, m2, m3;
     m1.setRandom();
     m2.setRandom();
+    m3.setRandom();
     op::Parameter eigen1(m1);
     op::Parameter eigen2(m2);
+    // auto m3_ptr = &m3;
+    // op::Parameter eigen3(m3_ptr);
 
-    const Eigen::Matrix3d m = m1 * m2;
-
-    op::Parameter result = eigen1 * eigen2;
+    Eigen::Matrix3d m = m1 * m2 * m2;
+    op::Parameter result = eigen1 * eigen2 * eigen2;
 
     for (size_t row = 0; row < size_t(m.rows()); row++)
     {
@@ -77,6 +78,17 @@ int main()
             assert(result.getValue(row, col) == m(row, col));
         }
     }
+
+    // m3.setRandom();
+    // m = m1 * m2 * m3;
+
+    // for (size_t row = 0; row < size_t(m.rows()); row++)
+    // {
+    //     for (size_t col = 0; col < size_t(m.cols()); col++)
+    //     {
+    //         assert(result.getValue(row, col) == m(row, col));
+    //     }
+    // }
 #endif
 
     std::cout << "All tests were successful."

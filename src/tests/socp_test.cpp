@@ -46,7 +46,7 @@ int main()
 
     op::SecondOrderConeProgram socp;
 
-    op::VariableMatrix x = socp.createVariableMatrix("x", n);
+    op::Variable x = socp.createVariableMatrix("x", n);
 
     socp.addConstraint(op::Norm2(op::Parameter(b) + op::Parameter(A) * x) <=
                        op::Parameter(c.T) * x + op::Parameter(d));

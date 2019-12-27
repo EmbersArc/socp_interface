@@ -48,7 +48,7 @@ public:
     template <typename Derived>
     explicit Parameter(const Eigen::PlainObjectBase<Derived> &matrix);
     template <typename Derived>
-    explicit Parameter(const Eigen::PlainObjectBase<Derived> *matrix);
+    explicit Parameter(Eigen::PlainObjectBase<Derived> *matrix);
 #endif
 
     size_t rows() const;
@@ -81,7 +81,7 @@ Parameter::Parameter(const Eigen::PlainObjectBase<Derived> &matrix)
     }
 }
 template <typename Derived>
-Parameter::Parameter(const Eigen::PlainObjectBase<Derived> *matrix)
+Parameter::Parameter(Eigen::PlainObjectBase<Derived> *matrix)
 {
     for (size_t row = 0; row < size_t(matrix->rows()); row++)
     {
