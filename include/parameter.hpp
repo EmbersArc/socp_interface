@@ -58,8 +58,10 @@ public:
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
-    ParameterSource operator()(const size_t row = 0, const size_t col = 0) const;
-    double getValue(const size_t row = 0, const size_t col = 0) const;
+    ParameterSource operator()(const size_t row = 0,
+                               const size_t col = 0) const;
+    double getValue(const size_t row = 0,
+                    const size_t col = 0) const;
     std::vector<std::vector<double>> getValues() const;
 
 private:
@@ -88,7 +90,7 @@ Parameter::Parameter(Eigen::PlainObjectBase<Derived> *matrix)
         parameter_source_vector_t result_row;
         for (size_t col = 0; col < size_t(matrix->cols()); col++)
         {
-            result_row.emplace_back(&matrix->coeff(row, col));
+            result_row.emplace_back(&matrix->coeffRef(row, col));
         }
         this->source_matrix.push_back(result_row);
     }
