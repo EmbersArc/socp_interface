@@ -48,13 +48,10 @@ int main()
 
     op::Variable x = socp.createVariable("x", n);
 
-    Eigen::MatrixXd c_T = c.transpose();
-    Eigen::VectorXd g_m = -g;
-
     socp.addConstraint(op::Norm2(op::Parameter(A) * x + op::Parameter(b)) <=
-                       op::Parameter(c_T) * x + op::Parameter(d));
+                       op::Parameter(c.transpose()) * x + op::Parameter(d));
 
-    socp.addConstraint(op::Parameter(F) * x + op::Parameter(g_m) == 0.);
+    socp.addConstraint(op::Parameter(F) * x + op::Parameter(-g) == 0.);
 
     Eigen::MatrixXd f_T = f.transpose();
 
