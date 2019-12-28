@@ -8,6 +8,7 @@
 
 int main()
 {
+    // Set up problem data
     const size_t n = 3;
     const size_t p = 3;
     const size_t n_i = 3;
@@ -44,6 +45,7 @@ int main()
               << "g :\n"
               << g << "\n\n";
 
+    // Formulate SOCP
     op::SecondOrderConeProgram socp;
 
     op::Variable x = socp.createVariable("x", n);
@@ -57,10 +59,12 @@ int main()
 
     std::cout << socp << std::endl;
 
+    // Solve SOCP
     EcosWrapper solver(socp);
 
     solver.solveProblem();
 
+    // Get Solution
     Eigen::MatrixXd x_sol;
     socp.readSolution(x, x_sol);
 
