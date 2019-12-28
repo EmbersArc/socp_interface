@@ -94,7 +94,7 @@ Affine::Affine(const Parameter &parameter)
         expressions.push_back({});
         for (size_t col = 0; col < parameter.cols(); col++)
         {
-            expressions.back().emplace_back(parameter.coeff(row, col));
+            expressions.back().emplace_back(parameter(row, col));
         }
     }
 }
@@ -159,7 +159,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
 
     if (both_scalar)
     {
-        return Affine(parameter.coeff(0) * variable());
+        return Affine(parameter(0) * variable(0));
     }
     else if (both_matrix)
     {
@@ -173,7 +173,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
                 AffineExpression expression;
                 for (size_t inner = 0; inner < parameter.cols(); inner++)
                 {
-                    expression.terms.emplace_back(parameter.coeff(row, inner), variable(inner, col));
+                    expression.terms.emplace_back(parameter(row, inner), variable(inner, col));
                 }
                 expression_row.push_back(expression);
             }
@@ -189,7 +189,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
             std::vector<AffineExpression> expression_row;
             for (size_t col = 0; col < variable.cols(); col++)
             {
-                expression_row.emplace_back(AffineTerm(parameter.coeff(0), variable(row, col)));
+                expression_row.emplace_back(AffineTerm(parameter(0), variable(row, col)));
             }
             result.expressions.push_back(expression_row);
         }
@@ -203,7 +203,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
             std::vector<AffineExpression> expression_row;
             for (size_t col = 0; col < variable.cols(); col++)
             {
-                expression_row.emplace_back(AffineTerm(parameter.coeff(row, col), variable()));
+                expression_row.emplace_back(AffineTerm(parameter(row, col), variable(0)));
             }
             result.expressions.push_back(expression_row);
         }

@@ -16,6 +16,7 @@ public:
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
     T &operator()(size_t row, size_t col = 0);
+    const T &operator()(size_t row, size_t col = 0) const;
     T coeff(size_t row, size_t col = 0) const;
     void resize(size_t rows, size_t cols);
     bool operator==(const DynamicMatrix &other);
@@ -58,9 +59,15 @@ T &DynamicMatrix<T>::operator()(size_t row, size_t col)
 }
 
 template <typename T>
-T DynamicMatrix<T>::coeff(size_t row, size_t col) const
+const T &DynamicMatrix<T>::operator()(size_t row, size_t col) const
 {
     return data_matrix[row][col];
+}
+
+template <typename T>
+T DynamicMatrix<T>::coeff(size_t row, size_t col) const
+{
+    return operator()(row, col);
 }
 
 template <typename T>

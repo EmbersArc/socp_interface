@@ -26,36 +26,17 @@ Variable::Variable(const std::string &name, size_t start_index,
                    size_t rows, size_t cols)
     : name(name)
 {
+    resize(rows, cols);
+
     size_t index = start_index;
     for (size_t row = 0; row < rows; row++)
     {
-        std::vector<VariableSource> row_variables;
         for (size_t col = 0; col < cols; col++)
         {
-            row_variables.emplace_back(name, index, row, col);
+            data_matrix[row][col] = VariableSource(name, index, row, col);
             index++;
         }
-        variables.push_back(row_variables);
     }
-}
-
-size_t Variable::rows() const
-{
-    return variables.size();
-}
-
-size_t Variable::cols() const
-{
-    return variables.front().size();
-}
-std::pair<size_t, size_t> Variable::shape() const
-{
-    return {rows(), cols()};
-}
-
-VariableSource Variable::operator()(size_t row, size_t col) const
-{
-    return variables[row][col];
 }
 
 std::ostream &operator<<(std::ostream &os, const Variable &variable)
