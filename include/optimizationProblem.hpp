@@ -17,9 +17,9 @@ public:
     size_t getNumVariables() const;
 
     void readSolution(const std::string &name,
-                      std::vector<std::vector<double>> &solution);
+                      DynamicMatrix<double> &solution);
     void readSolution(const Variable &variable,
-                      std::vector<std::vector<double>> &solution);
+                      DynamicMatrix<double> &solution);
 
 #ifdef EIGEN_AVAILABLE
     template <typename Derived>
@@ -41,11 +41,12 @@ template <typename Derived>
 void GenericOptimizationProblem::readSolution(const Variable &variable,
                                               Eigen::PlainObjectBase<Derived> &solution)
 {
+    solution.resize(variable.rows(), variable.cols());
     for (size_t row = 0; row < variable.rows(); row++)
     {
         for (size_t col = 0; col < variable.cols(); col++)
         {
-            solution.coeffRef(row, col) = solution_vector[variable(row, col).problem_index];
+            solution.coeffRef(row, col) = solution_vector[variable(row, col).getProblemIndex()];
         }
     }
 }

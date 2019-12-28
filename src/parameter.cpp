@@ -1,7 +1,6 @@
 #include "parameter.hpp"
 
 #include <sstream>
-#include <iostream>
 #include <cassert>
 
 namespace op
@@ -68,17 +67,16 @@ double Parameter::getValue(const size_t row, const size_t col) const
     return operator()(row, col).getValue();
 }
 
-std::vector<std::vector<double>> Parameter::getValues() const
+DynamicMatrix<double> Parameter::getValues() const
 {
-    std::vector<std::vector<double>> result_matrix;
+    DynamicMatrix<double> result_matrix(rows(), cols());
+
     for (size_t row = 0; row < rows(); row++)
     {
-        std::vector<double> result_row;
         for (size_t col = 0; col < cols(); col++)
         {
-            result_row.push_back(getValue(row, col));
+            result_matrix(row, col) = getValue(row, col);
         }
-        result_matrix.push_back(result_row);
     }
     return result_matrix;
 }

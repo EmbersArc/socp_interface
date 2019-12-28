@@ -5,6 +5,9 @@
 #include <utility>
 #include <variant>
 #include <memory>
+#include <iostream>
+
+#include "dynamicMatrix.hpp"
 
 #ifdef EIGEN_AVAILABLE
 #include <Eigen/Dense>
@@ -12,9 +15,6 @@
 
 namespace op
 {
-
-using double_vector_t = std::vector<double>;
-using double_matrix_t = std::vector<double_vector_t>;
 
 class ParameterSource
 {
@@ -46,9 +46,9 @@ public:
 
 #if EIGEN_AVAILABLE
     template <typename Derived>
-    explicit Parameter(const Eigen::MatrixBase<Derived> &matrix);
+    explicit Parameter(const Eigen::DenseBase<Derived> &matrix);
     template <typename Derived>
-    explicit Parameter(Eigen::MatrixBase<Derived> *matrix);
+    explicit Parameter(Eigen::DenseBase<Derived> *matrix);
 #endif
 
     size_t rows() const;
@@ -62,7 +62,7 @@ public:
                                const size_t col = 0) const;
     double getValue(const size_t row = 0,
                     const size_t col = 0) const;
-    std::vector<std::vector<double>> getValues() const;
+    DynamicMatrix<double> getValues() const;
 
 private:
     parameter_source_matrix_t source_matrix;
@@ -70,7 +70,7 @@ private:
 
 #ifdef EIGEN_AVAILABLE
 template <typename Derived>
-Parameter::Parameter(const Eigen::MatrixBase<Derived> &matrix)
+Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
 {
     for (size_t row = 0; row < size_t(matrix.rows()); row++)
     {
@@ -83,7 +83,7 @@ Parameter::Parameter(const Eigen::MatrixBase<Derived> &matrix)
     }
 }
 template <typename Derived>
-Parameter::Parameter(Eigen::MatrixBase<Derived> *matrix)
+Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
 {
     for (size_t row = 0; row < size_t(matrix->rows()); row++)
     {

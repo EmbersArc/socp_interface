@@ -53,31 +53,20 @@ int main()
 
     socp.addConstraint(op::Parameter(F) * x + op::Parameter(-g) == 0.);
 
-    Eigen::MatrixXd f_T = f.transpose();
-
-    socp.addMinimizationTerm((op::Parameter(f_T) * x)());
+    socp.addMinimizationTerm((op::Parameter(f.transpose()) * x)());
 
     std::cout << socp << std::endl;
 
     EcosWrapper solver(socp);
 
-    solver.solveProblem(true);
+    solver.solveProblem();
 
-    op::double_matrix_t x_sol;
+    Eigen::MatrixXd x_sol;
     socp.readSolution(x, x_sol);
 
-    std::cout << "Solution:\n";
-    for (size_t row = 0; row < x.rows(); row++)
-    {
-        for (size_t col = 0; col < x.cols(); col++)
-        {
-            std::cout << x_sol[row][col] << ",";
-        }
-        std::cout << "\n";
-    }
-
+    std::cout << "Solution:\n"
+              << x_sol << "\n\n";
     std::cout << "\n";
-
     std::cout << "Expected solution:\n"
               << x0 << "\n\n";
 }
