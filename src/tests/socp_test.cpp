@@ -60,7 +60,7 @@ int main()
     std::cout << socp << std::endl;
 
     // Solve SOCP
-    EcosWrapper solver(socp);
+    op::Solver solver(socp);
 
     solver.solveProblem();
 
