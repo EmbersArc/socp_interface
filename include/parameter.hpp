@@ -37,7 +37,7 @@ using parameter_source_ptr_t = std::shared_ptr<ParameterSource>;
 using parameter_source_vector_t = std::vector<ParameterSource>;
 using parameter_source_matrix_t = std::vector<parameter_source_vector_t>;
 
-class Parameter
+class Parameter : public DynamicMatrix<ParameterSource>
 {
 public:
     explicit Parameter(const double const_value);
@@ -51,21 +51,13 @@ public:
     explicit Parameter(Eigen::DenseBase<Derived> *matrix);
 #endif
 
-    size_t rows() const;
-    size_t cols() const;
-    std::pair<size_t, size_t> shape() const;
     Parameter operator+(const Parameter &other) const;
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
-    ParameterSource operator()(const size_t row = 0,
-                               const size_t col = 0) const;
     double getValue(const size_t row = 0,
                     const size_t col = 0) const;
     DynamicMatrix<double> getValues() const;
-
-private:
-    parameter_source_matrix_t source_matrix;
 };
 
 #ifdef EIGEN_AVAILABLE
@@ -79,7 +71,7 @@ Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
         {
             result_row.emplace_back(matrix.coeff(row, col));
         }
-        this->source_matrix.push_back(result_row);
+        data_matrix.push_back(result_row);
     }
 }
 template <typename Derived>
@@ -92,7 +84,7 @@ Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
         {
             result_row.emplace_back(&matrix->coeffRef(row, col));
         }
-        this->source_matrix.push_back(result_row);
+        data_matrix.push_back(result_row);
     }
 }
 #endif

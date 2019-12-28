@@ -14,12 +14,13 @@ public:
     explicit DynamicMatrix(const std::vector<std::vector<T>> &matrix);
     size_t rows() const;
     size_t cols() const;
+    std::pair<size_t, size_t> shape() const;
     T &operator()(size_t row, size_t col = 0);
+    T coeff(size_t row, size_t col = 0) const;
     void resize(size_t rows, size_t cols);
     bool operator==(const DynamicMatrix &other);
 
-private:
-    std::vector<std::vector<T>> matrix;
+    std::vector<std::vector<T>> data_matrix;
 };
 
 template <typename T>
@@ -30,31 +31,43 @@ DynamicMatrix<T>::DynamicMatrix(size_t rows, size_t cols)
 
 template <typename T>
 DynamicMatrix<T>::DynamicMatrix(const std::vector<std::vector<T>> &matrix)
-    : matrix(matrix) {}
+    : data_matrix(matrix) {}
 
 template <typename T>
 size_t DynamicMatrix<T>::rows() const
 {
-    return matrix.size();
+    return data_matrix.size();
 }
 
 template <typename T>
 size_t DynamicMatrix<T>::cols() const
 {
-    return matrix.front().size();
+    return data_matrix.front().size();
+}
+
+template <typename T>
+std::pair<size_t, size_t> DynamicMatrix<T>::shape() const
+{
+    return {rows(), cols()};
 }
 
 template <typename T>
 T &DynamicMatrix<T>::operator()(size_t row, size_t col)
 {
-    return matrix[row][col];
+    return data_matrix[row][col];
+}
+
+template <typename T>
+T DynamicMatrix<T>::coeff(size_t row, size_t col) const
+{
+    return data_matrix[row][col];
 }
 
 template <typename T>
 void DynamicMatrix<T>::resize(size_t rows, size_t cols)
 {
-    matrix.resize(rows);
-    for (auto &row : matrix)
+    data_matrix.resize(rows);
+    for (auto &row : data_matrix)
     {
         row.resize(cols);
     }
@@ -63,7 +76,7 @@ void DynamicMatrix<T>::resize(size_t rows, size_t cols)
 template <typename T>
 bool DynamicMatrix<T>::operator==(const DynamicMatrix<T> &other)
 {
-    return matrix == other.matrix;
+    return data_matrix == other.data_matrix;
 }
 
 } // namespace op
