@@ -5,6 +5,21 @@
 
 #ifdef EIGEN_AVAILABLE
 #include <Eigen/Dense>
+
+template <typename Derived>
+bool compareMatrices(op::Parameter &param, Eigen::DenseBase<Derived> &matrix)
+{
+    bool is_same = true;
+    for (size_t row = 0; row < size_t(matrix.rows()); row++)
+    {
+        for (size_t col = 0; col < size_t(matrix.cols()); col++)
+        {
+            is_same &= std::abs(param.getValue(row, col) - matrix(row, col)) < 1e-8;
+        }
+    }
+    return is_same;
+}
+
 #endif
 
 int main()
@@ -66,36 +81,32 @@ int main()
     assert(result_matrix.getValues() == op::DynamicMatrix<double>({{2., 4.}, {6., 8.}}));
 
 #ifdef EIGEN_AVAILABLE
-    const double epsilon = 1e-9;
-
     Eigen::Matrix3d m1, m2;
     m1.setRandom();
     m2.setRandom();
     op::Parameter eigen1(&m1);
     op::Parameter eigen2(m2);
 
-    Eigen::Matrix3d m = scalar * m1 * m2;
+    Eigen::MatrixXd m = scalar * m1 * m2;
     op::Parameter result = scalar_param_ptr * eigen1 * eigen2;
 
-    for (size_t row = 0; row < size_t(m.rows()); row++)
-    {
-        for (size_t col = 0; col < size_t(m.cols()); col++)
-        {
-            assert(result.getValue(row, col) - m(row, col) < epsilon);
-        }
-    }
+    assert(compareMatrices(result, m));
 
     scalar = 5.;
     m1.setRandom();
     m = scalar * m1 * m2;
 
-    for (size_t row = 0; row < size_t(m.rows()); row++)
-    {
-        for (size_t col = 0; col < size_t(m.cols()); col++)
-        {
-            assert(result.getValue(row, col) - m(row, col) < epsilon);
-        }
-    }
+    assert(compareMatrices(result, m));
+
+    Eigen::MatrixXd m3x2(3, 2);
+    Eigen::MatrixXd m2x5(2, 5);
+    m3x2.setRandom();
+    m2x5.setRandom();
+
+    m = m3x2 * m2x5;
+    result = op::Parameter(m3x2) * op::Parameter(m2x5);
+
+    assert(compareMatrices(result, m));
 #endif
 
     std::cout << "All tests were successful."
