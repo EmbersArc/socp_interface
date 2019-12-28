@@ -51,6 +51,7 @@ struct Affine
     std::pair<size_t, size_t> shape() const;
     AffineExpression operator()(size_t row = 0, size_t col = 0) const;
     std::vector<std::vector<AffineExpression>> expressions;
+    friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
 };
 Affine operator+(const Affine &lhs, const Affine &rhs);
 Affine operator*(const Parameter &parameter, const Variable &variable);

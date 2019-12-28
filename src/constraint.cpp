@@ -18,12 +18,14 @@ EqualityConstraint operator==(const AffineExpression &affine, const double &zero
 std::vector<EqualityConstraint> operator==(const Affine &affine, const double &zero)
 {
     assert(zero == 0.0);
-    assert(affine.cols() == 1);
 
     std::vector<EqualityConstraint> constraints;
     for (size_t row = 0; row < affine.rows(); row++)
     {
-        constraints.push_back(affine(row, 0) == 0.0);
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            constraints.push_back(affine(row, col) == 0.0);
+        }
     }
     return constraints;
 }

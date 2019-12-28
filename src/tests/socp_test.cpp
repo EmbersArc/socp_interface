@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 
 // This example solves a simple random second order cone problem
+// based on https://www.cvxpy.org/examples/basic/socp.html
 
 int main()
 {
@@ -35,14 +36,13 @@ int main()
               << d << "\n\n";
 
     Eigen::MatrixXd F(p, n);
+    F.setRandom();
     Eigen::VectorXd g = F * x0;
 
     std::cout << "F :\n"
-              << A << "\n\n"
+              << F << "\n\n"
               << "g :\n"
-              << d << "\n\n";
-
-    std::cout << "Expected solution: " << x0 << "\n";
+              << g << "\n\n";
 
     op::SecondOrderConeProgram socp;
 
@@ -51,13 +51,36 @@ int main()
     Eigen::MatrixXd c_T = c.transpose();
     Eigen::VectorXd g_m = -g;
 
-    // socp.addConstraint(op::Norm2(op::Parameter(b) + op::Parameter(A) * x) <=
-    //                    op::Parameter(c_T) * x + op::Parameter(d));
+    socp.addConstraint(op::Norm2(op::Parameter(A) * x + op::Parameter(b)) <=
+                       op::Parameter(c_T) * x + op::Parameter(d));
+
     socp.addConstraint(op::Parameter(F) * x + op::Parameter(g_m) == 0.);
 
     Eigen::MatrixXd f_T = f.transpose();
 
     socp.addMinimizationTerm((op::Parameter(f_T) * x)());
 
+    std::cout << socp << std::endl;
+
     EcosWrapper solver(socp);
+
+    solver.solveProblem(true);
+
+    op::double_matrix_t x_sol;
+    socp.readSolution(x, x_sol);
+
+    std::cout << "Solution:\n";
+    for (size_t row = 0; row < x.rows(); row++)
+    {
+        for (size_t col = 0; col < x.cols(); col++)
+        {
+            std::cout << x_sol[row][col] << ",";
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "\n";
+
+    std::cout << "Expected solution:\n"
+              << x0 << "\n\n";
 }

@@ -190,7 +190,7 @@ parameter_source_matrix_t multiplyMatrices(const Parameter &matrix1, const Param
 Parameter Parameter::operator*(const Parameter &other) const
 {
     bool first_scalar = rows() == 1 and cols() == 1;
-    bool second_scalar = other.rows() == 1 or other.cols() == 1;
+    bool second_scalar = other.rows() == 1 and other.cols() == 1;
 
     bool both_scalar = first_scalar and second_scalar;
     bool both_matrix = not first_scalar and not second_scalar;
