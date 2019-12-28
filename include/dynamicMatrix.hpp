@@ -14,6 +14,8 @@ public:
     explicit DynamicMatrix(const std::vector<std::vector<T>> &matrix);
     size_t rows() const;
     size_t cols() const;
+    std::vector<T> row(size_t index) const;
+    std::vector<T> col(size_t index) const;
     std::pair<size_t, size_t> shape() const;
     T &operator()(size_t row, size_t col = 0);
     const T &operator()(size_t row, size_t col = 0) const;
@@ -44,6 +46,23 @@ template <typename T>
 size_t DynamicMatrix<T>::cols() const
 {
     return data_matrix.front().size();
+}
+
+template <typename T>
+std::vector<T> DynamicMatrix<T>::row(size_t index) const
+{
+    return data_matrix.at(row);
+}
+
+template <typename T>
+std::vector<T> DynamicMatrix<T>::col(size_t index) const
+{
+    std::vector<T> column;
+    for (const auto &row : data_matrix)
+    {
+        column.push_back(row.at(index));
+    }
+    return column;
 }
 
 template <typename T>

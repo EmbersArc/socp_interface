@@ -40,6 +40,7 @@ using parameter_source_matrix_t = std::vector<parameter_source_vector_t>;
 class Parameter : public DynamicMatrix<ParameterSource>
 {
 public:
+    using DynamicMatrix<ParameterSource>::DynamicMatrix;
     explicit Parameter(const double const_value);
     explicit Parameter(double *value_ptr);
     explicit Parameter(const parameter_source_matrix_t &sources);
@@ -64,27 +65,25 @@ public:
 template <typename Derived>
 Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
 {
+    resize(matrix.rows(), matrix.cols());
     for (size_t row = 0; row < size_t(matrix.rows()); row++)
     {
-        parameter_source_vector_t result_row;
         for (size_t col = 0; col < size_t(matrix.cols()); col++)
         {
-            result_row.emplace_back(matrix.coeff(row, col));
+            operator()(row, col) = ParameterSource(matrix(row, col));
         }
-        data_matrix.push_back(result_row);
     }
 }
 template <typename Derived>
 Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
 {
+    resize(matrix->rows(), matrix->cols());
     for (size_t row = 0; row < size_t(matrix->rows()); row++)
     {
-        parameter_source_vector_t result_row;
         for (size_t col = 0; col < size_t(matrix->cols()); col++)
         {
-            result_row.emplace_back(&matrix->coeffRef(row, col));
+            operator()(row, col) = ParameterSource(&matrix->coeffRef(row, col));
         }
-        data_matrix.push_back(result_row);
     }
 }
 #endif

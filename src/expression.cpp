@@ -195,7 +195,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
         }
         return result;
     }
-    else if (second_scalar)
+    else // if (second_scalar)
     {
         Affine result;
         for (size_t row = 0; row < parameter.rows(); row++)
@@ -208,10 +208,6 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
             result.expressions.push_back(expression_row);
         }
         return result;
-    }
-    else
-    {
-        throw std::runtime_error("Something went very wrong.");
     }
 }
 
