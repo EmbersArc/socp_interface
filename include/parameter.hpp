@@ -53,6 +53,7 @@ public:
 #endif
 
     Parameter operator+(const Parameter &other) const;
+    Parameter operator-() const;
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
