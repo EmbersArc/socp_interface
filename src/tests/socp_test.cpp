@@ -73,4 +73,7 @@ int main()
     std::cout << "\n";
     std::cout << "Expected solution:\n"
               << x0 << "\n\n";
+
+    assert((x0 - x_sol).norm() < 1e-3);
+    std::cout << "All tests were successful.\n";
 }

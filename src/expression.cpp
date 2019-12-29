@@ -89,12 +89,12 @@ AffineExpression operator+(const double &rhs, const AffineExpression &lhs)
 
 Affine::Affine(const Parameter &parameter)
 {
+    resize(parameter.rows(), parameter.cols());
     for (size_t row = 0; row < parameter.rows(); row++)
     {
-        data_matrix.push_back({});
         for (size_t col = 0; col < parameter.cols(); col++)
         {
-            data_matrix.back().emplace_back(parameter(row, col));
+            coeffRef(row, col) = AffineExpression(parameter(row, col));
         }
     }
 }
@@ -135,60 +135,51 @@ Affine operator+(const Affine &lhs, const Affine &rhs)
 
 Affine operator*(const Parameter &parameter, const Variable &variable)
 {
-    bool first_scalar = parameter.rows() == 1 and parameter.cols() == 1;
-    bool second_scalar = variable.rows() == 1 and variable.cols() == 1;
-    bool both_scalar = first_scalar and second_scalar;
-    bool both_matrix = not first_scalar and not second_scalar;
-
-    if (both_scalar)
+    if (parameter.is_scalar() and variable.is_scalar())
     {
         return Affine(parameter(0) * variable(0));
     }
-    else if (both_matrix)
+    else if (!parameter.is_scalar() and !variable.is_scalar())
     {
         assert(parameter.cols() == variable.rows());
-        Affine result;
-        for (size_t row = 0; row < parameter.rows(); row++)
+
+        Affine result(parameter.rows(), variable.cols());
+        for (size_t row = 0; row < result.rows(); row++)
         {
-            std::vector<AffineExpression> expression_row;
-            for (size_t col = 0; col < variable.cols(); col++)
+            for (size_t col = 0; col < result.cols(); col++)
             {
                 AffineExpression expression;
                 for (size_t inner = 0; inner < parameter.cols(); inner++)
                 {
                     expression.terms.emplace_back(parameter(row, inner), variable(inner, col));
                 }
-                expression_row.push_back(expression);
+                result(row, col) = expression;
             }
-            result.data_matrix.push_back(expression_row);
         }
         return result;
     }
-    else if (first_scalar)
+    else if (parameter.is_scalar())
     {
-        Affine result;
-        for (size_t row = 0; row < parameter.rows(); row++)
+        Affine result(parameter.rows(), variable.cols());
+        for (size_t row = 0; row < result.rows(); row++)
         {
-            std::vector<AffineExpression> expression_row;
-            for (size_t col = 0; col < variable.cols(); col++)
+            for (size_t col = 0; col < result.cols(); col++)
             {
-                expression_row.emplace_back(AffineTerm(parameter(0), variable(row, col)));
+                result(row, col) = AffineTerm(parameter(0), variable(row, col));
             }
-            result.data_matrix.push_back(expression_row);
         }
         return result;
     }
-    else // if (second_scalar)
+    else // if (variable.is_scalar())
     {
-        Affine result;
-        for (size_t row = 0; row < parameter.rows(); row++)
+        Affine result(parameter.rows(), variable.cols());
+        for (size_t row = 0; row < result.rows(); row++)
         {
             std::vector<AffineExpression> expression_row;
-            for (size_t col = 0; col < variable.cols(); col++)
+            for (size_t col = 0; col < result.cols(); col++)
             {
-                expression_row.emplace_back(AffineTerm(parameter(row, col), variable(0)));
+                result(row, col) = AffineTerm(parameter(row, col), variable(0));
             }
-            result.data_matrix.push_back(expression_row);
         }
         return result;
     }
@@ -202,7 +193,7 @@ std::ostream &operator<<(std::ostream &os, const Affine &expression)
         for (size_t col = 0; col < expression.cols(); col++)
         {
             os << expression(row, col);
-            if (col != expression.cols() - 1)
+            if (col < expression.cols() - 1)
             {
                 os << ", ";
             }
@@ -218,14 +209,11 @@ Norm2::Norm2(const Affine &affine)
 
     if (affine.rows() == 1)
     {
-        arguments = affine.data_matrix.front();
+        arguments = affine.row(0);
     }
     else
     {
-        for (const auto &row : affine.data_matrix)
-        {
-            arguments.push_back(row.front());
-        }
+        arguments = affine.col(0);
     }
 }
 

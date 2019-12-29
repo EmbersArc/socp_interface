@@ -12,15 +12,22 @@ public:
     DynamicMatrix() = default;
     DynamicMatrix(size_t rows, size_t cols);
     explicit DynamicMatrix(const std::vector<std::vector<T>> &matrix);
+
     size_t rows() const;
     size_t cols() const;
+    bool is_scalar() const;
+
+    std::pair<size_t, size_t> shape() const;
+
     std::vector<T> row(size_t index) const;
     std::vector<T> col(size_t index) const;
-    std::pair<size_t, size_t> shape() const;
+
     T &operator()(size_t row, size_t col = 0);
-    const T &operator()(size_t row, size_t col = 0) const;
-    T coeff(size_t row, size_t col = 0) const;
     T &coeffRef(size_t row, size_t col = 0);
+
+    const T &operator()(size_t row, size_t col = 0) const;
+    const T &coeff(size_t row, size_t col = 0) const;
+
     void resize(size_t rows, size_t cols);
     bool operator==(const DynamicMatrix &other);
 
@@ -50,9 +57,15 @@ size_t DynamicMatrix<T>::cols() const
 }
 
 template <typename T>
+bool DynamicMatrix<T>::is_scalar() const
+{
+    return rows() == 1 and cols() == 1;
+}
+
+template <typename T>
 std::vector<T> DynamicMatrix<T>::row(size_t index) const
 {
-    return data_matrix.at(row);
+    return data_matrix.at(index);
 }
 
 template <typename T>
@@ -85,15 +98,15 @@ const T &DynamicMatrix<T>::operator()(size_t row, size_t col) const
 }
 
 template <typename T>
-T DynamicMatrix<T>::coeff(size_t row, size_t col) const
+const T &DynamicMatrix<T>::coeff(size_t row, size_t col) const
 {
-    return operator()(row, col);
+    return data_matrix[row][col];
 }
 
 template <typename T>
 T &DynamicMatrix<T>::coeffRef(size_t row, size_t col)
 {
-    return operator()(row, col);
+    return data_matrix[row][col];
 }
 
 template <typename T>

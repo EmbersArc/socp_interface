@@ -44,6 +44,7 @@ AffineExpression operator+(const AffineExpression &lhs, const double &rhs);
 class Affine : public DynamicMatrix<AffineExpression>
 {
 public:
+    using DynamicMatrix<AffineExpression>::DynamicMatrix;
     Affine() = default;
     Affine(const Parameter &parameter);
     explicit Affine(const AffineExpression &expression);
