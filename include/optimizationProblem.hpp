@@ -14,6 +14,8 @@ public:
     Variable createVariable(const std::string &name,
                             size_t rows = 1, size_t cols = 1);
 
+    Variable getVariable(const std::string &name) const;
+
     size_t getNumVariables() const;
 
     void readSolution(const std::string &name,

@@ -17,6 +17,11 @@ Variable GenericOptimizationProblem::createVariable(const std::string &name,
     return variable;
 }
 
+Variable GenericOptimizationProblem::getVariable(const std::string &name) const
+{
+    return variables.at(name);
+}
+
 size_t GenericOptimizationProblem::getNumVariables() const
 {
     return solution_vector.size();
