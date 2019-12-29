@@ -99,7 +99,7 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
 
 SecondOrderConeConstraint operator<=(const Norm2 &norm2, const Affine &affine)
 {
-    return SecondOrderConeConstraint(norm2, affine());
+    return SecondOrderConeConstraint(norm2, affine(0));
 }
 
 SecondOrderConeConstraint operator>=(const Affine &affine, const Norm2 &norm2)

@@ -20,6 +20,7 @@ public:
     T &operator()(size_t row, size_t col = 0);
     const T &operator()(size_t row, size_t col = 0) const;
     T coeff(size_t row, size_t col = 0) const;
+    T &coeffRef(size_t row, size_t col = 0);
     void resize(size_t rows, size_t cols);
     bool operator==(const DynamicMatrix &other);
 
@@ -85,6 +86,12 @@ const T &DynamicMatrix<T>::operator()(size_t row, size_t col) const
 
 template <typename T>
 T DynamicMatrix<T>::coeff(size_t row, size_t col) const
+{
+    return operator()(row, col);
+}
+
+template <typename T>
+T &DynamicMatrix<T>::coeffRef(size_t row, size_t col)
 {
     return operator()(row, col);
 }

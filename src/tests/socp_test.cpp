@@ -55,7 +55,7 @@ int main()
 
     socp.addConstraint(op::Parameter(F) * x + op::Parameter(-g) == 0.);
 
-    socp.addMinimizationTerm((op::Parameter(f.transpose()) * x)());
+    socp.addMinimizationTerm((op::Parameter(f.transpose()) * x)(0, 0));
 
     std::cout << socp << std::endl;
 

@@ -41,16 +41,12 @@ AffineExpression operator+(const double &lhs, const AffineExpression &rhs);
 AffineExpression operator+(const AffineExpression &lhs, const double &rhs);
 
 // A scalar/vector/matrix of affine expressions
-struct Affine
+class Affine : public DynamicMatrix<AffineExpression>
 {
+public:
     Affine() = default;
     Affine(const Parameter &parameter);
     explicit Affine(const AffineExpression &expression);
-    size_t rows() const;
-    size_t cols() const;
-    std::pair<size_t, size_t> shape() const;
-    AffineExpression operator()(size_t row = 0, size_t col = 0) const;
-    std::vector<std::vector<AffineExpression>> expressions;
     friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
 };
 Affine operator+(const Affine &lhs, const Affine &rhs);
