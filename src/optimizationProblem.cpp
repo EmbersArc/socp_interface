@@ -14,7 +14,6 @@ Variable GenericOptimizationProblem::createVariable(const std::string &name,
     Variable variable(name, solution_vector.size(), rows, cols);
     variables.insert({name, variable});
     solution_vector.resize(solution_vector.size() + rows * cols);
-
     return variable;
 }
 
@@ -23,6 +22,13 @@ size_t GenericOptimizationProblem::getNumVariables() const
     return solution_vector.size();
 }
 
+void GenericOptimizationProblem::readSolution(const std::string &name,
+                                              double &solution) const
+{
+    const Variable &variable = variables.at(name);
+    assert(variable.is_scalar());
+    solution = solution_vector[variable(0, 0).getProblemIndex()];
+}
 void GenericOptimizationProblem::readSolution(const std::string &name,
                                               DynamicMatrix<double> &solution) const
 {

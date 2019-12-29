@@ -17,6 +17,8 @@ public:
     size_t getNumVariables() const;
 
     void readSolution(const std::string &name,
+                      double &solution) const;
+    void readSolution(const std::string &name,
                       DynamicMatrix<double> &solution) const;
 
 #ifdef EIGEN_AVAILABLE
