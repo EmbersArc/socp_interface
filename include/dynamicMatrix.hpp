@@ -13,8 +13,10 @@ public:
     DynamicMatrix(size_t rows, size_t cols);
     explicit DynamicMatrix(const std::vector<std::vector<T>> &matrix);
 
+    bool empty() const;
     size_t rows() const;
     size_t cols() const;
+    size_t size() const;
     bool is_scalar() const;
 
     std::pair<size_t, size_t> shape() const;
@@ -45,6 +47,12 @@ DynamicMatrix<T>::DynamicMatrix(const std::vector<std::vector<T>> &matrix)
     : data_matrix(matrix) {}
 
 template <typename T>
+bool DynamicMatrix<T>::empty() const
+{
+    return rows() == 0;
+}
+
+template <typename T>
 size_t DynamicMatrix<T>::rows() const
 {
     return data_matrix.size();
@@ -54,6 +62,12 @@ template <typename T>
 size_t DynamicMatrix<T>::cols() const
 {
     return data_matrix.front().size();
+}
+
+template <typename T>
+size_t DynamicMatrix<T>::size() const
+{
+    return rows() * cols();
 }
 
 template <typename T>

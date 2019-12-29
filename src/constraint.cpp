@@ -20,6 +20,7 @@ std::vector<EqualityConstraint> operator==(const Affine &affine, const double &z
     assert(zero == 0.0);
 
     std::vector<EqualityConstraint> constraints;
+    constraints.reserve(affine.size());
     for (size_t row = 0; row < affine.rows(); row++)
     {
         for (size_t col = 0; col < affine.cols(); col++)
@@ -69,11 +70,13 @@ PositiveConstraint operator<=(const double &zero, const AffineExpression &affine
 std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &zero)
 {
     assert(zero == 0.0);
-    assert(affine.cols() == 1);
     std::vector<PositiveConstraint> constraints;
-    for (size_t row = 0; row < affine.cols(); row++)
+    for (size_t row = 0; row < affine.rows(); row++)
     {
-        constraints.push_back(affine(row, 0) >= 0.0);
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            constraints.push_back(affine(row, col) >= 0.0);
+        }
     }
     return constraints;
 }

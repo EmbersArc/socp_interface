@@ -46,7 +46,7 @@ void GenericOptimizationProblem::readSolution(const Variable &variable,
     {
         for (size_t col = 0; col < variable.cols(); col++)
         {
-            solution.coeffRef(row, col) = solution_vector[variable(row, col).getProblemIndex()];
+            solution(row, col) = solution_vector[variable(row, col).getProblemIndex()];
         }
     }
 }

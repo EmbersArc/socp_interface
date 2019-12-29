@@ -35,6 +35,7 @@ struct AffineExpression
     std::vector<AffineTerm> terms;
     friend std::ostream &operator<<(std::ostream &os, const AffineExpression &expression);
     double evaluate(const std::vector<double> &soln_values) const;
+    AffineExpression &operator+=(const AffineExpression &other);
 };
 AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs);
 AffineExpression operator+(const double &lhs, const AffineExpression &rhs);
