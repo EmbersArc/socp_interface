@@ -36,6 +36,12 @@ void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &affine)
     costFunction = costFunction + affine;
 }
 
+void SecondOrderConeProgram::addMinimizationTerm(const Affine &affine)
+{
+    assert(affine.is_scalar());
+    costFunction = costFunction + affine(0);
+}
+
 std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp)
 {
     os << "Minimize:"

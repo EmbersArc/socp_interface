@@ -57,6 +57,7 @@ public:
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
+    Parameter transpose() const;
     double getValue(const size_t row = 0,
                     const size_t col = 0) const;
     DynamicMatrix<double> getValues() const;

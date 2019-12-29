@@ -1,6 +1,9 @@
 #include "activeSolver.hpp"
 
+#include <array>
 #include <iostream>
+#include <chrono>
+
 #include <Eigen/Dense>
 
 // This example solves a simple random second order cone problem
@@ -8,72 +11,94 @@
 
 int main()
 {
-    // Set up problem data
-    const size_t n = 3;
-    const size_t p = 3;
-    const size_t n_i = 3;
+    auto t1 = std::chrono::high_resolution_clock::now();
 
-    Eigen::VectorXd f(n);
+    // Set up problem data
+
+    // number of second order cone constraints
+    const size_t m = 3;
+    // number of variables
+    const size_t n = 10;
+    // dimension of equality constraints
+    const size_t p = 5;
+    // dimension of second order cone constraints
+    const size_t n_i = 5;
+
+    std::array<Eigen::Matrix<double, n_i, n>, m> A;
+    std::array<Eigen::Matrix<double, n_i, 1>, m> b;
+    std::array<Eigen::Matrix<double, n, 1>, m> c;
+    std::array<double, m> d;
+
+    Eigen::Matrix<double, n, 1> x0;
+    x0.setRandom();
+    Eigen::Matrix<double, n, 1> f;
     f.setRandom();
 
-    Eigen::VectorXd x0(n);
-    x0.setRandom();
+    for (size_t i = 0; i < m; i++)
+    {
+        A[i].setRandom();
+        b[i].setRandom();
+        c[i].setRandom();
+        d[i] = (A[i] * x0).norm() - c[i].dot(x0);
+    }
 
-    Eigen::MatrixXd A(n_i, n);
-    A.setRandom();
-    Eigen::VectorXd b(n_i);
-    b.setRandom();
-    Eigen::VectorXd c(n_i);
-    c.setRandom();
-    double d = (A * x0).norm() - c.dot(x0);
+    // std::cout << "A :\n"
+    //           << A << "\n\n"
+    //           << "b :\n"
+    //           << b << "\n\n"
+    //           << "c :\n"
+    //           << c << "\n\n"
+    //           << "d :\n"
+    //           << d << "\n\n";
 
-    std::cout << "A :\n"
-              << A << "\n\n"
-              << "b :\n"
-              << b << "\n\n"
-              << "c :\n"
-              << c << "\n\n"
-              << "d :\n"
-              << d << "\n\n";
-
-    Eigen::MatrixXd F(p, n);
+    Eigen::Matrix<double, p, n> F;
     F.setRandom();
-    Eigen::VectorXd g = F * x0;
+    Eigen::Matrix<double, p, 1> g = F * x0;
 
-    std::cout << "F :\n"
-              << F << "\n\n"
-              << "g :\n"
-              << g << "\n\n";
+    // std::cout << "F :\n"
+    //           << F << "\n\n"
+    //           << "g :\n"
+    //           << g << "\n\n";
 
     // Formulate SOCP
     op::SecondOrderConeProgram socp;
 
     op::Variable x = socp.createVariable("x", n);
 
-    socp.addConstraint(op::Norm2(op::Parameter(A) * x + op::Parameter(b)) <=
-                       op::Parameter(c.transpose()) * x + op::Parameter(d));
-
+    for (size_t i = 0; i < m; i++)
+    {
+        socp.addConstraint(op::Norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
+                           op::Parameter(c[i]).transpose() * x + op::Parameter(d[i]));
+    }
     socp.addConstraint(op::Parameter(F) * x + op::Parameter(-g) == 0.);
-
-    socp.addMinimizationTerm((op::Parameter(f.transpose()) * x)(0, 0));
-
-    std::cout << socp << std::endl;
+    socp.addMinimizationTerm(op::Parameter(f).transpose() * x);
+    std::cout << socp << "\n\n";
 
     // Solve SOCP
     op::Solver solver(socp);
 
-    solver.solveProblem();
+    solver.solveProblem(true);
+
+    assert(socp.isFeasible());
 
     // Get Solution
-    Eigen::MatrixXd x_sol;
-    socp.readSolution(x, x_sol);
+    Eigen::Matrix<double, n, 1> solution;
+    socp.readSolution(x, solution);
 
     std::cout << "Solution:\n"
-              << x_sol << "\n\n";
+              << solution << "\n\n";
     std::cout << "\n";
     std::cout << "Expected solution:\n"
               << x0 << "\n\n";
 
-    assert((x0 - x_sol).norm() < 1e-3);
-    std::cout << "All tests were successful.\n";
+    const double error_norm = (x0 - solution).norm();
+
+    std::cout << "Error: " << error_norm << "\n\n";
+
+    assert(error_norm < 1e-2);
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+
+    std::cout << "All tests were successful (" << duration << "μs).\n";
 }

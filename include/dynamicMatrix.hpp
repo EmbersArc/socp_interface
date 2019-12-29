@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 namespace op
 {
@@ -102,24 +103,28 @@ std::pair<size_t, size_t> DynamicMatrix<T>::shape() const
 template <typename T>
 T &DynamicMatrix<T>::operator()(size_t row, size_t col)
 {
+    assert(row < rows() and col < cols());
     return data_matrix[row][col];
 }
 
 template <typename T>
 const T &DynamicMatrix<T>::operator()(size_t row, size_t col) const
 {
+    assert(row < rows() and col < cols());
     return data_matrix[row][col];
 }
 
 template <typename T>
 const T &DynamicMatrix<T>::coeff(size_t row, size_t col) const
 {
+    assert(row < rows() and col < cols());
     return data_matrix[row][col];
 }
 
 template <typename T>
 T &DynamicMatrix<T>::coeffRef(size_t row, size_t col)
 {
+    assert(row < rows() and col < cols());
     return data_matrix[row][col];
 }
 

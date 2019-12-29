@@ -19,6 +19,7 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     void addConstraint(SecondOrderConeConstraint constraint);
 
     void addMinimizationTerm(const AffineExpression &affine);
+    void addMinimizationTerm(const Affine &affine);
 
     bool isFeasible() const;
 

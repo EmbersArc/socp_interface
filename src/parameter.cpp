@@ -28,6 +28,19 @@ double ParameterSource::getValue() const
     }
 }
 
+Parameter Parameter::transpose() const
+{
+    Parameter transposed(cols(), rows());
+    for (size_t row = 0; row < rows(); row++)
+    {
+        for (size_t col = 0; col < cols(); col++)
+        {
+            transposed(col, row) = getValue(row, col);
+        }
+    }
+    return transposed;
+}
+
 Parameter::Parameter(const double const_value)
 {
     data_matrix = {{ParameterSource(const_value)}};
@@ -80,6 +93,11 @@ Parameter Parameter::operator+(const Parameter &other) const
         }
     }
     return parameter;
+}
+
+Parameter Parameter::operator-() const
+{
+    return Parameter(-1.0) * *this;
 }
 
 Parameter Parameter::operator-(const Parameter &other) const
@@ -162,25 +180,19 @@ Parameter multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
 
 Parameter Parameter::operator*(const Parameter &other) const
 {
-    bool first_scalar = rows() == 1 and cols() == 1;
-    bool second_scalar = other.rows() == 1 and other.cols() == 1;
-
-    bool both_scalar = first_scalar and second_scalar;
-    bool both_matrix = not first_scalar and not second_scalar;
-
-    if (both_scalar)
+    if (is_scalar() and other.is_scalar())
     {
         return multiplyScalars(coeff(0), other(0));
     }
-    if (both_matrix)
+    if (!is_scalar and !other.is_scalar())
     {
         return multiplyMatrices(*this, other);
     }
-    if (first_scalar)
+    if (is_scalar())
     {
         return scaleMatrix(coeff(0), other);
     }
-    else // if (second_scalar)
+    else // if (other.is_scalar())
     {
         return scaleMatrix(other(0), *this);
     }
@@ -188,7 +200,7 @@ Parameter Parameter::operator*(const Parameter &other) const
 
 Parameter Parameter::operator/(const Parameter &other) const
 {
-    assert(other.rows() == 1 and other.cols() == 1);
+    assert(other.is_scalar());
 
     Parameter parameter(rows(), cols());
     for (size_t row = 0; row < rows(); row++)
