@@ -67,8 +67,7 @@ int main()
     scalar = 3.;
 
     // multiply 2x1/2x2
-    op::parameter_source_matrix_t vector = {{1., 2.}};
-    op::Parameter vector_parameter(vector);
+    op::Parameter vector_parameter({{1., 2.}});
     result_matrix = vector_parameter * matrix_parameter;
     assert(result_matrix.getValues() == op::DynamicMatrix<double>({{7., 10.}}));
 

@@ -32,7 +32,7 @@ public:
     const T &coeff(size_t row, size_t col = 0) const;
 
     void resize(size_t rows, size_t cols);
-    bool operator==(const DynamicMatrix &other);
+    bool operator==(const DynamicMatrix &other) const;
 
     std::vector<std::vector<T>> data_matrix;
 };
@@ -139,7 +139,7 @@ void DynamicMatrix<T>::resize(size_t rows, size_t cols)
 }
 
 template <typename T>
-bool DynamicMatrix<T>::operator==(const DynamicMatrix<T> &other)
+bool DynamicMatrix<T>::operator==(const DynamicMatrix<T> &other)const
 {
     return data_matrix == other.data_matrix;
 }

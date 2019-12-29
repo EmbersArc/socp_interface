@@ -30,7 +30,7 @@ struct AffineExpression
 {
     AffineExpression() = default;
     AffineExpression(const ParameterSource &parameter);
-    AffineExpression(const AffineTerm &parameter);
+    AffineExpression(const AffineTerm &term);
 
     std::vector<AffineTerm> terms;
     friend std::ostream &operator<<(std::ostream &os, const AffineExpression &expression);

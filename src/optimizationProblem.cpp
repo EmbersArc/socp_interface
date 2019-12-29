@@ -24,14 +24,13 @@ size_t GenericOptimizationProblem::getNumVariables() const
 }
 
 void GenericOptimizationProblem::readSolution(const std::string &name,
-                                              DynamicMatrix<double> &solution)
+                                              DynamicMatrix<double> &solution) const
 {
-    const Variable &variable = variables[name];
-    readSolution(variable, solution);
+    readSolution(variables.at(name), solution);
 }
 
 void GenericOptimizationProblem::readSolution(const Variable &variable,
-                                              DynamicMatrix<double> &solution)
+                                              DynamicMatrix<double> &solution) const
 {
     solution.resize(variable.rows(), variable.cols());
     for (size_t row = 0; row < variable.rows(); row++)

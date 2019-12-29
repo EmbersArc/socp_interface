@@ -82,9 +82,9 @@ AffineExpression operator+(const AffineExpression &lhs, const double &rhs)
     return result;
 }
 
-AffineExpression operator+(const double &rhs, const AffineExpression &lhs)
+AffineExpression operator+(const double &lhs, const AffineExpression &rhs)
 {
-    return lhs + rhs;
+    return rhs + lhs;
 }
 
 AffineExpression &AffineExpression::operator+=(const AffineExpression &other)

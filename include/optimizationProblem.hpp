@@ -17,17 +17,17 @@ public:
     size_t getNumVariables() const;
 
     void readSolution(const std::string &name,
-                      DynamicMatrix<double> &solution);
+                      DynamicMatrix<double> &solution) const;
     void readSolution(const Variable &variable,
-                      DynamicMatrix<double> &solution);
+                      DynamicMatrix<double> &solution) const;
 
 #ifdef EIGEN_AVAILABLE
     template <typename Derived>
     void readSolution(const Variable &variable,
-                      Eigen::PlainObjectBase<Derived> &solution);
+                      Eigen::PlainObjectBase<Derived> &solution) const;
     template <typename Derived>
     void readSolution(const std::string &name,
-                      Eigen::PlainObjectBase<Derived> &solution);
+                      Eigen::PlainObjectBase<Derived> &solution) const;
 #endif
 
     std::vector<double> solution_vector;
@@ -39,7 +39,7 @@ protected:
 #ifdef EIGEN_AVAILABLE
 template <typename Derived>
 void GenericOptimizationProblem::readSolution(const Variable &variable,
-                                              Eigen::PlainObjectBase<Derived> &solution)
+                                              Eigen::PlainObjectBase<Derived> &solution) const
 {
     solution.resize(variable.rows(), variable.cols());
     for (size_t row = 0; row < variable.rows(); row++)
@@ -53,10 +53,9 @@ void GenericOptimizationProblem::readSolution(const Variable &variable,
 
 template <typename Derived>
 void GenericOptimizationProblem::readSolution(const std::string &name,
-                                              Eigen::PlainObjectBase<Derived> &solution)
+                                              Eigen::PlainObjectBase<Derived> &solution) const
 {
-    const Variable &variable = variables[name];
-    readSolution(variable, solution);
+    readSolution(variables.at(name), solution);
 }
 #endif
 
