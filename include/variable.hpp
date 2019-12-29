@@ -37,6 +37,8 @@ public:
              size_t rows = 1, size_t cols = 1);
     friend std::ostream &operator<<(std::ostream &os,
                                     const Variable &variable);
+    Variable row(size_t index) const;
+    Variable col(size_t index) const;
     Variable transpose() const;
 
 private:

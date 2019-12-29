@@ -69,7 +69,7 @@ int main()
 
     // Get Solution
     Eigen::Matrix<double, n, 1> x_sol;
-    socp.readSolution(x, x_sol);
+    socp.readSolution("x", x_sol);
 
     std::cout << "Solution:\n"
               << x_sol << "\n\n";

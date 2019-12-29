@@ -55,6 +55,8 @@ Affine operator+(const Affine &lhs, const Affine &rhs);
 Affine operator*(const Parameter &parameter, const Variable &variable);
 Affine operator*(const Variable &variable, const Parameter &parameter);
 Affine operator*(const double &const_parameter, const Variable &variable);
+Affine vstack(std::initializer_list<Affine> elements);
+Affine hstack(std::initializer_list<Affine> elements);
 
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
 struct Norm2

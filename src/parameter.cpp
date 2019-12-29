@@ -218,4 +218,32 @@ Parameter Parameter::operator/(const Parameter &other) const
     return parameter;
 }
 
+Parameter vstack(std::initializer_list<Parameter> elements)
+{
+    Parameter stacked;
+    for (const auto &e : elements)
+    {
+        stacked.data_matrix.insert(stacked.data_matrix.end(),
+                                   e.data_matrix.begin(),
+                                   e.data_matrix.end());
+    }
+    return stacked;
+}
+
+Parameter hstack(std::initializer_list<Parameter> elements)
+{
+    Parameter stacked(elements.begin()->rows(), 0);
+    for (const auto &e : elements)
+    {
+        assert(stacked.rows() == e.rows());
+        for (size_t row = 0; row < stacked.rows(); row++)
+        {
+            stacked.data_matrix.at(row).insert(stacked.data_matrix.at(row).begin(),
+                                               e.data_matrix.at(row).begin(),
+                                               e.data_matrix.at(row).end());
+        }
+    }
+    return stacked;
+}
+
 } // namespace op

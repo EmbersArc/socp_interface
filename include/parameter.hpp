@@ -63,6 +63,9 @@ public:
     DynamicMatrix<double> getValues() const;
 };
 
+Parameter vstack(std::initializer_list<Parameter> elements);
+Parameter hstack(std::initializer_list<Parameter> elements);
+
 #ifdef EIGEN_AVAILABLE
 template <typename Derived>
 Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)

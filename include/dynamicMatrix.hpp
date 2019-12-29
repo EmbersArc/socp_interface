@@ -22,8 +22,8 @@ public:
 
     std::pair<size_t, size_t> shape() const;
 
-    std::vector<T> row(size_t index) const;
-    std::vector<T> col(size_t index) const;
+    std::vector<T> rowElements(size_t index) const;
+    std::vector<T> colElements(size_t index) const;
 
     T &operator()(size_t row, size_t col = 0);
     T &coeffRef(size_t row, size_t col = 0);
@@ -78,13 +78,13 @@ bool DynamicMatrix<T>::is_scalar() const
 }
 
 template <typename T>
-std::vector<T> DynamicMatrix<T>::row(size_t index) const
+std::vector<T> DynamicMatrix<T>::rowElements(size_t index) const
 {
     return data_matrix.at(index);
 }
 
 template <typename T>
-std::vector<T> DynamicMatrix<T>::col(size_t index) const
+std::vector<T> DynamicMatrix<T>::colElements(size_t index) const
 {
     std::vector<T> column;
     for (const auto &row : data_matrix)
@@ -139,7 +139,7 @@ void DynamicMatrix<T>::resize(size_t rows, size_t cols)
 }
 
 template <typename T>
-bool DynamicMatrix<T>::operator==(const DynamicMatrix<T> &other)const
+bool DynamicMatrix<T>::operator==(const DynamicMatrix<T> &other) const
 {
     return data_matrix == other.data_matrix;
 }
