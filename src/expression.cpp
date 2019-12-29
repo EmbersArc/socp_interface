@@ -181,10 +181,60 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
         Affine result(parameter.rows(), variable.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
-            std::vector<AffineExpression> expression_row;
             for (size_t col = 0; col < result.cols(); col++)
             {
                 result(row, col) = AffineTerm(parameter(row, col), variable(0));
+            }
+        }
+        return result;
+    }
+}
+
+Affine operator*(const Variable &variable, const Parameter &parameter)
+{
+    if (variable.is_scalar() and parameter.is_scalar())
+    {
+        return Affine(parameter(0) * variable(0));
+    }
+    else if (!variable.is_scalar() and !parameter.is_scalar())
+    {
+        assert(variable.cols() == parameter.rows());
+
+        Affine result(variable.rows(), parameter.cols());
+        for (size_t row = 0; row < result.rows(); row++)
+        {
+            for (size_t col = 0; col < result.cols(); col++)
+            {
+                AffineExpression expression;
+                for (size_t inner = 0; inner < variable.cols(); inner++)
+                {
+                    expression.terms.emplace_back(parameter(inner, col), variable(row, inner));
+                }
+                result(row, col) = expression;
+            }
+        }
+        return result;
+    }
+    else if (variable.is_scalar())
+    {
+        Affine result(variable.rows(), parameter.cols());
+        for (size_t row = 0; row < result.rows(); row++)
+        {
+            for (size_t col = 0; col < result.cols(); col++)
+            {
+                result(row, col) = AffineTerm(parameter(row, col), variable(0, 0));
+            }
+        }
+        return result;
+    }
+    else // if (parameter.is_scalar())
+    {
+        Affine result(parameter.rows(), parameter.cols());
+        for (size_t row = 0; row < result.rows(); row++)
+        {
+            for (size_t col = 0; col < result.cols(); col++)
+            {
+                result(row, col) = AffineTerm(parameter(0), variable(row, col));
             }
         }
         return result;

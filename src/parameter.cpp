@@ -35,7 +35,7 @@ Parameter Parameter::transpose() const
     {
         for (size_t col = 0; col < cols(); col++)
         {
-            transposed(col, row) = getValue(row, col);
+            transposed(col, row) = coeff(row, col);
         }
     }
     return transposed;
@@ -184,7 +184,7 @@ Parameter Parameter::operator*(const Parameter &other) const
     {
         return multiplyScalars(coeff(0), other(0));
     }
-    if (!is_scalar and !other.is_scalar())
+    if (!is_scalar() and !other.is_scalar())
     {
         return multiplyMatrices(*this, other);
     }

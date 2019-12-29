@@ -39,6 +39,19 @@ Variable::Variable(const std::string &name, size_t start_index,
     }
 }
 
+Variable Variable::transpose() const
+{
+    Variable transposed(cols(), rows());
+    for (size_t row = 0; row < rows(); row++)
+    {
+        for (size_t col = 0; col < cols(); col++)
+        {
+            transposed(col, row) = coeff(row, col);
+        }
+    }
+    return transposed;
+}
+
 std::ostream &operator<<(std::ostream &os, const Variable &variable)
 {
     os << variable.name

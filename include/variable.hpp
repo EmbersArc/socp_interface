@@ -31,11 +31,13 @@ private:
 class Variable : public DynamicMatrix<VariableSource>
 {
 public:
+    using DynamicMatrix<VariableSource>::DynamicMatrix;
     Variable() = default;
     Variable(const std::string &name, size_t start_index,
              size_t rows = 1, size_t cols = 1);
     friend std::ostream &operator<<(std::ostream &os,
                                     const Variable &variable);
+    Variable transpose() const;
 
 private:
     // indices of the value in the solution vector x

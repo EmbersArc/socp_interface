@@ -42,23 +42,9 @@ int main()
         d[i] = (A[i] * x0).norm() - c[i].dot(x0);
     }
 
-    // std::cout << "A :\n"
-    //           << A << "\n\n"
-    //           << "b :\n"
-    //           << b << "\n\n"
-    //           << "c :\n"
-    //           << c << "\n\n"
-    //           << "d :\n"
-    //           << d << "\n\n";
-
     Eigen::Matrix<double, p, n> F;
     F.setRandom();
     Eigen::Matrix<double, p, 1> g = F * x0;
-
-    // std::cout << "F :\n"
-    //           << F << "\n\n"
-    //           << "g :\n"
-    //           << g << "\n\n";
 
     // Formulate SOCP
     op::SecondOrderConeProgram socp;
@@ -70,7 +56,7 @@ int main()
         socp.addConstraint(op::Norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
                            op::Parameter(c[i]).transpose() * x + op::Parameter(d[i]));
     }
-    socp.addConstraint(op::Parameter(F) * x + op::Parameter(-g) == 0.);
+    socp.addConstraint(-op::Parameter(g) + op::Parameter(F) * x == 0.);
     socp.addMinimizationTerm(op::Parameter(f).transpose() * x);
     std::cout << socp << "\n\n";
 
@@ -82,20 +68,11 @@ int main()
     assert(socp.isFeasible());
 
     // Get Solution
-    Eigen::Matrix<double, n, 1> solution;
-    socp.readSolution(x, solution);
+    Eigen::Matrix<double, n, 1> x_sol;
+    socp.readSolution(x, x_sol);
 
     std::cout << "Solution:\n"
-              << solution << "\n\n";
-    std::cout << "\n";
-    std::cout << "Expected solution:\n"
-              << x0 << "\n\n";
-
-    const double error_norm = (x0 - solution).norm();
-
-    std::cout << "Error: " << error_norm << "\n\n";
-
-    assert(error_norm < 1e-2);
+              << x_sol << "\n\n";
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();

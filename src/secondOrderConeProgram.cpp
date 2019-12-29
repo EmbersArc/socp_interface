@@ -98,7 +98,7 @@ bool check_constraint(double tol, double val, const T &constraint)
 
 bool SecondOrderConeProgram::isFeasible() const
 {
-    const double tol = 0.1;
+    const double tol = 0.01;
     bool feasible = true;
     auto check = [&](const auto &constraint) { return check_constraint(tol,
                                                                        constraint.evaluate(solution_vector),
