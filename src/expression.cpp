@@ -166,7 +166,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
     }
     else if (parameter.is_scalar())
     {
-        Affine result(parameter.rows(), variable.cols());
+        Affine result(variable.rows(), variable.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -178,7 +178,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
     }
     else // if (variable.is_scalar())
     {
-        Affine result(parameter.rows(), variable.cols());
+        Affine result(parameter.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
