@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-#ifdef EIGEN_AVAILABLE
+// #ifdef EIGEN_AVAILABLE
 #include <Eigen/Dense>
 
 template <typename Derived>
@@ -20,7 +20,7 @@ bool compareMatrices(op::Parameter &param, Eigen::DenseBase<Derived> &matrix)
     return is_same;
 }
 
-#endif
+// #endif
 
 int main()
 {
@@ -79,7 +79,7 @@ int main()
     result_matrix = matrix_parameter * scalar_param_2;
     assert(result_matrix.getValues() == op::DynamicMatrix<double>({{2., 4.}, {6., 8.}}));
 
-#ifdef EIGEN_AVAILABLE
+// #ifdef EIGEN_AVAILABLE
     Eigen::Matrix3d m1, m2;
     m1.setRandom();
     m2.setRandom();
@@ -106,7 +106,7 @@ int main()
     result = op::Parameter(m3x2) * op::Parameter(m2x5);
 
     assert(compareMatrices(result, m));
-#endif
+// #endif
 
     std::cout << "All tests were successful."
               << "\n";
