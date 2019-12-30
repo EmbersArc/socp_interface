@@ -11,7 +11,7 @@ class DynamicMatrix
 {
 public:
     DynamicMatrix() = default;
-    DynamicMatrix(size_t rows, size_t cols);
+    DynamicMatrix(size_t rows, size_t cols = 1);
     explicit DynamicMatrix(const std::vector<std::vector<T>> &matrix);
 
     bool empty() const;
