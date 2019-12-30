@@ -23,11 +23,11 @@ public:
     void readSolution(const std::string &name,
                       DynamicMatrix<double> &solution) const;
 
-#ifdef EIGEN_AVAILABLE
+// #ifdef EIGEN_AVAILABLE
     template <typename Derived>
     void readSolution(const std::string &name,
                       Eigen::PlainObjectBase<Derived> &solution) const;
-#endif
+// #endif
 
     std::vector<double> solution_vector;
 
@@ -35,7 +35,7 @@ protected:
     std::map<std::string, Variable> variables;
 };
 
-#ifdef EIGEN_AVAILABLE
+// #ifdef EIGEN_AVAILABLE
 template <typename Derived>
 void GenericOptimizationProblem::readSolution(const std::string &name,
                                               Eigen::PlainObjectBase<Derived> &solution) const
@@ -50,6 +50,6 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
         }
     }
 }
-#endif
+// #endif
 
 } // namespace op

@@ -9,9 +9,9 @@
 
 #include "dynamicMatrix.hpp"
 
-#ifdef EIGEN_AVAILABLE
+// #ifdef EIGEN_AVAILABLE
 #include <Eigen/Dense>
-#endif
+// #endif
 
 namespace op
 {
@@ -45,12 +45,12 @@ public:
     explicit Parameter(double *value_ptr);
     explicit Parameter(const parameter_source_matrix_t &sources);
 
-#if EIGEN_AVAILABLE
+// #if EIGEN_AVAILABLE
     template <typename Derived>
     explicit Parameter(const Eigen::DenseBase<Derived> &matrix);
     template <typename Derived>
     explicit Parameter(Eigen::DenseBase<Derived> *matrix);
-#endif
+// #endif
 
     Parameter operator+(const Parameter &other) const;
     Parameter operator-() const;
@@ -66,7 +66,7 @@ public:
 Parameter vstack(std::initializer_list<Parameter> elements);
 Parameter hstack(std::initializer_list<Parameter> elements);
 
-#ifdef EIGEN_AVAILABLE
+// #ifdef EIGEN_AVAILABLE
 template <typename Derived>
 Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
 {
@@ -91,6 +91,6 @@ Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
         }
     }
 }
-#endif
+// #endif
 
 } // namespace op
