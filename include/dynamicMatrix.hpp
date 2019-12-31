@@ -144,4 +144,34 @@ bool DynamicMatrix<T>::operator==(const DynamicMatrix<T> &other) const
     return data_matrix == other.data_matrix;
 }
 
+template <typename T>
+T vstack(std::initializer_list<T> elements)
+{
+    T stacked;
+    for (const auto &e : elements)
+    {
+        stacked.data_matrix.insert(stacked.data_matrix.end(),
+                                   e.data_matrix.begin(),
+                                   e.data_matrix.end());
+    }
+    return stacked;
+}
+
+template <typename T>
+T hstack(std::initializer_list<T> elements)
+{
+    T stacked(elements.begin()->rows(), 0);
+    for (const auto &e : elements)
+    {
+        assert(stacked.rows() == e.rows());
+        for (size_t row = 0; row < stacked.rows(); row++)
+        {
+            stacked.data_matrix.at(row).insert(stacked.data_matrix.at(row).begin(),
+                                               e.data_matrix.at(row).begin(),
+                                               e.data_matrix.at(row).end());
+        }
+    }
+    return stacked;
+}
+
 } // namespace op

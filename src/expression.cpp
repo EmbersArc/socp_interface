@@ -290,34 +290,6 @@ std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
     return os;
 }
 
-AffineExpression vstack(std::initializer_list<AffineExpression> elements)
-{
-    AffineExpression stacked;
-    for (const auto &e : elements)
-    {
-        stacked.data_matrix.insert(stacked.data_matrix.end(),
-                                   e.data_matrix.begin(),
-                                   e.data_matrix.end());
-    }
-    return stacked;
-}
-
-AffineExpression hstack(std::initializer_list<AffineExpression> elements)
-{
-    AffineExpression stacked(elements.begin()->rows(), 0);
-    for (const auto &e : elements)
-    {
-        assert(stacked.rows() == e.rows());
-        for (size_t row = 0; row < stacked.rows(); row++)
-        {
-            stacked.data_matrix.at(row).insert(stacked.data_matrix.at(row).begin(),
-                                               e.data_matrix.at(row).begin(),
-                                               e.data_matrix.at(row).end());
-        }
-    }
-    return stacked;
-}
-
 Parameter::operator AffineExpression() const
 {
     return AffineExpression(*this);

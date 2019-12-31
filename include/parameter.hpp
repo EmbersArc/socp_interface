@@ -63,16 +63,12 @@ public:
     Parameter operator-(const Parameter &other) const;
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
-    Parameter transpose() const;
     double getValue(const size_t row = 0,
                     const size_t col = 0) const;
     DynamicMatrix<double> getValues() const;
 
     operator AffineExpression() const;
 };
-
-Parameter vstack(std::initializer_list<Parameter> elements);
-Parameter hstack(std::initializer_list<Parameter> elements);
 
 // #ifdef EIGEN_AVAILABLE
 template <typename Derived>

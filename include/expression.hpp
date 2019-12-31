@@ -58,8 +58,6 @@ AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &
 AffineExpression operator*(const Parameter &parameter, const Variable &variable);
 AffineExpression operator*(const Variable &variable, const Parameter &parameter);
 AffineExpression operator*(const double &const_parameter, const Variable &variable);
-AffineExpression vstack(std::initializer_list<AffineExpression> elements);
-AffineExpression hstack(std::initializer_list<AffineExpression> elements);
 
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
 struct Norm2
