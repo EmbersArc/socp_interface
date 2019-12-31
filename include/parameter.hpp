@@ -17,8 +17,8 @@ namespace op
 {
 
 struct AffineTerm;
-struct AffineExpression;
-class Affine;
+struct AffineSum;
+class AffineExpression;
 
 class ParameterSource
 {
@@ -30,7 +30,7 @@ public:
     double getValue() const;
 
     operator AffineTerm() const;
-    operator AffineExpression() const;
+    operator AffineSum() const;
 
 private:
     using source_variant_t = std::variant<double,
@@ -68,7 +68,7 @@ public:
                     const size_t col = 0) const;
     DynamicMatrix<double> getValues() const;
 
-    operator Affine() const;
+    operator AffineExpression() const;
 };
 
 Parameter vstack(std::initializer_list<Parameter> elements);

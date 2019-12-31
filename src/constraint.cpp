@@ -6,16 +6,16 @@
 namespace op
 {
 
-EqualityConstraint::EqualityConstraint(const AffineExpression &affine)
+EqualityConstraint::EqualityConstraint(const AffineSum &affine)
     : affine(affine) {}
 
-EqualityConstraint operator==(const AffineExpression &affine, const double &zero)
+EqualityConstraint operator==(const AffineSum &affine, const double &zero)
 {
     assert(zero == 0.0);
     return EqualityConstraint(affine);
 }
 
-std::vector<EqualityConstraint> operator==(const Affine &affine, const double &zero)
+std::vector<EqualityConstraint> operator==(const AffineExpression &affine, const double &zero)
 {
     assert(zero == 0.0);
 
@@ -42,7 +42,7 @@ double EqualityConstraint::evaluate(const std::vector<double> &soln_values) cons
     return -affine.evaluate(soln_values);
 }
 
-PositiveConstraint::PositiveConstraint(const AffineExpression &affine)
+PositiveConstraint::PositiveConstraint(const AffineSum &affine)
     : affine(affine) {}
 
 std::ostream &operator<<(std::ostream &os, const PositiveConstraint &constraint)
@@ -56,18 +56,18 @@ double PositiveConstraint::evaluate(const std::vector<double> &soln_values) cons
     return -affine.evaluate(soln_values);
 }
 
-PositiveConstraint operator>=(const AffineExpression &affine, const double &zero)
+PositiveConstraint operator>=(const AffineSum &affine, const double &zero)
 {
     assert(zero == 0.0);
     return PositiveConstraint(affine);
 }
 
-PositiveConstraint operator<=(const double &zero, const AffineExpression &affine)
+PositiveConstraint operator<=(const double &zero, const AffineSum &affine)
 {
     return affine >= zero;
 }
 
-std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &zero)
+std::vector<PositiveConstraint> operator>=(const AffineExpression &affine, const double &zero)
 {
     assert(zero == 0.0);
     std::vector<PositiveConstraint> constraints;
@@ -81,12 +81,12 @@ std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &z
     return constraints;
 }
 
-std::vector<PositiveConstraint> operator<=(const double &zero, const Affine &affine)
+std::vector<PositiveConstraint> operator<=(const double &zero, const AffineExpression &affine)
 {
     return affine >= zero;
 }
 
-SecondOrderConeConstraint::SecondOrderConeConstraint(const Norm2 &norm2, const AffineExpression &affine)
+SecondOrderConeConstraint::SecondOrderConeConstraint(const Norm2 &norm2, const AffineSum &affine)
     : norm2(norm2), affine(affine) {}
 
 std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint)
@@ -100,12 +100,12 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
     return (norm2.evaluate(soln_values) - affine.evaluate(soln_values));
 }
 
-SecondOrderConeConstraint operator<=(const Norm2 &norm2, const Affine &affine)
+SecondOrderConeConstraint operator<=(const Norm2 &norm2, const AffineExpression &affine)
 {
     return SecondOrderConeConstraint(norm2, affine.coeff(0));
 }
 
-SecondOrderConeConstraint operator>=(const Affine &affine, const Norm2 &norm2)
+SecondOrderConeConstraint operator>=(const AffineExpression &affine, const Norm2 &norm2)
 {
     return norm2 <= affine;
 }

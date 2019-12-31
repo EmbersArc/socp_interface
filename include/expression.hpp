@@ -17,7 +17,7 @@ struct AffineTerm
     AffineTerm(const ParameterSource &parameter,
                const VariableSource &variable);
 
-    operator AffineExpression() const;
+    operator AffineSum() const;
 
     ParameterSource parameter;
     std::optional<VariableSource> variable; // a missing Variable represents a constant 1.0
@@ -28,44 +28,44 @@ AffineTerm operator*(const ParameterSource &parameter, const VariableSource &var
 AffineTerm operator*(const double &const_parameter, const VariableSource &variable);
 
 // A term like (p_1*x_1 + p_2*x_2 + ... + b)
-struct AffineExpression
+struct AffineSum
 {
-    AffineExpression() = default;
-    explicit AffineExpression(const ParameterSource &parameter);
-    explicit AffineExpression(const VariableSource &variable);
-    explicit AffineExpression(const AffineTerm &term);
+    AffineSum() = default;
+    explicit AffineSum(const ParameterSource &parameter);
+    explicit AffineSum(const VariableSource &variable);
+    explicit AffineSum(const AffineTerm &term);
 
     std::vector<AffineTerm> terms;
-    friend std::ostream &operator<<(std::ostream &os, const AffineExpression &expression);
+    friend std::ostream &operator<<(std::ostream &os, const AffineSum &expression);
     double evaluate(const std::vector<double> &soln_values) const;
-    AffineExpression &operator+=(const AffineExpression &other);
+    AffineSum &operator+=(const AffineSum &other);
 };
-AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs);
-AffineExpression operator+(const double &lhs, const AffineExpression &rhs);
-AffineExpression operator+(const AffineExpression &lhs, const double &rhs);
+AffineSum operator+(const AffineSum &lhs, const AffineSum &rhs);
+AffineSum operator+(const double &lhs, const AffineSum &rhs);
+AffineSum operator+(const AffineSum &lhs, const double &rhs);
 
 // A scalar/vector/matrix of affine expressions
-class Affine : public DynamicMatrix<AffineExpression>
+class AffineExpression : public DynamicMatrix<AffineSum>
 {
 public:
-    using DynamicMatrix<AffineExpression>::DynamicMatrix;
-    Affine() = default;
-    explicit Affine(const Parameter &parameter);
-    explicit Affine(const AffineExpression &expression);
-    friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
+    using DynamicMatrix<AffineSum>::DynamicMatrix;
+    AffineExpression() = default;
+    explicit AffineExpression(const Parameter &parameter);
+    explicit AffineExpression(const AffineSum &expression);
+    friend std::ostream &operator<<(std::ostream &os, const AffineExpression &expression);
 };
-Affine operator+(const Affine &lhs, const Affine &rhs);
-Affine operator*(const Parameter &parameter, const Variable &variable);
-Affine operator*(const Variable &variable, const Parameter &parameter);
-Affine operator*(const double &const_parameter, const Variable &variable);
-Affine vstack(std::initializer_list<Affine> elements);
-Affine hstack(std::initializer_list<Affine> elements);
+AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs);
+AffineExpression operator*(const Parameter &parameter, const Variable &variable);
+AffineExpression operator*(const Variable &variable, const Parameter &parameter);
+AffineExpression operator*(const double &const_parameter, const Variable &variable);
+AffineExpression vstack(std::initializer_list<AffineExpression> elements);
+AffineExpression hstack(std::initializer_list<AffineExpression> elements);
 
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
 struct Norm2
 {
-    explicit Norm2(const Affine &affine);
-    std::vector<AffineExpression> arguments;
+    explicit Norm2(const AffineExpression &affine);
+    std::vector<AffineSum> arguments;
     friend std::ostream &operator<<(std::ostream &os, const Norm2 &norm2);
     double evaluate(const std::vector<double> &soln_values) const;
 };

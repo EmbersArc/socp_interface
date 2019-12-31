@@ -18,12 +18,12 @@ static_assert(std::is_same_v<idxint, SuiteSparse_long>,
               "Definitions of idxint might not be consistent."
               "Make sure ECOS is compiled with USE_LONG = 1.");
 
-bool check_unique_variables_in_affine_expression(const op::AffineExpression &affineExpression)
+bool check_unique_variables_in_affine_expression(const op::AffineSum &AffineSum)
 {
     // check if a variable is used more than once in an expression
 
     vector<size_t> variable_indices;
-    for (const auto &term : affineExpression.terms)
+    for (const auto &term : AffineSum.terms)
     {
         if (term.variable)
         { // only consider linear terms, not constant terms
@@ -39,35 +39,35 @@ bool check_unique_variables_in_affine_expression(const op::AffineExpression &aff
     return true;
 }
 
-size_t count_constants_in_affine_expression(const op::AffineExpression &affineExpression)
+size_t count_constants_in_affine_expression(const op::AffineSum &AffineSum)
 {
-    return std::count_if(affineExpression.terms.begin(), affineExpression.terms.end(), [](const auto &term) { return !term.variable; });
+    return std::count_if(AffineSum.terms.begin(), AffineSum.terms.end(), [](const auto &term) { return !term.variable; });
 }
 
-void error_check_affine_expression(const op::AffineExpression &affineExpression)
+void error_check_affine_expression(const op::AffineSum &AffineSum)
 {
-    if (!check_unique_variables_in_affine_expression(affineExpression))
+    if (!check_unique_variables_in_affine_expression(AffineSum))
     {
         std::stringstream ss;
         ss << "Error: Duplicate variable in the expression: \n"
-           << affineExpression;
+           << AffineSum;
         throw std::runtime_error(ss.str());
     }
-    if (count_constants_in_affine_expression(affineExpression) > 1)
+    if (count_constants_in_affine_expression(AffineSum) > 1)
     {
         std::stringstream ss;
         ss << "Error: More than one constant in the expression: \n"
-           << affineExpression;
+           << AffineSum;
         throw std::runtime_error(ss.str());
     }
 }
 
-op::ParameterSource get_constant_or_zero(const op::AffineExpression &affineExpression)
+op::ParameterSource get_constant_or_zero(const op::AffineSum &AffineSum)
 {
-    auto constantIterator = std::find_if(affineExpression.terms.begin(),
-                                         affineExpression.terms.end(),
+    auto constantIterator = std::find_if(AffineSum.terms.begin(),
+                                         AffineSum.terms.end(),
                                          [](const auto &term) { return !term.variable; });
-    if (constantIterator != affineExpression.terms.end())
+    if (constantIterator != AffineSum.terms.end())
     {
         return constantIterator->parameter;
     }
@@ -126,10 +126,10 @@ void sparse_DOK_to_CCS(
 
 void copy_affine_expression_linear_parts_to_sparse_DOK(
     map<pair<idxint, idxint>, op::ParameterSource> &sparse_DOK,
-    const op::AffineExpression &affineExpression,
+    const op::AffineSum &AffineSum,
     size_t row_index)
 {
-    for (const auto &term : affineExpression.terms)
+    for (const auto &term : AffineSum.terms)
     {
         if (term.variable)
         { // only consider linear terms, not constant terms

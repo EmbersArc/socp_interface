@@ -54,10 +54,10 @@ VariableSource::operator AffineTerm() const
     return AffineTerm(*this);
 }
 
-AffineExpression::AffineExpression(const ParameterSource &parameter) : terms{parameter} {}
-AffineExpression::AffineExpression(const VariableSource &variable) : terms{variable} {}
-AffineExpression::AffineExpression(const AffineTerm &term) : terms{term} {}
-std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
+AffineSum::AffineSum(const ParameterSource &parameter) : terms{parameter} {}
+AffineSum::AffineSum(const VariableSource &variable) : terms{variable} {}
+AffineSum::AffineSum(const AffineTerm &term) : terms{term} {}
+std::ostream &operator<<(std::ostream &os, const AffineSum &expression)
 {
     for (size_t i = 0; i < expression.terms.size(); i++)
     {
@@ -67,7 +67,7 @@ std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
     }
     return os;
 }
-double AffineExpression::evaluate(const std::vector<double> &soln_values) const
+double AffineSum::evaluate(const std::vector<double> &soln_values) const
 {
     double sum = 0.;
     for (const auto &term : terms)
@@ -77,61 +77,61 @@ double AffineExpression::evaluate(const std::vector<double> &soln_values) const
     return sum;
 }
 
-AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs)
+AffineSum operator+(const AffineSum &lhs, const AffineSum &rhs)
 {
-    AffineExpression result;
+    AffineSum result;
     result.terms.insert(result.terms.end(), lhs.terms.begin(), lhs.terms.end());
     result.terms.insert(result.terms.end(), rhs.terms.begin(), rhs.terms.end());
     return result;
 }
 
-AffineExpression operator+(const AffineExpression &lhs, const double &rhs)
+AffineSum operator+(const AffineSum &lhs, const double &rhs)
 {
-    AffineExpression result;
+    AffineSum result;
     result.terms.insert(result.terms.end(), lhs.terms.begin(), lhs.terms.end());
     result.terms.push_back(ParameterSource(rhs));
     return result;
 }
 
-AffineExpression operator+(const double &lhs, const AffineExpression &rhs)
+AffineSum operator+(const double &lhs, const AffineSum &rhs)
 {
     return rhs + lhs;
 }
 
-AffineExpression &AffineExpression::operator+=(const AffineExpression &other)
+AffineSum &AffineSum::operator+=(const AffineSum &other)
 {
     terms.insert(terms.end(), other.terms.begin(), other.terms.end());
     return *this;
 }
 
-ParameterSource::operator AffineExpression() const
+ParameterSource::operator AffineSum() const
 {
-    return AffineExpression(*this);
+    return AffineSum(*this);
 }
 
-VariableSource::operator AffineExpression() const
+VariableSource::operator AffineSum() const
 {
-    return AffineExpression(*this);
+    return AffineSum(*this);
 }
 
-AffineTerm::operator AffineExpression() const
+AffineTerm::operator AffineSum() const
 {
-    return AffineExpression(*this);
+    return AffineSum(*this);
 }
 
-Affine::Affine(const Parameter &parameter)
+AffineExpression::AffineExpression(const Parameter &parameter)
 {
     resize(parameter.rows(), parameter.cols());
     for (size_t row = 0; row < parameter.rows(); row++)
     {
         for (size_t col = 0; col < parameter.cols(); col++)
         {
-            coeffRef(row, col) = AffineExpression(parameter.coeff(row, col));
+            coeffRef(row, col) = AffineSum(parameter.coeff(row, col));
         }
     }
 }
 
-Affine::Affine(const AffineExpression &expression)
+AffineExpression::AffineExpression(const AffineSum &expression)
 {
     resize(1, 1);
     coeffRef(0) = expression;
@@ -150,10 +150,10 @@ std::ostream &operator<<(std::ostream &os, const Norm2 &norm2)
     return os;
 }
 
-Affine operator+(const Affine &lhs, const Affine &rhs)
+AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs)
 {
     assert(lhs.shape() == rhs.shape());
-    Affine result;
+    AffineExpression result;
     result.data_matrix = lhs.data_matrix;
     for (size_t row = 0; row < lhs.rows(); row++)
     {
@@ -165,22 +165,22 @@ Affine operator+(const Affine &lhs, const Affine &rhs)
     return result;
 }
 
-Affine operator*(const Parameter &parameter, const Variable &variable)
+AffineExpression operator*(const Parameter &parameter, const Variable &variable)
 {
     if (parameter.is_scalar() and variable.is_scalar())
     {
-        return Affine(parameter.coeff(0) * variable.coeff(0));
+        return AffineExpression(parameter.coeff(0) * variable.coeff(0));
     }
     else if (!parameter.is_scalar() and !variable.is_scalar())
     {
         assert(parameter.cols() == variable.rows());
 
-        Affine result(parameter.rows(), variable.cols());
+        AffineExpression result(parameter.rows(), variable.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                AffineExpression expression;
+                AffineSum expression;
                 for (size_t inner = 0; inner < parameter.cols(); inner++)
                 {
                     expression.terms.emplace_back(parameter.coeff(row, inner),
@@ -193,7 +193,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
     }
     else if (parameter.is_scalar())
     {
-        Affine result(variable.rows(), variable.cols());
+        AffineExpression result(variable.rows(), variable.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -206,7 +206,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
     }
     else // if (variable.is_scalar())
     {
-        Affine result(parameter.rows(), parameter.cols());
+        AffineExpression result(parameter.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -219,22 +219,22 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
     }
 }
 
-Affine operator*(const Variable &variable, const Parameter &parameter)
+AffineExpression operator*(const Variable &variable, const Parameter &parameter)
 {
     if (variable.is_scalar() and parameter.is_scalar())
     {
-        return Affine(parameter.coeff(0) * variable.coeff(0));
+        return AffineExpression(parameter.coeff(0) * variable.coeff(0));
     }
     else if (!variable.is_scalar() and !parameter.is_scalar())
     {
         assert(variable.cols() == parameter.rows());
 
-        Affine result(variable.rows(), parameter.cols());
+        AffineExpression result(variable.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                AffineExpression expression;
+                AffineSum expression;
                 for (size_t inner = 0; inner < variable.cols(); inner++)
                 {
                     expression.terms.emplace_back(parameter.coeff(inner, col),
@@ -247,7 +247,7 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
     }
     else if (variable.is_scalar())
     {
-        Affine result(variable.rows(), parameter.cols());
+        AffineExpression result(variable.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -260,7 +260,7 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
     }
     else // if (parameter.is_scalar())
     {
-        Affine result(parameter.rows(), parameter.cols());
+        AffineExpression result(parameter.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -272,7 +272,7 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const Affine &expression)
+std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
 {
     for (size_t row = 0; row < expression.rows(); row++)
     {
@@ -290,9 +290,9 @@ std::ostream &operator<<(std::ostream &os, const Affine &expression)
     return os;
 }
 
-Affine vstack(std::initializer_list<Affine> elements)
+AffineExpression vstack(std::initializer_list<AffineExpression> elements)
 {
-    Affine stacked;
+    AffineExpression stacked;
     for (const auto &e : elements)
     {
         stacked.data_matrix.insert(stacked.data_matrix.end(),
@@ -302,9 +302,9 @@ Affine vstack(std::initializer_list<Affine> elements)
     return stacked;
 }
 
-Affine hstack(std::initializer_list<Affine> elements)
+AffineExpression hstack(std::initializer_list<AffineExpression> elements)
 {
-    Affine stacked(elements.begin()->rows(), 0);
+    AffineExpression stacked(elements.begin()->rows(), 0);
     for (const auto &e : elements)
     {
         assert(stacked.rows() == e.rows());
@@ -318,12 +318,12 @@ Affine hstack(std::initializer_list<Affine> elements)
     return stacked;
 }
 
-Parameter::operator Affine() const
+Parameter::operator AffineExpression() const
 {
-    return Affine(*this);
+    return AffineExpression(*this);
 }
 
-Norm2::Norm2(const Affine &affine)
+Norm2::Norm2(const AffineExpression &affine)
 {
     assert(affine.rows() == 1 or affine.cols() == 1);
 
