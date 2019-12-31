@@ -44,7 +44,7 @@ Variable Variable::row(size_t index) const
     Variable row_variable(1, cols());
     for (size_t col = 0; col < cols(); col++)
     {
-        row_variable(0, col) = coeff(index, col);
+        row_variable.coeffRef(0, col) = coeff(index, col);
     }
     return row_variable;
 }
@@ -54,7 +54,7 @@ Variable Variable::col(size_t index) const
     Variable col_variable(rows(), 1);
     for (size_t row = 0; row < rows(); row++)
     {
-        col_variable(row, 0) = coeff(row, index);
+        col_variable.coeffRef(row, 0) = coeff(row, index);
     }
     return col_variable;
 }
@@ -66,7 +66,7 @@ Variable Variable::transpose() const
     {
         for (size_t col = 0; col < cols(); col++)
         {
-            transposed(col, row) = coeff(row, col);
+            transposed.coeffRef(col, row) = coeff(row, col);
         }
     }
     return transposed;

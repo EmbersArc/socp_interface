@@ -11,6 +11,9 @@
 namespace op
 {
 
+struct AffineTerm;
+struct AffineExpression;
+
 class VariableSource
 {
 public:
@@ -20,7 +23,8 @@ public:
     size_t getProblemIndex() const;
     friend std::ostream &operator<<(std::ostream &os,
                                     const VariableSource &variable);
-
+    operator AffineTerm() const;
+    operator AffineExpression() const;
 private:
     std::string name;
     size_t problem_index;

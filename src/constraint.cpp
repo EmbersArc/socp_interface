@@ -25,7 +25,7 @@ std::vector<EqualityConstraint> operator==(const Affine &affine, const double &z
     {
         for (size_t col = 0; col < affine.cols(); col++)
         {
-            constraints.push_back(affine(row, col) == 0.0);
+            constraints.push_back(affine.coeff(row, col) == 0.0);
         }
     }
     return constraints;
@@ -75,7 +75,7 @@ std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &z
     {
         for (size_t col = 0; col < affine.cols(); col++)
         {
-            constraints.push_back(affine(row, col) >= 0.0);
+            constraints.push_back(affine.coeff(row, col) >= 0.0);
         }
     }
     return constraints;
@@ -102,7 +102,7 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
 
 SecondOrderConeConstraint operator<=(const Norm2 &norm2, const Affine &affine)
 {
-    return SecondOrderConeConstraint(norm2, affine(0));
+    return SecondOrderConeConstraint(norm2, affine.coeff(0));
 }
 
 SecondOrderConeConstraint operator>=(const Affine &affine, const Norm2 &norm2)

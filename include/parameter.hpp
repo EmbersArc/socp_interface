@@ -16,15 +16,21 @@
 namespace op
 {
 
+struct AffineTerm;
+struct AffineExpression;
+class Affine;
+
 class ParameterSource
 {
 public:
     ParameterSource() = default;
     ParameterSource(const double const_value);
     explicit ParameterSource(double *value_ptr);
-    explicit ParameterSource(std::function<double()> callback);
-
+    explicit ParameterSource(const std::function<double()> &callback);
     double getValue() const;
+
+    operator AffineTerm() const;
+    operator AffineExpression() const;
 
 private:
     using source_variant_t = std::variant<double,
@@ -45,12 +51,12 @@ public:
     explicit Parameter(double *value_ptr);
     explicit Parameter(const parameter_source_matrix_t &sources);
 
-// #if EIGEN_AVAILABLE
+    // #if EIGEN_AVAILABLE
     template <typename Derived>
     explicit Parameter(const Eigen::DenseBase<Derived> &matrix);
     template <typename Derived>
     explicit Parameter(Eigen::DenseBase<Derived> *matrix);
-// #endif
+    // #endif
 
     Parameter operator+(const Parameter &other) const;
     Parameter operator-() const;
@@ -61,6 +67,8 @@ public:
     double getValue(const size_t row = 0,
                     const size_t col = 0) const;
     DynamicMatrix<double> getValues() const;
+
+    operator Affine() const;
 };
 
 Parameter vstack(std::initializer_list<Parameter> elements);
@@ -75,7 +83,7 @@ Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
     {
         for (size_t col = 0; col < size_t(matrix.cols()); col++)
         {
-            operator()(row, col) = ParameterSource(matrix(row, col));
+            coeffRef(row, col) = ParameterSource(matrix(row, col));
         }
     }
 }
@@ -87,7 +95,7 @@ Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
     {
         for (size_t col = 0; col < size_t(matrix->cols()); col++)
         {
-            operator()(row, col) = ParameterSource(&matrix->coeffRef(row, col));
+            coeffRef(row, col) = ParameterSource(&matrix->coeffRef(row, col));
         }
     }
 }

@@ -32,7 +32,7 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
 {
     const Variable &variable = variables.at(name);
     assert(variable.is_scalar());
-    solution = solution_vector[variable(0, 0).getProblemIndex()];
+    solution = solution_vector[variable.coeff(0).getProblemIndex()];
 }
 void GenericOptimizationProblem::readSolution(const std::string &name,
                                               DynamicMatrix<double> &solution) const
@@ -43,7 +43,7 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
     {
         for (size_t col = 0; col < variable.cols(); col++)
         {
-            solution(row, col) = solution_vector[variable(row, col).getProblemIndex()];
+            solution.coeffRef(row, col) = solution_vector[variable.coeff(row, col).getProblemIndex()];
         }
     }
 }

@@ -25,10 +25,10 @@ public:
     std::vector<T> rowElements(size_t index) const;
     std::vector<T> colElements(size_t index) const;
 
-    T &operator()(size_t row, size_t col = 0);
+    // T &operator()(size_t row, size_t col = 0);
     T &coeffRef(size_t row, size_t col = 0);
 
-    const T &operator()(size_t row, size_t col = 0) const;
+    // const T &operator()(size_t row, size_t col = 0) const;
     const T &coeff(size_t row, size_t col = 0) const;
 
     void resize(size_t rows, size_t cols);
@@ -100,19 +100,19 @@ std::pair<size_t, size_t> DynamicMatrix<T>::shape() const
     return {rows(), cols()};
 }
 
-template <typename T>
-T &DynamicMatrix<T>::operator()(size_t row, size_t col)
-{
-    assert(row < rows() and col < cols());
-    return data_matrix[row][col];
-}
+// template <typename T>
+// T &DynamicMatrix<T>::operator()(size_t row, size_t col)
+// {
+//     assert(row < rows() and col < cols());
+//     return data_matrix[row][col];
+// }
 
-template <typename T>
-const T &DynamicMatrix<T>::operator()(size_t row, size_t col) const
-{
-    assert(row < rows() and col < cols());
-    return data_matrix[row][col];
-}
+// template <typename T>
+// const T &DynamicMatrix<T>::operator()(size_t row, size_t col) const
+// {
+//     assert(row < rows() and col < cols());
+//     return data_matrix[row][col];
+// }
 
 template <typename T>
 const T &DynamicMatrix<T>::coeff(size_t row, size_t col) const

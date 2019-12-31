@@ -12,10 +12,12 @@ namespace op
 struct AffineTerm
 {
     AffineTerm();
-    AffineTerm(const ParameterSource &parameter);
-    AffineTerm(const VariableSource &variable);
+    explicit AffineTerm(const ParameterSource &parameter);
+    explicit AffineTerm(const VariableSource &variable);
     AffineTerm(const ParameterSource &parameter,
                const VariableSource &variable);
+
+    operator AffineExpression() const;
 
     ParameterSource parameter;
     std::optional<VariableSource> variable; // a missing Variable represents a constant 1.0
@@ -29,8 +31,9 @@ AffineTerm operator*(const double &const_parameter, const VariableSource &variab
 struct AffineExpression
 {
     AffineExpression() = default;
-    AffineExpression(const ParameterSource &parameter);
-    AffineExpression(const AffineTerm &term);
+    explicit AffineExpression(const ParameterSource &parameter);
+    explicit AffineExpression(const VariableSource &variable);
+    explicit AffineExpression(const AffineTerm &term);
 
     std::vector<AffineTerm> terms;
     friend std::ostream &operator<<(std::ostream &os, const AffineExpression &expression);
@@ -47,7 +50,7 @@ class Affine : public DynamicMatrix<AffineExpression>
 public:
     using DynamicMatrix<AffineExpression>::DynamicMatrix;
     Affine() = default;
-    Affine(const Parameter &parameter);
+    explicit Affine(const Parameter &parameter);
     explicit Affine(const AffineExpression &expression);
     friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
 };
