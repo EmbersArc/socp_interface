@@ -149,9 +149,9 @@ Affine::Affine(const AffineSum &expression)
     coeffRef(0) = expression;
 }
 
-std::ostream &operator<<(std::ostream &os, const Norm2 &norm2)
+std::ostream &operator<<(std::ostream &os, const Norm2Term &norm2)
 {
-    os << "Norm2([";
+    os << "norm2([";
     for (size_t i = 0; i < norm2.arguments.size(); i++)
     {
         if (i > 0)
@@ -312,7 +312,7 @@ Variable::operator Affine() const
     return Affine(*this);
 }
 
-Norm2::Norm2(const Affine &affine)
+Norm2Term::Norm2Term(const Affine &affine)
 {
     assert(affine.rows() == 1 or affine.cols() == 1);
 
@@ -326,13 +326,40 @@ Norm2::Norm2(const Affine &affine)
     }
 }
 
-double Norm2::evaluate(const std::vector<double> &soln_values) const
+double Norm2Term::evaluate(const std::vector<double> &soln_values) const
 {
     auto sum_squares = [&soln_values](double sum, const auto &arg) {
         double val = arg.evaluate(soln_values);
         return val * val;
     };
     return std::sqrt(std::accumulate(arguments.begin(), arguments.end(), 0., sum_squares));
+}
+
+Norm2::Norm2(const Affine &affine, size_t axis)
+{
+    assert(axis == 0 or axis == 1);
+    if (axis == 0)
+    {
+        resize(1, affine.cols());
+        for (size_t col = 0; col < cols(); col++)
+        {
+            for (size_t row = 0; row < affine.rows(); row++)
+            {
+                coeffRef(0, col).arguments.push_back(affine.coeff(row, col));
+            }
+        }
+    }
+    else if (axis == 1)
+    {
+        resize(affine.rows(), 1);
+        for (size_t row = 0; row < rows(); row++)
+        {
+            for (size_t col = 0; col < affine.cols(); col++)
+            {
+                coeffRef(row, 0).arguments.push_back(affine.coeff(row, col));
+            }
+        }
+    }
 }
 
 Affine operator-(const Variable &variable)

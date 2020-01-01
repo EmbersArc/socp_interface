@@ -86,7 +86,7 @@ std::vector<PositiveConstraint> operator<=(const double &zero, const Affine &aff
     return affine >= zero;
 }
 
-SecondOrderConeConstraint::SecondOrderConeConstraint(const Norm2 &norm2, const AffineSum &affine)
+SecondOrderConeConstraint::SecondOrderConeConstraint(const Norm2Term &norm2, const AffineSum &affine)
     : norm2(norm2), affine(affine) {}
 
 std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint)
@@ -100,24 +100,33 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
     return (norm2.evaluate(soln_values) - affine.evaluate(soln_values));
 }
 
-SecondOrderConeConstraint operator<=(const Norm2 &norm2, const Affine &affine)
+std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const Affine &affine)
 {
-    return SecondOrderConeConstraint(norm2, affine.coeff(0));
+    assert(norm2.shape() == affine.shape());
+    std::vector<SecondOrderConeConstraint> constraints;
+    for (size_t row = 0; row < affine.rows(); row++)
+    {
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            constraints.emplace_back(norm2.coeff(row, col), affine.coeff(row, col));
+        }
+    }
+    return constraints;
 }
 
-SecondOrderConeConstraint operator>=(const Affine &affine, const Norm2 &norm2)
+std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2 &norm2)
 {
     return norm2 <= affine;
 }
 
-SecondOrderConeConstraint operator<=(const Norm2 &norm2, const double &constant)
-{
-    return SecondOrderConeConstraint(norm2, ParameterSource(constant));
-}
+// std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const double &constant)
+// {
+//     return SecondOrderConeConstraint(norm2, ParameterSource(constant));
+// }
 
-SecondOrderConeConstraint operator>=(const double &constant, const Norm2 &norm2)
-{
-    return norm2 <= constant;
-}
+// std::vector<SecondOrderConeConstraint> operator>=(const double &constant, const Norm2 &norm2)
+// {
+//     return norm2 <= constant;
+// }
 
 } // namespace op

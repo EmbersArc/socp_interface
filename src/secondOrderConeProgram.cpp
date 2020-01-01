@@ -31,6 +31,11 @@ void SecondOrderConeProgram::addConstraint(SecondOrderConeConstraint constraint)
     secondOrderConeConstraints.push_back(constraint);
 }
 
+void SecondOrderConeProgram::addConstraint(std::vector<SecondOrderConeConstraint> constraints)
+{
+    secondOrderConeConstraints.insert(secondOrderConeConstraints.end(), constraints.begin(), constraints.end());
+}
+
 void SecondOrderConeProgram::addMinimizationTerm(const AffineSum &affine)
 {
     costFunction = costFunction + affine;

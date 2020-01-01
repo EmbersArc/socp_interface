@@ -60,12 +60,20 @@ Affine operator*(const Variable &variable, const Parameter &parameter);
 Affine operator*(const double &const_parameter, const Variable &variable);
 
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
-struct Norm2
+struct Norm2Term
 {
-    explicit Norm2(const Affine &affine);
+    Norm2Term() = default;
+    explicit Norm2Term(const Affine &affine);
     std::vector<AffineSum> arguments;
-    friend std::ostream &operator<<(std::ostream &os, const Norm2 &norm2);
+    friend std::ostream &operator<<(std::ostream &os, const Norm2Term &norm2);
     double evaluate(const std::vector<double> &soln_values) const;
+};
+
+class Norm2 : public DynamicMatrix<Norm2Term, Norm2>
+{
+public:
+    using DynamicMatrix<Norm2Term, Norm2>::DynamicMatrix;
+    Norm2(const Affine &affine, size_t axis = 0);
 };
 
 Affine operator-(const Variable &variable);
