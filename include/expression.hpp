@@ -45,10 +45,10 @@ AffineSum operator+(const double &lhs, const AffineSum &rhs);
 AffineSum operator+(const AffineSum &lhs, const double &rhs);
 
 // A scalar/vector/matrix of affine expressions
-class Affine : public DynamicMatrix<AffineSum>
+class Affine : public DynamicMatrix<AffineSum, Affine>
 {
 public:
-    using DynamicMatrix<AffineSum>::DynamicMatrix;
+    using DynamicMatrix<AffineSum, Affine>::DynamicMatrix;
     Affine() = default;
     explicit Affine(const Parameter &parameter);
     explicit Affine(const AffineSum &expression);

@@ -12,7 +12,7 @@ namespace op
 //     p_1*x_1 + p_2*x_2 + ... + b == 0
 struct EqualityConstraint
 {
-    EqualityConstraint(const AffineSum &affine);
+    explicit EqualityConstraint(const AffineSum &affine);
     AffineSum affine;
     friend std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
@@ -26,7 +26,7 @@ std::vector<EqualityConstraint> operator==(const Affine &affine, const Parameter
 //     p_1*x_1 + p_2*x_2 + ... + b >= 0
 struct PositiveConstraint
 {
-    PositiveConstraint(const AffineSum &affine);
+    explicit PositiveConstraint(const AffineSum &affine);
     AffineSum affine;
     friend std::ostream &operator<<(std::ostream &os, const PositiveConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
