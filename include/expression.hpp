@@ -49,7 +49,6 @@ class Affine : public DynamicMatrix<AffineSum, Affine>
 {
 public:
     using DynamicMatrix<AffineSum, Affine>::DynamicMatrix;
-    Affine() = default;
     explicit Affine(const Parameter &parameter);
     explicit Affine(const Variable &variable);
     explicit Affine(const AffineSum &expression);
@@ -68,5 +67,7 @@ struct Norm2
     friend std::ostream &operator<<(std::ostream &os, const Norm2 &norm2);
     double evaluate(const std::vector<double> &soln_values) const;
 };
+
+Affine operator-(const Variable &variable);
 
 } // namespace op

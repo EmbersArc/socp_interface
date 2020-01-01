@@ -335,4 +335,9 @@ double Norm2::evaluate(const std::vector<double> &soln_values) const
     return std::sqrt(std::accumulate(arguments.begin(), arguments.end(), 0., sum_squares));
 }
 
+Affine operator-(const Variable &variable)
+{
+    return Affine(Parameter(-1.) * variable);
+}
+
 } // namespace op
