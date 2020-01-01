@@ -38,6 +38,11 @@ Parameter::Parameter(double *value_ptr)
     data_matrix = {{ParameterSource(value_ptr)}};
 }
 
+Parameter::Parameter(const std::function<double()> &callback)
+{
+    data_matrix = {{ParameterSource(callback)}};
+}
+
 Parameter::Parameter(const parameter_source_matrix_t &sources)
 {
     assert(not sources.empty());

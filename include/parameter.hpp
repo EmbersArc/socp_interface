@@ -50,6 +50,7 @@ public:
     explicit Parameter(const double const_value);
     explicit Parameter(double *value_ptr);
     explicit Parameter(const parameter_source_matrix_t &sources);
+    explicit Parameter(const std::function<double()> &callback);
 
     // #if EIGEN_AVAILABLE
     template <typename Derived>
