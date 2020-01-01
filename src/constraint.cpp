@@ -102,13 +102,20 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
 
 std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const Affine &affine)
 {
-    assert(norm2.shape() == affine.shape());
+    assert(norm2.shape() == affine.shape() or affine.is_scalar()); // TODO?: or norm.is_scalar
     std::vector<SecondOrderConeConstraint> constraints;
-    for (size_t row = 0; row < affine.rows(); row++)
+    for (size_t row = 0; row < norm2.rows(); row++)
     {
-        for (size_t col = 0; col < affine.cols(); col++)
+        for (size_t col = 0; col < norm2.cols(); col++)
         {
-            constraints.emplace_back(norm2.coeff(row, col), affine.coeff(row, col));
+            if (affine.is_scalar())
+            {
+                constraints.emplace_back(norm2.coeff(row, col), affine.coeff(0, 0));
+            }
+            else
+            {
+                constraints.emplace_back(norm2.coeff(row, col), affine.coeff(row, col));
+            }
         }
     }
     return constraints;
