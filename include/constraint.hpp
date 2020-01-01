@@ -19,8 +19,6 @@ struct EqualityConstraint
 };
 
 std::vector<EqualityConstraint> operator==(const Affine &affine, const double &zero);
-std::vector<EqualityConstraint> operator==(const Parameter &parameter, const Affine &affine);
-std::vector<EqualityConstraint> operator==(const Affine &affine, const Parameter &parameter);
 
 // represents a constraint like
 //     p_1*x_1 + p_2*x_2 + ... + b >= 0
