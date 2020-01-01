@@ -79,5 +79,6 @@ public:
 Affine operator-(const Variable &variable);
 
 Affine sum(const Affine &affine);
+Affine sum(const Affine &affine, size_t axis);
 
 } // namespace op

@@ -380,4 +380,37 @@ Affine sum(const Affine &affine)
     return sum;
 }
 
+Affine sum(const Affine &affine, size_t axis)
+{
+    assert(axis == 0 or axis == 1);
+    op::Affine sum;
+    if (axis == 0)
+    {
+        sum.resize(1, affine.cols());
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            op::AffineSum row_sum;
+            for (size_t row = 0; row < affine.rows(); row++)
+            {
+                row_sum += affine.coeff(row, col);
+            }
+            sum.coeffRef(0, col) = row_sum;
+        }
+    }
+    else if (axis == 1)
+    {
+        sum.resize(affine.rows(), 1);
+        for (size_t row = 0; row < affine.rows(); row++)
+        {
+            op::AffineSum col_sum;
+            for (size_t col = 0; col < affine.cols(); col++)
+            {
+                col_sum += affine.coeff(row, col);
+            }
+            sum.coeffRef(row, 0) = col_sum;
+        }
+    }
+    return sum;
+}
+
 } // namespace op
