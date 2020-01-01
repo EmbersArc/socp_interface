@@ -28,19 +28,6 @@ double ParameterSource::getValue() const
     }
 }
 
-Parameter Parameter::transpose() const
-{
-    Parameter transposed(cols(), rows());
-    for (size_t row = 0; row < rows(); row++)
-    {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            transposed.coeffRef(col, row) = coeff(row, col);
-        }
-    }
-    return transposed;
-}
-
 Parameter::Parameter(const double const_value)
 {
     data_matrix = {{ParameterSource(const_value)}};

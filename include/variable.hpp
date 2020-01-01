@@ -25,29 +25,25 @@ public:
                                     const VariableSource &variable);
     operator AffineTerm() const;
     operator AffineSum() const;
-private:
     std::string name;
+private:
     size_t problem_index;
     std::pair<size_t, size_t> index;
 };
 
 // A scalar/vector/matrix optimization variable
-class Variable : public DynamicMatrix<VariableSource>
+class Variable : public DynamicMatrix<VariableSource, Variable>
 {
 public:
-    using DynamicMatrix<VariableSource>::DynamicMatrix;
+    using DynamicMatrix<VariableSource, Variable>::DynamicMatrix;
     Variable() = default;
     Variable(const std::string &name, size_t start_index,
              size_t rows = 1, size_t cols = 1);
     friend std::ostream &operator<<(std::ostream &os,
                                     const Variable &variable);
-    Variable row(size_t index) const;
-    Variable col(size_t index) const;
-    Variable transpose() const;
-
+    std::string name;
 private:
     // indices of the value in the solution vector x
-    std::string name;
 };
 
 } // namespace op
