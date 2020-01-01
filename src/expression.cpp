@@ -367,4 +367,17 @@ Affine operator-(const Variable &variable)
     return Affine(Parameter(-1.) * variable);
 }
 
+Affine sum(const Affine &affine)
+{
+    op::Affine sum;
+    for (size_t row = 0; row < affine.rows(); row++)
+    {
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            sum = sum + affine(row, col);
+        }
+    }
+    return sum;
+}
+
 } // namespace op

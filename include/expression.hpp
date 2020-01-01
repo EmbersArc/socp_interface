@@ -78,4 +78,6 @@ public:
 
 Affine operator-(const Variable &variable);
 
+Affine sum(const Affine &affine);
+
 } // namespace op
