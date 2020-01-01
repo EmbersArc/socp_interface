@@ -144,7 +144,8 @@ template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
                                       size_t n_rows, size_t n_cols) const
 {
-    assert((start_row + n_rows) < rows() and (start_col + n_cols) < cols());
+    assert((start_row + n_rows - 1) < rows() and
+           (start_col + n_cols - 1) < cols());
     return_t result = *(return_t *)(this);
     result.resize(n_rows, n_cols);
     for (size_t row = 0; row < n_rows; row++)
