@@ -13,6 +13,7 @@ namespace op
 
 struct AffineTerm;
 struct AffineSum;
+struct Affine;
 
 class VariableSource
 {
@@ -41,8 +42,9 @@ public:
              size_t rows = 1, size_t cols = 1);
     friend std::ostream &operator<<(std::ostream &os,
                                     const Variable &variable);
-    std::string name;
+    operator Affine() const;
 private:
+    std::string name;
     // indices of the value in the solution vector x
 };
 

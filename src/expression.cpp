@@ -295,6 +295,11 @@ Parameter::operator Affine() const
     return Affine(*this);
 }
 
+Variable::operator Affine() const
+{
+    return Affine(*this);
+}
+
 Norm2::Norm2(const Affine &affine)
 {
     assert(affine.rows() == 1 or affine.cols() == 1);
