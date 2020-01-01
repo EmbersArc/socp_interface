@@ -36,7 +36,7 @@ void SecondOrderConeProgram::addMinimizationTerm(const AffineSum &affine)
     costFunction = costFunction + affine;
 }
 
-void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &affine)
+void SecondOrderConeProgram::addMinimizationTerm(const Affine &affine)
 {
     assert(affine.is_scalar());
     costFunction = costFunction + affine.coeff(0);

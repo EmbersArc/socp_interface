@@ -119,7 +119,7 @@ AffineTerm::operator AffineSum() const
     return AffineSum(*this);
 }
 
-AffineExpression::AffineExpression(const Parameter &parameter)
+Affine::Affine(const Parameter &parameter)
 {
     resize(parameter.rows(), parameter.cols());
     for (size_t row = 0; row < parameter.rows(); row++)
@@ -131,7 +131,7 @@ AffineExpression::AffineExpression(const Parameter &parameter)
     }
 }
 
-AffineExpression::AffineExpression(const AffineSum &expression)
+Affine::Affine(const AffineSum &expression)
 {
     resize(1, 1);
     coeffRef(0) = expression;
@@ -150,10 +150,10 @@ std::ostream &operator<<(std::ostream &os, const Norm2 &norm2)
     return os;
 }
 
-AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &rhs)
+Affine operator+(const Affine &lhs, const Affine &rhs)
 {
     assert(lhs.shape() == rhs.shape());
-    AffineExpression result;
+    Affine result;
     result.data_matrix = lhs.data_matrix;
     for (size_t row = 0; row < lhs.rows(); row++)
     {
@@ -165,17 +165,17 @@ AffineExpression operator+(const AffineExpression &lhs, const AffineExpression &
     return result;
 }
 
-AffineExpression operator*(const Parameter &parameter, const Variable &variable)
+Affine operator*(const Parameter &parameter, const Variable &variable)
 {
     if (parameter.is_scalar() and variable.is_scalar())
     {
-        return AffineExpression(parameter.coeff(0) * variable.coeff(0));
+        return Affine(parameter.coeff(0) * variable.coeff(0));
     }
     else if (!parameter.is_scalar() and !variable.is_scalar())
     {
         assert(parameter.cols() == variable.rows());
 
-        AffineExpression result(parameter.rows(), variable.cols());
+        Affine result(parameter.rows(), variable.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -193,7 +193,7 @@ AffineExpression operator*(const Parameter &parameter, const Variable &variable)
     }
     else if (parameter.is_scalar())
     {
-        AffineExpression result(variable.rows(), variable.cols());
+        Affine result(variable.rows(), variable.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -206,7 +206,7 @@ AffineExpression operator*(const Parameter &parameter, const Variable &variable)
     }
     else // if (variable.is_scalar())
     {
-        AffineExpression result(parameter.rows(), parameter.cols());
+        Affine result(parameter.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -219,17 +219,17 @@ AffineExpression operator*(const Parameter &parameter, const Variable &variable)
     }
 }
 
-AffineExpression operator*(const Variable &variable, const Parameter &parameter)
+Affine operator*(const Variable &variable, const Parameter &parameter)
 {
     if (variable.is_scalar() and parameter.is_scalar())
     {
-        return AffineExpression(parameter.coeff(0) * variable.coeff(0));
+        return Affine(parameter.coeff(0) * variable.coeff(0));
     }
     else if (!variable.is_scalar() and !parameter.is_scalar())
     {
         assert(variable.cols() == parameter.rows());
 
-        AffineExpression result(variable.rows(), parameter.cols());
+        Affine result(variable.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -247,7 +247,7 @@ AffineExpression operator*(const Variable &variable, const Parameter &parameter)
     }
     else if (variable.is_scalar())
     {
-        AffineExpression result(variable.rows(), parameter.cols());
+        Affine result(variable.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -260,7 +260,7 @@ AffineExpression operator*(const Variable &variable, const Parameter &parameter)
     }
     else // if (parameter.is_scalar())
     {
-        AffineExpression result(parameter.rows(), parameter.cols());
+        Affine result(parameter.rows(), parameter.cols());
         for (size_t row = 0; row < result.rows(); row++)
         {
             for (size_t col = 0; col < result.cols(); col++)
@@ -272,7 +272,7 @@ AffineExpression operator*(const Variable &variable, const Parameter &parameter)
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
+std::ostream &operator<<(std::ostream &os, const Affine &expression)
 {
     for (size_t row = 0; row < expression.rows(); row++)
     {
@@ -290,12 +290,12 @@ std::ostream &operator<<(std::ostream &os, const AffineExpression &expression)
     return os;
 }
 
-Parameter::operator AffineExpression() const
+Parameter::operator Affine() const
 {
-    return AffineExpression(*this);
+    return Affine(*this);
 }
 
-Norm2::Norm2(const AffineExpression &affine)
+Norm2::Norm2(const Affine &affine)
 {
     assert(affine.rows() == 1 or affine.cols() == 1);
 

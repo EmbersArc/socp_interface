@@ -18,7 +18,7 @@ namespace op
 
 struct AffineTerm;
 struct AffineSum;
-class AffineExpression;
+class Affine;
 
 class ParameterSource
 {
@@ -67,7 +67,7 @@ public:
                     const size_t col = 0) const;
     DynamicMatrix<double> getValues() const;
 
-    operator AffineExpression() const;
+    operator Affine() const;
 };
 
 // #ifdef EIGEN_AVAILABLE
