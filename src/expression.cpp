@@ -131,6 +131,18 @@ Affine::Affine(const Parameter &parameter)
     }
 }
 
+Affine::Affine(const Variable &variable)
+{
+    resize(variable.rows(), variable.cols());
+    for (size_t row = 0; row < variable.rows(); row++)
+    {
+        for (size_t col = 0; col < variable.cols(); col++)
+        {
+            coeffRef(row, col) = AffineSum(variable.coeff(row, col));
+        }
+    }
+}
+
 Affine::Affine(const AffineSum &expression)
 {
     resize(1, 1);

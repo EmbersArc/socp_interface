@@ -51,6 +51,7 @@ public:
     using DynamicMatrix<AffineSum, Affine>::DynamicMatrix;
     Affine() = default;
     explicit Affine(const Parameter &parameter);
+    explicit Affine(const Variable &variable);
     explicit Affine(const AffineSum &expression);
     friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
 };
