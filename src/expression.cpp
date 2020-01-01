@@ -302,6 +302,18 @@ std::ostream &operator<<(std::ostream &os, const Affine &expression)
     return os;
 }
 
+Affine &Affine::operator+=(const Affine &other)
+{
+    for (size_t row = 0; row < rows(); row++)
+    {
+        for (size_t col = 0; col < cols(); col++)
+        {
+            coeffRef(row, col) += other.coeff(row, col);
+        }
+    }
+    return *this;
+}
+
 Parameter::operator Affine() const
 {
     return Affine(*this);
