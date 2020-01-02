@@ -35,17 +35,12 @@ double AffineTerm::evaluate(const std::vector<double> &soln_values) const
         return p;
     }
 }
-// AffineTerm AffineTerm::operator*(const Parameter &parameter) const
-// {
-//     if (variable)
-//     {
-
-//     }
-//     else
-//     {
-
-//     }
-// }
+AffineTerm AffineTerm::operator*(const ParameterSource &parameter) const
+{
+    AffineTerm result = *this;
+    result.parameter = parameter * result.parameter;
+    return result;
+}
 AffineTerm operator*(const ParameterSource &parameter, const VariableSource &variable)
 {
     return AffineTerm(parameter, variable);
@@ -88,11 +83,11 @@ double AffineSum::evaluate(const std::vector<double> &soln_values) const
     return sum;
 }
 
-AffineSum operator+(const AffineSum &lhs, const AffineSum &rhs)
+AffineSum AffineSum::operator+(const AffineSum &other) const
 {
     AffineSum result;
-    result.terms.insert(result.terms.end(), lhs.terms.begin(), lhs.terms.end());
-    result.terms.insert(result.terms.end(), rhs.terms.begin(), rhs.terms.end());
+    result.terms.insert(result.terms.end(), terms.begin(), terms.end());
+    result.terms.insert(result.terms.end(), other.terms.begin(), other.terms.end());
     return result;
 }
 

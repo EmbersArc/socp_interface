@@ -23,7 +23,7 @@ struct AffineTerm
     std::optional<VariableSource> variable; // a missing Variable represents a constant 1.0
     friend std::ostream &operator<<(std::ostream &os, const AffineTerm &term);
     double evaluate(const std::vector<double> &soln_values) const;
-    // AffineTerm operator*(const Parameter &parameter) const;
+    AffineTerm operator*(const ParameterSource &parameter) const;
 };
 AffineTerm operator*(const ParameterSource &parameter, const VariableSource &variable);
 AffineTerm operator*(const double &const_parameter, const VariableSource &variable);
@@ -40,8 +40,8 @@ struct AffineSum
     friend std::ostream &operator<<(std::ostream &os, const AffineSum &expression);
     double evaluate(const std::vector<double> &soln_values) const;
     AffineSum &operator+=(const AffineSum &other);
+    AffineSum operator+(const AffineSum &other) const;
 };
-AffineSum operator+(const AffineSum &lhs, const AffineSum &rhs);
 AffineSum operator+(const double &lhs, const AffineSum &rhs);
 AffineSum operator+(const AffineSum &lhs, const double &rhs);
 
