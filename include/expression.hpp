@@ -56,6 +56,7 @@ public:
     explicit Affine(const AffineSum &expression);
     friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
     Affine &operator+=(const Affine &other);
+    Affine operator-() const;
 };
 Affine operator+(const Affine &lhs, const Affine &rhs);
 Affine operator*(const Parameter &parameter, const Variable &variable);

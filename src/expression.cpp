@@ -345,6 +345,11 @@ Affine &Affine::operator+=(const Affine &other)
     return *this;
 }
 
+Affine Affine::operator-() const
+{
+    return Parameter(-1.0) * *this;
+}
+
 Parameter::operator Affine() const
 {
     return Affine(*this);
