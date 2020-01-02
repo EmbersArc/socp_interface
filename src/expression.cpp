@@ -91,6 +91,17 @@ AffineSum AffineSum::operator+(const AffineSum &other) const
     return result;
 }
 
+AffineSum AffineSum::operator*(const ParameterSource &parameter) const
+{
+    AffineSum result;
+    result.terms = terms;
+    for (AffineTerm &term : result.terms)
+    {
+        term = term * parameter;
+    }
+    return result;
+}
+
 AffineSum operator+(const AffineSum &lhs, const double &rhs)
 {
     AffineSum result;
@@ -288,6 +299,20 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
         }
         return result;
     }
+}
+
+Affine operator*(const Parameter &parameter, const Affine &affine)
+{
+    assert(parameter.is_scalar()); // yeah no matrices here
+    Affine result(affine.rows(), affine.cols());
+    for (size_t row = 0; row < affine.rows(); row++)
+    {
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            result.coeffRef(row, col) = affine.coeff(row, col) * parameter.coeff(0);
+        }
+    }
+    return result;
 }
 
 std::ostream &operator<<(std::ostream &os, const Affine &expression)

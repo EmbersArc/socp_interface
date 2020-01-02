@@ -41,6 +41,7 @@ struct AffineSum
     double evaluate(const std::vector<double> &soln_values) const;
     AffineSum &operator+=(const AffineSum &other);
     AffineSum operator+(const AffineSum &other) const;
+    AffineSum operator*(const ParameterSource &parameter) const;
 };
 AffineSum operator+(const double &lhs, const AffineSum &rhs);
 AffineSum operator+(const AffineSum &lhs, const double &rhs);
@@ -60,6 +61,7 @@ Affine operator+(const Affine &lhs, const Affine &rhs);
 Affine operator*(const Parameter &parameter, const Variable &variable);
 Affine operator*(const Variable &variable, const Parameter &parameter);
 Affine operator*(const double &const_parameter, const Variable &variable);
+Affine operator*(const Parameter &parameter, const Affine &affine);
 
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
 struct Norm2Term
