@@ -31,7 +31,7 @@ public:
     auto row(size_t index) const;
     auto col(size_t index) const;
     auto block(size_t start_row, size_t start_col,
-               size_t n_rows, size_t n_cols) const;
+               int n_rows, int n_cols) const;
     auto transpose() const;
 
     T &coeffRef(size_t row, size_t col = 0);
@@ -156,15 +156,19 @@ auto DynamicMatrix<T, Derived>::col(size_t index) const
 
 template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
-                                      size_t n_rows, size_t n_cols) const
+                                      int n_rows, int n_cols) const
 {
-    assert((start_row + n_rows - 1) < rows() and
-           (start_col + n_cols - 1) < cols());
+    size_t m = n_rows == -1 ? rows() : n_rows;
+    size_t n = n_cols == -1 ? cols() : n_cols;
+
+    assert((start_row + m - 1) < rows() and
+           (start_col + n - 1) < cols());
+
     return_t result = *static_cast<const return_t *>(this);
-    result.resize(n_rows, n_cols);
-    for (size_t row = 0; row < n_rows; row++)
+    result.resize(m, n);
+    for (size_t row = 0; row < m; row++)
     {
-        for (size_t col = 0; col < n_cols; col++)
+        for (size_t col = 0; col < n; col++)
         {
             result.coeffRef(row, col) = coeff(start_row + row, start_col + col);
         }
