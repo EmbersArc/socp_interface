@@ -76,7 +76,14 @@ size_t DynamicMatrix<T, Derived>::rows() const
 template <typename T, class Derived>
 size_t DynamicMatrix<T, Derived>::cols() const
 {
-    return data_matrix.front().size();
+    if (rows() > 0)
+    {
+        return data_matrix.front().size();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 template <typename T, class Derived>
@@ -213,10 +220,9 @@ bool DynamicMatrix<T, Derived>::operator==(const DynamicMatrix<T, Derived> &othe
 template <typename T>
 T vstack(std::initializer_list<T> elements)
 {
-    T stacked(0, elements.begin()->cols());
+    T stacked;
     for (const auto &e : elements)
     {
-        assert(stacked.cols() == e.cols());
         stacked.data_matrix.insert(stacked.data_matrix.end(),
                                    e.data_matrix.begin(),
                                    e.data_matrix.end());
