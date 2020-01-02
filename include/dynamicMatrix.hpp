@@ -223,7 +223,7 @@ T vstack(std::initializer_list<T> elements)
     T stacked;
     for (const auto &e : elements)
     {
-        assert(elements.front()->cols() == e.cols());
+        assert(elements.begin()->cols() == e.cols());
         stacked.data_matrix.insert(stacked.data_matrix.end(),
                                    e.data_matrix.begin(),
                                    e.data_matrix.end());
@@ -234,11 +234,11 @@ T vstack(std::initializer_list<T> elements)
 template <typename T>
 T hstack(std::initializer_list<T> elements)
 {
-    // TODO
     T stacked;
+    stacked.data_matrix.resize(elements.begin()->rows());
     for (const auto &e : elements)
     {
-        assert(elements.front()->rows() == e.rows());
+        assert(elements.begin()->rows() == e.rows());
         for (size_t row = 0; row < stacked.rows(); row++)
         {
             stacked.data_matrix.at(row).insert(stacked.data_matrix.at(row).begin(),
