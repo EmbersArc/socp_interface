@@ -28,6 +28,46 @@ double ParameterSource::getValue() const
     }
 }
 
+ParameterSource operator+(const ParameterSource &parameter1,
+                          const ParameterSource &parameter2)
+{
+    auto add_op = [p1 = parameter1,
+                   p2 = parameter2]() {
+        return p1.getValue() + p2.getValue();
+    };
+    return ParameterSource(add_op);
+}
+
+ParameterSource operator-(const ParameterSource &parameter1,
+                          const ParameterSource &parameter2)
+{
+    auto subtract_op = [p1 = parameter1,
+                        p2 = parameter2]() {
+        return p1.getValue() - p2.getValue();
+    };
+    return ParameterSource(subtract_op);
+}
+
+ParameterSource operator*(const ParameterSource &parameter1,
+                          const ParameterSource &parameter2)
+{
+    auto multiply_op = [p1 = parameter1,
+                        p2 = parameter2]() {
+        return p1.getValue() * p2.getValue();
+    };
+    return ParameterSource(multiply_op);
+}
+
+ParameterSource operator/(const ParameterSource &parameter1,
+                          const ParameterSource &parameter2)
+{
+    auto divide_op = [p1 = parameter1,
+                      p2 = parameter2]() {
+        return p1.getValue() / p2.getValue();
+    };
+    return ParameterSource(divide_op);
+}
+
 Parameter::Parameter(const double const_value)
 {
     data_matrix = {{ParameterSource(const_value)}};
@@ -71,17 +111,13 @@ DynamicMatrix<double> Parameter::getValues() const
 Parameter Parameter::operator+(const Parameter &other) const
 {
     assert(shape() == other.shape());
+
     Parameter parameter(rows(), cols());
     for (size_t row = 0; row < rows(); row++)
     {
         for (size_t col = 0; col < cols(); col++)
         {
-            auto var1 = std::make_shared<ParameterSource>();
-            *var1 = coeff(row, col);
-            auto var2 = std::make_shared<ParameterSource>();
-            *var2 = other.coeff(row, col);
-            auto add_op = [=]() { return var1->getValue() + var2->getValue(); };
-            parameter.coeffRef(row, col) = ParameterSource(add_op);
+            parameter.coeffRef(row, col) = coeff(row, col) + other.coeff(row, col);
         }
     }
     return parameter;
@@ -95,31 +131,16 @@ Parameter Parameter::operator-() const
 Parameter Parameter::operator-(const Parameter &other) const
 {
     assert(shape() == other.shape());
+
     Parameter parameter(rows(), cols());
     for (size_t row = 0; row < rows(); row++)
     {
         for (size_t col = 0; col < cols(); col++)
         {
-            auto var1 = std::make_shared<ParameterSource>();
-            *var1 = coeff(row, col);
-            auto var2 = std::make_shared<ParameterSource>();
-            *var2 = other.coeff(row, col);
-            auto subtract_op = [=]() { return var1->getValue() - var2->getValue(); };
-            parameter.coeffRef(row, col) = ParameterSource(subtract_op);
+            parameter.coeffRef(row, col) = coeff(row, col) - other.coeff(row, col);
         }
     }
     return parameter;
-}
-
-Parameter multiplyScalars(const ParameterSource &scalar1, const ParameterSource &scalar2)
-{
-    auto var1 = std::make_shared<ParameterSource>();
-    *var1 = scalar1;
-    auto var2 = std::make_shared<ParameterSource>();
-    *var2 = scalar2;
-    auto multiply_op = [=]() { return var1->getValue() * var2->getValue(); };
-
-    return Parameter({{ParameterSource(multiply_op)}});
 }
 
 Parameter scaleMatrix(const ParameterSource &scalar, const Parameter &matrix)
@@ -129,12 +150,7 @@ Parameter scaleMatrix(const ParameterSource &scalar, const Parameter &matrix)
     {
         for (size_t col = 0; col < matrix.cols(); col++)
         {
-            auto var1 = std::make_shared<ParameterSource>();
-            *var1 = scalar;
-            auto var2 = std::make_shared<ParameterSource>();
-            *var2 = matrix.coeff(row, col);
-            auto multiply_op = [=]() { return var1->getValue() * var2->getValue(); };
-            parameter.coeffRef(row, col) = ParameterSource(multiply_op);
+            parameter.coeffRef(row, col) = scalar * matrix.coeff(row, col);
         }
     }
     return parameter;
@@ -149,22 +165,22 @@ Parameter multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
     {
         for (size_t col = 0; col < matrix2.cols(); col++)
         {
-            auto row_vector = std::make_shared<parameter_source_vector_t>(matrix1.cols());
-            auto column_vector = std::make_shared<parameter_source_vector_t>(matrix2.rows());
+            std::vector<ParameterSource> row_vector(matrix1.cols());
+            std::vector<ParameterSource> column_vector(matrix2.rows());
             for (size_t inner = 0; inner < matrix1.cols(); inner++)
             {
-                row_vector->at(inner) = matrix1.coeff(row, inner);
-                column_vector->at(inner) = matrix2.coeff(inner, col);
+                row_vector.at(inner) = matrix1.coeff(row, inner);
+                column_vector.at(inner) = matrix2.coeff(inner, col);
             }
-            auto sum_opt = [=]() {
+            auto sum_op = [rv = row_vector, cv = column_vector] {
                 double element = 0;
-                for (size_t inner = 0; inner < row_vector->size(); inner++)
+                for (size_t inner = 0; inner < rv.size(); inner++)
                 {
-                    element += row_vector->at(inner).getValue() * column_vector->at(inner).getValue();
+                    element += rv[inner].getValue() * cv[inner].getValue();
                 }
                 return element;
             };
-            parameter.coeffRef(row, col) = ParameterSource(sum_opt);
+            parameter.coeffRef(row, col) = ParameterSource(sum_op);
         }
     }
     return parameter;
@@ -174,7 +190,7 @@ Parameter Parameter::operator*(const Parameter &other) const
 {
     if (is_scalar() and other.is_scalar())
     {
-        return multiplyScalars(coeff(0), other.coeff(0));
+        return Parameter({{coeff(0) * other.coeff(0)}});
     }
     if (!is_scalar() and !other.is_scalar())
     {
@@ -199,12 +215,7 @@ Parameter Parameter::operator/(const Parameter &other) const
     {
         for (size_t col = 0; col < cols(); col++)
         {
-            auto var1 = std::make_shared<ParameterSource>();
-            *var1 = coeff(row, col);
-            auto var2 = std::make_shared<ParameterSource>();
-            *var2 = other.coeff(row, col);
-            auto divide_op = [=]() { return var1->getValue() / var2->getValue(); };
-            parameter.coeffRef(row, col) = ParameterSource(divide_op);
+            parameter.coeffRef(row, col) = coeff(row, col) / other.coeff(0);
         }
     }
     return parameter;

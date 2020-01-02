@@ -35,6 +35,17 @@ double AffineTerm::evaluate(const std::vector<double> &soln_values) const
         return p;
     }
 }
+// AffineTerm AffineTerm::operator*(const Parameter &parameter) const
+// {
+//     if (variable)
+//     {
+
+//     }
+//     else
+//     {
+
+//     }
+// }
 AffineTerm operator*(const ParameterSource &parameter, const VariableSource &variable)
 {
     return AffineTerm(parameter, variable);
