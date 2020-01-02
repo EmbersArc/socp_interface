@@ -120,7 +120,7 @@ template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::operator()(size_t row, size_t col) const
 {
     assert(row < rows() and col < cols());
-    return_t result = *(return_t *)(this);
+    return_t result = *static_cast<const return_t *>(this);
     result.data_matrix = {{coeff(row, col)}};
     return result;
 }
@@ -129,7 +129,7 @@ template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::row(size_t index) const
 {
     assert(index < rows());
-    return_t result = *(return_t *)(this);
+    return_t result = *static_cast<const return_t *>(this);
     result.data_matrix = {data_matrix[index]};
     return result;
 }
@@ -138,7 +138,7 @@ template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::col(size_t index) const
 {
     assert(index < cols());
-    return_t result = *(return_t *)(this);
+    return_t result = *static_cast<const return_t *>(this);
     result.data_matrix.clear();
     for (const auto &row : data_matrix)
     {
@@ -153,7 +153,7 @@ auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
 {
     assert((start_row + n_rows - 1) < rows() and
            (start_col + n_cols - 1) < cols());
-    return_t result = *(return_t *)(this);
+    return_t result = *static_cast<const return_t *>(this);
     result.resize(n_rows, n_cols);
     for (size_t row = 0; row < n_rows; row++)
     {
@@ -168,7 +168,7 @@ auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
 template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::transpose() const
 {
-    return_t result = *(return_t *)(this);
+    return_t result = *static_cast<const return_t *>(this);
     result.resize(cols(), rows());
     for (size_t row = 0; row < rows(); row++)
     {
