@@ -210,12 +210,13 @@ bool DynamicMatrix<T, Derived>::operator==(const DynamicMatrix<T, Derived> &othe
     return data_matrix == other.data_matrix;
 }
 
-template <typename T, class Derived>
+template <typename T>
 T vstack(std::initializer_list<T> elements)
 {
-    T stacked;
+    T stacked(0, elements.begin()->cols());
     for (const auto &e : elements)
     {
+        assert(stacked.cols() == e.cols());
         stacked.data_matrix.insert(stacked.data_matrix.end(),
                                    e.data_matrix.begin(),
                                    e.data_matrix.end());
@@ -223,7 +224,7 @@ T vstack(std::initializer_list<T> elements)
     return stacked;
 }
 
-template <typename T, class Derived>
+template <typename T>
 T hstack(std::initializer_list<T> elements)
 {
     T stacked(elements.begin()->rows(), 0);
