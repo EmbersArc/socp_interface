@@ -234,7 +234,8 @@ T vstack(std::initializer_list<T> elements)
 template <typename T>
 T hstack(std::initializer_list<T> elements)
 {
-    T stacked(elements.begin()->rows(), 0);
+    // TODO
+    T stacked;
     for (const auto &e : elements)
     {
         assert(elements.front()->rows() == e.rows());
