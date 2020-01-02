@@ -28,41 +28,37 @@ double ParameterSource::getValue() const
     }
 }
 
-ParameterSource operator+(const ParameterSource &parameter1,
-                          const ParameterSource &parameter2)
+ParameterSource ParameterSource::operator+(const ParameterSource &other) const
 {
-    auto add_op = [p1 = parameter1,
-                   p2 = parameter2]() {
+    auto add_op = [p1 = *this,
+                   p2 = other]() {
         return p1.getValue() + p2.getValue();
     };
     return ParameterSource(add_op);
 }
 
-ParameterSource operator-(const ParameterSource &parameter1,
-                          const ParameterSource &parameter2)
+ParameterSource ParameterSource::operator-(const ParameterSource &other) const
 {
-    auto subtract_op = [p1 = parameter1,
-                        p2 = parameter2]() {
+    auto subtract_op = [p1 = *this,
+                        p2 = other]() {
         return p1.getValue() - p2.getValue();
     };
     return ParameterSource(subtract_op);
 }
 
-ParameterSource operator*(const ParameterSource &parameter1,
-                          const ParameterSource &parameter2)
+ParameterSource ParameterSource::operator*(const ParameterSource &other) const
 {
-    auto multiply_op = [p1 = parameter1,
-                        p2 = parameter2]() {
+    auto multiply_op = [p1 = *this,
+                        p2 = other]() {
         return p1.getValue() * p2.getValue();
     };
     return ParameterSource(multiply_op);
 }
 
-ParameterSource operator/(const ParameterSource &parameter1,
-                          const ParameterSource &parameter2)
+ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 {
-    auto divide_op = [p1 = parameter1,
-                      p2 = parameter2]() {
+    auto divide_op = [p1 = *this,
+                      p2 = other]() {
         return p1.getValue() / p2.getValue();
     };
     return ParameterSource(divide_op);

@@ -29,6 +29,11 @@ public:
     explicit ParameterSource(const std::function<double()> &callback);
     double getValue() const;
 
+    ParameterSource operator+(const ParameterSource &other) const;
+    ParameterSource operator-(const ParameterSource &other) const;
+    ParameterSource operator*(const ParameterSource &other) const;
+    ParameterSource operator/(const ParameterSource &other) const;
+
     operator AffineTerm() const;
     operator AffineSum() const;
 
