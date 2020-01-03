@@ -30,6 +30,32 @@ std::vector<EqualityConstraint> operator==(const Affine &affine, const double &z
     }
     return constraints;
 }
+std::vector<EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs)
+{
+    assert(lhs.shape() == rhs.shape() or lhs.is_scalar() or rhs.is_scalar());
+
+    std::vector<EqualityConstraint> constraints;
+    constraints.reserve(std::max(lhs.size(), rhs.size()));
+    for (size_t row = 0; row < std::max(lhs.rows(), rhs.rows()); row++)
+    {
+        for (size_t col = 0; col < std::max(lhs.cols(), rhs.rows()); col++)
+        {
+            if (not lhs.is_scalar() and not rhs.is_scalar())
+            {
+                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(row, col) == 0.);
+            }
+            else if (lhs.is_scalar())
+            {
+                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(0) == 0.);
+            }
+            else if (rhs.is_scalar())
+            {
+                constraints.push_back(lhs.coeff(row, col) + (-rhs).coeff(0) == 0.);
+            }
+        }
+    }
+    return constraints;
+}
 
 std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint)
 {
@@ -84,6 +110,33 @@ std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &z
 std::vector<PositiveConstraint> operator<=(const double &zero, const Affine &affine)
 {
     return affine >= zero;
+}
+
+std::vector<PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs)
+{
+    assert(lhs.shape() == rhs.shape() or lhs.is_scalar() or rhs.is_scalar());
+
+    std::vector<PositiveConstraint> constraints;
+    constraints.reserve(std::max(lhs.size(), rhs.size()));
+    for (size_t row = 0; row < std::max(lhs.rows(), rhs.rows()); row++)
+    {
+        for (size_t col = 0; col < std::max(lhs.cols(), rhs.rows()); col++)
+        {
+            if (not lhs.is_scalar() and not rhs.is_scalar())
+            {
+                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(row, col) >= 0.);
+            }
+            else if (lhs.is_scalar())
+            {
+                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(0) >= 0.);
+            }
+            else if (rhs.is_scalar())
+            {
+                constraints.push_back(lhs.coeff(row, col) + (-rhs).coeff(0) >= 0.);
+            }
+        }
+    }
+    return constraints;
 }
 
 SecondOrderConeConstraint::SecondOrderConeConstraint(const Norm2Term &norm2, const AffineSum &affine)
