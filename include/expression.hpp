@@ -78,7 +78,8 @@ class Norm2 : public DynamicMatrix<Norm2Term, Norm2>
 {
 public:
     using DynamicMatrix<Norm2Term, Norm2>::DynamicMatrix;
-    Norm2(const Affine &affine, size_t axis = 0);
+    explicit Norm2(const Affine &affine);
+    Norm2(const Affine &affine, size_t axis);
 };
 
 Affine operator-(const Variable &variable);

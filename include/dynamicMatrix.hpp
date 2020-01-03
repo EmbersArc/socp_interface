@@ -158,8 +158,8 @@ template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
                                       int n_rows, int n_cols) const
 {
-    size_t m = n_rows == -1 ? rows() : n_rows;
-    size_t n = n_cols == -1 ? cols() : n_cols;
+    size_t m = n_rows == -1 ? rows() - start_row : n_rows;
+    size_t n = n_cols == -1 ? cols() - start_col : n_cols;
 
     assert((start_row + m - 1) < rows() and
            (start_col + n - 1) < cols());

@@ -391,13 +391,24 @@ double Norm2Term::evaluate(const std::vector<double> &soln_values) const
     return std::sqrt(std::accumulate(arguments.begin(), arguments.end(), 0., sum_squares));
 }
 
+Norm2::Norm2(const Affine &affine)
+{
+    for (size_t col = 0; col < affine.cols(); col++)
+    {
+        for (size_t row = 0; row < affine.rows(); row++)
+        {
+            coeffRef(0, 0).arguments.push_back(affine.coeff(row, col));
+        }
+    }
+}
+
 Norm2::Norm2(const Affine &affine, size_t axis)
 {
     assert(axis == 0 or axis == 1);
     if (axis == 0)
     {
         resize(1, affine.cols());
-        for (size_t col = 0; col < cols(); col++)
+        for (size_t col = 0; col < affine.cols(); col++)
         {
             for (size_t row = 0; row < affine.rows(); row++)
             {
@@ -408,7 +419,7 @@ Norm2::Norm2(const Affine &affine, size_t axis)
     else if (axis == 1)
     {
         resize(affine.rows(), 1);
-        for (size_t row = 0; row < rows(); row++)
+        for (size_t row = 0; row < affine.rows(); row++)
         {
             for (size_t col = 0; col < affine.cols(); col++)
             {
