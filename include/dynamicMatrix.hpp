@@ -40,7 +40,7 @@ public:
     const T &coeff(size_t row, size_t col = 0) const;
 
     void resize(size_t rows, size_t cols);
-    bool operator==(const DynamicMatrix &other) const;
+    bool is_same(const DynamicMatrix &other) const;
 
     std::vector<std::vector<T>> data_matrix;
 };
@@ -216,7 +216,7 @@ void DynamicMatrix<T, Derived>::resize(size_t rows, size_t cols)
 }
 
 template <typename T, class Derived>
-bool DynamicMatrix<T, Derived>::operator==(const DynamicMatrix<T, Derived> &other) const
+bool DynamicMatrix<T, Derived>::is_same(const DynamicMatrix<T, Derived> &other) const
 {
     return data_matrix == other.data_matrix;
 }

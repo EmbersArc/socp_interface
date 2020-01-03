@@ -61,25 +61,25 @@ int main()
                                             {op::ParameterSource(&scalar), 4.}};
     op::Parameter matrix_parameter(matrix);
     op::Parameter result_matrix = matrix_parameter * matrix_parameter;
-    assert(result_matrix.getValues() == op::DynamicMatrix<double>({{7., 10.}, {15., 22.}}));
+    assert(result_matrix.getValues().is_same(op::DynamicMatrix<double>({{7., 10.}, {15., 22.}})));
     scalar = 1.;
-    assert(result_matrix.getValues() == op::DynamicMatrix<double>({{3., 10.}, {5., 18.}}));
+    assert(result_matrix.getValues().is_same(op::DynamicMatrix<double>({{3., 10.}, {5., 18.}})));
     scalar = 3.;
 
     // multiply 2x1/2x2
     op::Parameter vector_parameter({{1., 2.}});
     result_matrix = vector_parameter * matrix_parameter;
-    assert(result_matrix.getValues() == op::DynamicMatrix<double>({{7., 10.}}));
+    assert(result_matrix.getValues().is_same(op::DynamicMatrix<double>({{7., 10.}})));
 
     // multiply 1x1/2x2
     result_matrix = scalar_param_2 * matrix_parameter;
-    assert(result_matrix.getValues() == op::DynamicMatrix<double>({{2., 4.}, {6., 8.}}));
+    assert(result_matrix.getValues().is_same(op::DynamicMatrix<double>({{2., 4.}, {6., 8.}})));
 
     // multiply 2x2/1x1
     result_matrix = matrix_parameter * scalar_param_2;
-    assert(result_matrix.getValues() == op::DynamicMatrix<double>({{2., 4.}, {6., 8.}}));
+    assert(result_matrix.getValues().is_same(op::DynamicMatrix<double>({{2., 4.}, {6., 8.}})));
 
-// #ifdef EIGEN_AVAILABLE
+    // #ifdef EIGEN_AVAILABLE
     Eigen::Matrix3d m1, m2;
     m1.setRandom();
     m2.setRandom();
@@ -106,7 +106,7 @@ int main()
     result = op::Parameter(m3x2) * op::Parameter(m2x5);
 
     assert(compareMatrices(result, m));
-// #endif
+    // #endif
 
     std::cout << "All tests were successful."
               << "\n";
