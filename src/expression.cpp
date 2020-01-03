@@ -434,6 +434,19 @@ Affine operator-(const Variable &variable)
     return Affine(Parameter(-1.) * variable);
 }
 
+Affine Parameter::cwiseProduct(const Affine &affine) const
+{
+    op::Affine product;
+    for (size_t row = 0; row < affine.rows(); row++)
+    {
+        for (size_t col = 0; col < affine.cols(); col++)
+        {
+            product.coeffRef(row, col) = affine.coeff(row, col) * coeff(row, col);
+        }
+    }
+    return product;
+}
+
 Affine sum(const Affine &affine)
 {
     op::Affine sum;
