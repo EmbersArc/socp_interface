@@ -128,7 +128,7 @@ std::vector<PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs)
             }
             else if (lhs.is_scalar())
             {
-                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(0) >= 0.);
+                constraints.push_back(lhs.coeff(0) + (-rhs).coeff(row, col) >= 0.);
             }
             else if (rhs.is_scalar())
             {
