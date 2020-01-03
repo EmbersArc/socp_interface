@@ -308,7 +308,10 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
 
 Affine operator*(const Parameter &parameter, const Affine &affine)
 {
-    assert(parameter.is_scalar()); // yeah no matrices here
+    if (not parameter.is_scalar())
+    {
+        throw std::runtime_error("This operation is not implemented for parameter matrices.");
+    }
     Affine result(affine.rows(), affine.cols());
     for (size_t row = 0; row < affine.rows(); row++)
     {
