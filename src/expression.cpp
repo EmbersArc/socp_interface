@@ -436,7 +436,8 @@ Affine operator-(const Variable &variable)
 
 Affine Parameter::cwiseProduct(const Affine &affine) const
 {
-    op::Affine product;
+    assert(affine.shape() == shape());
+    op::Affine product(rows(), cols());
     for (size_t row = 0; row < affine.rows(); row++)
     {
         for (size_t col = 0; col < affine.cols(); col++)
