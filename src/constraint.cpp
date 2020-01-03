@@ -38,7 +38,7 @@ std::vector<EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs)
     constraints.reserve(std::max(lhs.size(), rhs.size()));
     for (size_t row = 0; row < std::max(lhs.rows(), rhs.rows()); row++)
     {
-        for (size_t col = 0; col < std::max(lhs.cols(), rhs.rows()); col++)
+        for (size_t col = 0; col < std::max(lhs.cols(), rhs.cols()); col++)
         {
             if (not lhs.is_scalar() and not rhs.is_scalar())
             {
@@ -120,7 +120,7 @@ std::vector<PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs)
     constraints.reserve(std::max(lhs.size(), rhs.size()));
     for (size_t row = 0; row < std::max(lhs.rows(), rhs.rows()); row++)
     {
-        for (size_t col = 0; col < std::max(lhs.cols(), rhs.rows()); col++)
+        for (size_t col = 0; col < std::max(lhs.cols(), rhs.cols()); col++)
         {
             if (not lhs.is_scalar() and not rhs.is_scalar())
             {
