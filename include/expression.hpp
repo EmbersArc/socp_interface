@@ -42,6 +42,7 @@ struct AffineSum
     AffineSum &operator+=(const AffineSum &other);
     AffineSum operator+(const AffineSum &other) const;
     AffineSum operator*(const ParameterSource &parameter) const;
+    AffineSum operator-() const;
 };
 AffineSum operator+(const double &lhs, const AffineSum &rhs);
 AffineSum operator+(const AffineSum &lhs, const double &rhs);

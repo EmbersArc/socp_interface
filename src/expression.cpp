@@ -102,6 +102,11 @@ AffineSum AffineSum::operator*(const ParameterSource &parameter) const
     return result;
 }
 
+AffineSum AffineSum::operator-() const
+{
+    return *this * ParameterSource(-1.0);
+}
+
 AffineSum operator+(const AffineSum &lhs, const double &rhs)
 {
     AffineSum result;

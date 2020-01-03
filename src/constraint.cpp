@@ -42,15 +42,15 @@ std::vector<EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs)
         {
             if (not lhs.is_scalar() and not rhs.is_scalar())
             {
-                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(row, col) == 0.);
+                constraints.push_back(rhs.coeff(row, col) + -lhs.coeff(row, col) == 0.);
             }
             else if (lhs.is_scalar())
             {
-                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(0) == 0.);
+                constraints.push_back(rhs.coeff(row, col) + -lhs.coeff(0) == 0.);
             }
             else if (rhs.is_scalar())
             {
-                constraints.push_back(lhs.coeff(row, col) + (-rhs).coeff(0) == 0.);
+                constraints.push_back(lhs.coeff(row, col) + -rhs.coeff(0) == 0.);
             }
         }
     }
@@ -124,15 +124,15 @@ std::vector<PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs)
         {
             if (not lhs.is_scalar() and not rhs.is_scalar())
             {
-                constraints.push_back(rhs.coeff(row, col) + (-lhs).coeff(row, col) >= 0.);
+                constraints.push_back(rhs.coeff(row, col) + -lhs.coeff(row, col) >= 0.);
             }
             else if (lhs.is_scalar())
             {
-                constraints.push_back(lhs.coeff(0) + (-rhs).coeff(row, col) >= 0.);
+                constraints.push_back(lhs.coeff(0) + -rhs.coeff(row, col) >= 0.);
             }
             else if (rhs.is_scalar())
             {
-                constraints.push_back(lhs.coeff(row, col) + (-rhs).coeff(0) >= 0.);
+                constraints.push_back(lhs.coeff(row, col) + -rhs.coeff(0) >= 0.);
             }
         }
     }
@@ -178,15 +178,5 @@ std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const No
 {
     return norm2 <= affine;
 }
-
-// std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const double &constant)
-// {
-//     return SecondOrderConeConstraint(norm2, ParameterSource(constant));
-// }
-
-// std::vector<SecondOrderConeConstraint> operator>=(const double &constant, const Norm2 &norm2)
-// {
-//     return norm2 <= constant;
-// }
 
 } // namespace op

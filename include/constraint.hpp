@@ -48,7 +48,5 @@ struct SecondOrderConeConstraint
 
 std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const Affine &affine);
 std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2 &norm2);
-// std::vector<SecondOrderConeConstraint> operator<=(const Norm2Term &norm2, const double &constant);
-// std::vector<SecondOrderConeConstraint> operator>=(const double &constant, const Norm2Term &norm2);
 
 } // namespace op
