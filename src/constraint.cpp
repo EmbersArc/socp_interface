@@ -12,12 +12,15 @@ EqualityConstraint::EqualityConstraint(const AffineSum &affine)
 EqualityConstraint operator==(const AffineSum &affine, const double &zero)
 {
     assert(zero == 0.0);
+    (void)zero;
+
     return EqualityConstraint(affine);
 }
 
 std::vector<EqualityConstraint> operator==(const Affine &affine, const double &zero)
 {
     assert(zero == 0.0);
+    (void)zero;
 
     std::vector<EqualityConstraint> constraints;
     constraints.reserve(affine.size());
@@ -85,6 +88,8 @@ double PositiveConstraint::evaluate(const std::vector<double> &soln_values) cons
 PositiveConstraint operator>=(const AffineSum &affine, const double &zero)
 {
     assert(zero == 0.0);
+    (void)zero;
+
     return PositiveConstraint(affine);
 }
 
@@ -96,6 +101,8 @@ PositiveConstraint operator<=(const double &zero, const AffineSum &affine)
 std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &zero)
 {
     assert(zero == 0.0);
+    (void)zero;
+
     std::vector<PositiveConstraint> constraints;
     for (size_t row = 0; row < affine.rows(); row++)
     {

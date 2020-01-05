@@ -6,16 +6,6 @@
 namespace op
 {
 
-void SecondOrderConeProgram::addConstraint(EqualityConstraint constraint)
-{
-    equalityConstraints.push_back(constraint);
-}
-
-void SecondOrderConeProgram::addConstraint(PositiveConstraint constraint)
-{
-    positiveConstraints.push_back(constraint);
-}
-
 void SecondOrderConeProgram::addConstraint(std::vector<EqualityConstraint> constraints)
 {
     equalityConstraints.insert(equalityConstraints.end(), constraints.begin(), constraints.end());
@@ -26,11 +16,6 @@ void SecondOrderConeProgram::addConstraint(std::vector<PositiveConstraint> const
     positiveConstraints.insert(positiveConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addConstraint(SecondOrderConeConstraint constraint)
-{
-    secondOrderConeConstraints.push_back(constraint);
-}
-
 void SecondOrderConeProgram::addConstraint(std::vector<SecondOrderConeConstraint> constraints)
 {
     secondOrderConeConstraints.insert(secondOrderConeConstraints.end(), constraints.begin(), constraints.end());
@@ -38,13 +23,13 @@ void SecondOrderConeProgram::addConstraint(std::vector<SecondOrderConeConstraint
 
 void SecondOrderConeProgram::addMinimizationTerm(const AffineSum &affine)
 {
-    costFunction = costFunction + affine;
+    costFunction += affine;
 }
 
 void SecondOrderConeProgram::addMinimizationTerm(const Affine &affine)
 {
     assert(affine.is_scalar());
-    costFunction = costFunction + affine.coeff(0);
+    costFunction += affine.coeff(0);
 }
 
 std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp)

@@ -386,7 +386,7 @@ double Norm2Term::evaluate(const std::vector<double> &soln_values) const
 {
     auto sum_squares = [&soln_values](double sum, const auto &arg) {
         double val = arg.evaluate(soln_values);
-        return val * val;
+        return sum + val * val;
     };
     return std::sqrt(std::accumulate(arguments.begin(), arguments.end(), 0., sum_squares));
 }

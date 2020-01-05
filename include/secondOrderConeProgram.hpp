@@ -12,9 +12,6 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
     AffineSum costFunction = AffineSum(0.);
 
-    void addConstraint(EqualityConstraint constraint);
-    void addConstraint(PositiveConstraint constraint);
-    void addConstraint(SecondOrderConeConstraint constraint);
     void addConstraint(std::vector<EqualityConstraint> constraints);
     void addConstraint(std::vector<PositiveConstraint> constraints);
     void addConstraint(std::vector<SecondOrderConeConstraint> constraints);

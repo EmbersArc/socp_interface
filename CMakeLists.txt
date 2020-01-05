@@ -29,11 +29,11 @@ set(SOCP_SOURCES
 execute_process(COMMAND make shared WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/solvers/ecos)
 link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
-
 add_library(socp_lib SHARED ${SOCP_SOURCES})
 target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
 target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
+
+target_compile_options(socp_lib PUBLIC -std=c++17 -Wall -Wextra -Wpedantic)
 
 if(${EIGEN3_FOUND})
     message("Eigen found.")
