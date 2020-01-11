@@ -28,6 +28,21 @@ double ParameterSource::getValue() const
     }
 }
 
+bool ParameterSource::is_constant() const
+{
+    return source.index() == 0;
+}
+
+bool ParameterSource::is_pointer() const
+{
+    return source.index() == 1;
+}
+
+bool ParameterSource::is_callback() const
+{
+    return source.index() == 2;
+}
+
 ParameterSource ParameterSource::operator+(const ParameterSource &other) const
 {
     auto add_op = [p1 = *this,
@@ -48,11 +63,15 @@ ParameterSource ParameterSource::operator-(const ParameterSource &other) const
 
 ParameterSource ParameterSource::operator*(const ParameterSource &other) const
 {
-    auto multiply_op = [p1 = *this,
-                        p2 = other]() {
+    if (is_constant() and other.is_constant())
+    {
+        return ParameterSource(getValue() * other.getValue());
+    }
+
+    return ParameterSource([p1 = *this,
+                            p2 = other]() {
         return p1.getValue() * p2.getValue();
-    };
-    return ParameterSource(multiply_op);
+    });
 }
 
 ParameterSource ParameterSource::operator/(const ParameterSource &other) const

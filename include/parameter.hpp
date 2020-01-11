@@ -28,6 +28,9 @@ public:
     explicit ParameterSource(double *value_ptr);
     explicit ParameterSource(const std::function<double()> &callback);
     double getValue() const;
+    bool is_constant() const;
+    bool is_pointer() const;
+    bool is_callback() const;
 
     ParameterSource operator+(const ParameterSource &other) const;
     ParameterSource operator-(const ParameterSource &other) const;
