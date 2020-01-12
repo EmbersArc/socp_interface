@@ -74,17 +74,33 @@ struct Norm2Term
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
+struct Norm2Lhs;
+
 class Norm2 : public DynamicMatrix<Norm2Term, Norm2>
 {
 public:
     using DynamicMatrix<Norm2Term, Norm2>::DynamicMatrix;
     explicit Norm2(const Affine &affine);
     Norm2(const Affine &affine, size_t axis);
+    operator Norm2Lhs() const;
 };
 
 Affine operator-(const Variable &variable);
 
 Affine sum(const Affine &affine);
 Affine sum(const Affine &affine, size_t axis);
+
+struct Norm2Lhs
+{
+    Norm2 norm2;
+    Affine affine;
+    bool is_scalar() const;
+    size_t rows() const;
+    size_t cols() const;
+    std::pair<size_t, size_t> shape() const;
+    Norm2Lhs operator+(const Affine &affine) const;
+};
+
+Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine);
 
 } // namespace op

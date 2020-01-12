@@ -160,30 +160,33 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
     return (norm2.evaluate(soln_values) - affine.evaluate(soln_values));
 }
 
-std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const Affine &affine)
+std::vector<SecondOrderConeConstraint> operator<=(const Norm2Lhs &norm2lhs, const Affine &affine)
 {
-    assert(norm2.shape() == affine.shape() or affine.is_scalar()); // TODO?: or norm.is_scalar
+    assert(norm2lhs.shape() == affine.shape() or affine.is_scalar()); //or norm2lhs.is_scalar()); // Maybe TODO
     std::vector<SecondOrderConeConstraint> constraints;
-    for (size_t row = 0; row < norm2.rows(); row++)
+
+    for (size_t row = 0; row < norm2lhs.rows(); row++)
     {
-        for (size_t col = 0; col < norm2.cols(); col++)
+        for (size_t col = 0; col < norm2lhs.cols(); col++)
         {
             if (affine.is_scalar())
             {
-                constraints.emplace_back(norm2.coeff(row, col), affine.coeff(0, 0));
+                constraints.emplace_back(norm2lhs.norm2.coeff(row, col),
+                                         affine.coeff(0) + -norm2lhs.affine.coeff(0));
             }
             else
             {
-                constraints.emplace_back(norm2.coeff(row, col), affine.coeff(row, col));
+                constraints.emplace_back(norm2lhs.norm2.coeff(row, col),
+                                         affine.coeff(row, col) + -norm2lhs.affine.coeff(row, col));
             }
         }
     }
     return constraints;
 }
 
-std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2 &norm2)
+std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2Lhs &norm2lhs)
 {
-    return norm2 <= affine;
+    return norm2lhs <= affine;
 }
 
 } // namespace op

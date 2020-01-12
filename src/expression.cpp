@@ -429,6 +429,13 @@ Norm2::Norm2(const Affine &affine, size_t axis)
     }
 }
 
+Norm2::operator Norm2Lhs() const
+{
+    Norm2Lhs norm2lhs;
+    norm2lhs.norm2 = *this;
+    return norm2lhs;
+}
+
 Affine operator-(const Variable &variable)
 {
     return Affine(Parameter(-1.) * variable);
@@ -492,6 +499,43 @@ Affine sum(const Affine &affine, size_t axis)
         }
     }
     return sum;
+}
+
+bool Norm2Lhs::is_scalar() const
+{
+    return norm2.is_scalar();
+}
+
+size_t Norm2Lhs::rows() const
+{
+    return norm2.rows();
+}
+
+size_t Norm2Lhs::cols() const
+{
+    return norm2.cols();
+}
+
+std::pair<size_t, size_t> Norm2Lhs::shape() const
+{
+    return norm2.shape();
+}
+
+Norm2Lhs Norm2Lhs::operator+(const Affine &affine) const
+{
+    assert(affine.shape() == norm2.shape());
+    Norm2Lhs result = *this;
+    result.affine += affine;
+    return result;
+}
+
+Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine)
+{
+    assert(norm2.shape() == affine.shape());
+    Norm2Lhs norm2lhs;
+    norm2lhs.norm2 = norm2;
+    norm2lhs.affine += affine;
+    return norm2lhs;
 }
 
 } // namespace op

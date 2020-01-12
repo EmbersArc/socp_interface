@@ -46,7 +46,7 @@ struct SecondOrderConeConstraint
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-std::vector<SecondOrderConeConstraint> operator<=(const Norm2 &norm2, const Affine &affine);
-std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2 &norm2);
+std::vector<SecondOrderConeConstraint> operator<=(const Norm2Lhs &norm2lhs, const Affine &affine);
+std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2Lhs &norm2lhs);
 
 } // namespace op
