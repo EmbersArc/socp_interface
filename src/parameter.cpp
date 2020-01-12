@@ -106,6 +106,11 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 {
     assert(not other.is_zero());
 
+    if (other.is_constant() and other.get_value() == 1.)
+    {
+        return *this;
+    }
+
     auto divide_op = [p1 = *this,
                       p2 = other]() {
         return p1.get_value() / p2.get_value();
