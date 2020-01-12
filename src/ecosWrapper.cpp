@@ -257,7 +257,7 @@ inline vector<double> get_parameter_values(const vector<op::ParameterSource> &pa
     vector<double> result;
     result.reserve(params.size());
     std::transform(params.begin(), params.end(), std::back_inserter(result),
-                   [factor](const auto &param) { return param.getValue() * factor; });
+                   [factor](const auto &param) { return param.get_value() * factor; });
     return result;
 }
 

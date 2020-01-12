@@ -27,7 +27,7 @@ public:
     ParameterSource(const double const_value);
     explicit ParameterSource(double *value_ptr);
     explicit ParameterSource(const std::function<double()> &callback);
-    double getValue() const;
+    double get_value() const;
     bool is_constant() const;
     bool is_pointer() const;
     bool is_callback() const;
@@ -72,9 +72,9 @@ public:
     Parameter operator*(const Parameter &other) const;
     Parameter operator/(const Parameter &other) const;
     Affine cwiseProduct(const Affine &affine) const;
-    double getValue(const size_t row = 0,
+    double get_value(const size_t row = 0,
                     const size_t col = 0) const;
-    DynamicMatrix<double> getValues() const;
+    DynamicMatrix<double> get_values() const;
 
     operator Affine() const;
 };

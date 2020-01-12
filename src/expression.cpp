@@ -18,14 +18,14 @@ AffineTerm::AffineTerm(const ParameterSource &parameter, const VariableSource &v
     : parameter(parameter), variable(variable) {}
 std::ostream &operator<<(std::ostream &os, const AffineTerm &term)
 {
-    os << term.parameter.getValue();
+    os << term.parameter.get_value();
     if (term.variable)
         os << "*" << term.variable.value();
     return os;
 }
 double AffineTerm::evaluate(const std::vector<double> &soln_values) const
 {
-    double p = parameter.getValue();
+    double p = parameter.get_value();
     if (variable)
     {
         return p * soln_values[variable.value().getProblemIndex()];

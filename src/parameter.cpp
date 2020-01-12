@@ -15,7 +15,7 @@ ParameterSource::ParameterSource(double *value_ptr)
 ParameterSource::ParameterSource(const std::function<double()> &callback)
     : source(callback) {}
 
-double ParameterSource::getValue() const
+double ParameterSource::get_value() const
 {
     switch (source.index())
     {
@@ -47,7 +47,7 @@ ParameterSource ParameterSource::operator+(const ParameterSource &other) const
 {
     auto add_op = [p1 = *this,
                    p2 = other]() {
-        return p1.getValue() + p2.getValue();
+        return p1.get_value() + p2.get_value();
     };
     return ParameterSource(add_op);
 }
@@ -56,7 +56,7 @@ ParameterSource ParameterSource::operator-(const ParameterSource &other) const
 {
     auto subtract_op = [p1 = *this,
                         p2 = other]() {
-        return p1.getValue() - p2.getValue();
+        return p1.get_value() - p2.get_value();
     };
     return ParameterSource(subtract_op);
 }
@@ -65,12 +65,12 @@ ParameterSource ParameterSource::operator*(const ParameterSource &other) const
 {
     if (is_constant() and other.is_constant())
     {
-        return ParameterSource(getValue() * other.getValue());
+        return ParameterSource(get_value() * other.get_value());
     }
 
     return ParameterSource([p1 = *this,
                             p2 = other]() {
-        return p1.getValue() * p2.getValue();
+        return p1.get_value() * p2.get_value();
     });
 }
 
@@ -78,7 +78,7 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 {
     auto divide_op = [p1 = *this,
                       p2 = other]() {
-        return p1.getValue() / p2.getValue();
+        return p1.get_value() / p2.get_value();
     };
     return ParameterSource(divide_op);
 }
@@ -104,12 +104,12 @@ Parameter::Parameter(const parameter_source_matrix_t &sources)
     data_matrix = sources;
 }
 
-double Parameter::getValue(const size_t row, const size_t col) const
+double Parameter::get_value(const size_t row, const size_t col) const
 {
-    return coeff(row, col).getValue();
+    return coeff(row, col).get_value();
 }
 
-DynamicMatrix<double> Parameter::getValues() const
+DynamicMatrix<double> Parameter::get_values() const
 {
     DynamicMatrix<double> result_matrix(rows(), cols());
 
@@ -117,7 +117,7 @@ DynamicMatrix<double> Parameter::getValues() const
     {
         for (size_t col = 0; col < cols(); col++)
         {
-            result_matrix.coeffRef(row, col) = getValue(row, col);
+            result_matrix.coeffRef(row, col) = get_value(row, col);
         }
     }
     return result_matrix;
@@ -191,7 +191,7 @@ Parameter multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
                 double element = 0;
                 for (size_t inner = 0; inner < rv.size(); inner++)
                 {
-                    element += rv[inner].getValue() * cv[inner].getValue();
+                    element += rv[inner].get_value() * cv[inner].get_value();
                 }
                 return element;
             };
