@@ -171,13 +171,21 @@ std::vector<SecondOrderConeConstraint> operator<=(const Norm2Lhs &norm2lhs, cons
         {
             if (affine.is_scalar())
             {
-                constraints.emplace_back(norm2lhs.norm2.coeff(row, col),
-                                         affine.coeff(0) + -norm2lhs.affine.coeff(0));
+                AffineSum rhs = affine.coeff(0);
+                if (norm2lhs.affine.has_value())
+                {
+                    rhs += -norm2lhs.affine.value().coeff(0);
+                }
+                constraints.emplace_back(norm2lhs.norm2.coeff(row, col), rhs);
             }
             else
             {
-                constraints.emplace_back(norm2lhs.norm2.coeff(row, col),
-                                         affine.coeff(row, col) + -norm2lhs.affine.coeff(row, col));
+                AffineSum rhs = affine.coeff(row, col);
+                if (norm2lhs.affine.has_value())
+                {
+                    rhs += -norm2lhs.affine.value().coeff(row, col);
+                }
+                constraints.emplace_back(norm2lhs.norm2.coeff(row, col), rhs);
             }
         }
     }

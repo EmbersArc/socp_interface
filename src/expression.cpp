@@ -525,8 +525,28 @@ Norm2Lhs Norm2Lhs::operator+(const Affine &affine) const
 {
     assert(affine.shape() == norm2.shape());
     Norm2Lhs result = *this;
-    result.affine += affine;
+    if (result.affine.has_value())
+    {
+        result.affine.value() += affine;
+    }
+    else
+    {
+        result.affine = affine;
+    }
     return result;
+}
+
+Norm2Lhs &Norm2Lhs::operator+=(const Affine &affine)
+{
+    if (this->affine.has_value())
+    {
+        this->affine.value() += affine;
+    }
+    else
+    {
+        this->affine = affine;
+    }
+    return *this;
 }
 
 Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine)
@@ -534,7 +554,7 @@ Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine)
     assert(norm2.shape() == affine.shape());
     Norm2Lhs norm2lhs;
     norm2lhs.norm2 = norm2;
-    norm2lhs.affine += affine;
+    norm2lhs.affine = affine;
     return norm2lhs;
 }
 

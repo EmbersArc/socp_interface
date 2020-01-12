@@ -93,12 +93,13 @@ Affine sum(const Affine &affine, size_t axis);
 struct Norm2Lhs
 {
     Norm2 norm2;
-    Affine affine;
+    std::optional<Affine> affine;
     bool is_scalar() const;
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
     Norm2Lhs operator+(const Affine &affine) const;
+    Norm2Lhs &operator+=(const Affine &affine);
 };
 
 Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine);

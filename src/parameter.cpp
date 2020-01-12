@@ -3,6 +3,11 @@
 #include <sstream>
 #include <cassert>
 
+bool isZero(double x)
+{
+    return std::abs(x) < 1e-12;
+}
+
 namespace op
 {
 
@@ -43,26 +48,49 @@ bool ParameterSource::is_callback() const
     return source.index() == 2;
 }
 
+bool ParameterSource::is_zero() const
+{
+    return is_constant() and std::abs(get_value()) < 1e-12;
+}
+
 ParameterSource ParameterSource::operator+(const ParameterSource &other) const
 {
-    auto add_op = [p1 = *this,
-                   p2 = other]() {
-        return p1.get_value() + p2.get_value();
-    };
-    return ParameterSource(add_op);
+    if (other.is_zero())
+    {
+        return *this;
+    }
+    else
+    {
+        auto add_op = [p1 = *this,
+                       p2 = other]() {
+            return p1.get_value() + p2.get_value();
+        };
+        return ParameterSource(add_op);
+    }
 }
 
 ParameterSource ParameterSource::operator-(const ParameterSource &other) const
 {
-    auto subtract_op = [p1 = *this,
-                        p2 = other]() {
-        return p1.get_value() - p2.get_value();
-    };
-    return ParameterSource(subtract_op);
+    if (other.is_zero())
+    {
+        return *this;
+    }
+    else
+    {
+        auto subtract_op = [p1 = *this,
+                            p2 = other]() {
+            return p1.get_value() - p2.get_value();
+        };
+        return ParameterSource(subtract_op);
+    }
 }
 
 ParameterSource ParameterSource::operator*(const ParameterSource &other) const
 {
+    if (is_zero() or other.is_zero())
+    {
+        return ParameterSource(0.);
+    }
     if (is_constant() and other.is_constant())
     {
         return ParameterSource(get_value() * other.get_value());
@@ -76,6 +104,8 @@ ParameterSource ParameterSource::operator*(const ParameterSource &other) const
 
 ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 {
+    assert(not other.is_zero());
+
     auto divide_op = [p1 = *this,
                       p2 = other]() {
         return p1.get_value() / p2.get_value();
