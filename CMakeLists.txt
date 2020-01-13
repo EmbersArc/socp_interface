@@ -33,7 +33,7 @@ add_library(socp_lib SHARED ${SOCP_SOURCES})
 target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
 target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
 
-target_compile_options(socp_lib PUBLIC -std=c++17 -Wall -Wextra -Wpedantic)
+target_compile_options(socp_lib PUBLIC -std=c++17 -Wall -Wextra -O3 -Wpedantic)
 
 if(${EIGEN3_FOUND})
     message("Eigen found.")
