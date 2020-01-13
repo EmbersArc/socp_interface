@@ -2,5 +2,7 @@
 
 namespace op
 {
+
 using Solver = EcosWrapper;
+
 }

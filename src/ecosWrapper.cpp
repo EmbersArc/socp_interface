@@ -18,7 +18,10 @@ static_assert(std::is_same_v<idxint, SuiteSparse_long>,
               "Definitions of idxint might not be consistent."
               "Make sure ECOS is compiled with USE_LONG = 1.");
 
-bool check_unique_variables_in_affine_expression(const op::AffineSum &AffineSum)
+namespace op
+{
+
+bool check_unique_variables_in_affine_expression(const AffineSum &AffineSum)
 {
     // check if a variable is used more than once in an expression
 
@@ -39,12 +42,12 @@ bool check_unique_variables_in_affine_expression(const op::AffineSum &AffineSum)
     return true;
 }
 
-size_t count_constants_in_affine_expression(const op::AffineSum &AffineSum)
+size_t count_constants_in_affine_expression(const AffineSum &AffineSum)
 {
     return std::count_if(AffineSum.terms.begin(), AffineSum.terms.end(), [](const auto &term) { return !term.variable; });
 }
 
-void error_check_affine_expression(const op::AffineSum &AffineSum)
+void error_check_affine_expression(const AffineSum &AffineSum)
 {
     if (!check_unique_variables_in_affine_expression(AffineSum))
     {
@@ -62,7 +65,7 @@ void error_check_affine_expression(const op::AffineSum &AffineSum)
     }
 }
 
-op::ParameterSource get_constant_or_zero(const op::AffineSum &AffineSum)
+ParameterSource get_constant_or_zero(const AffineSum &AffineSum)
 {
     auto constantIterator = std::find_if(AffineSum.terms.begin(),
                                          AffineSum.terms.end(),
@@ -73,14 +76,14 @@ op::ParameterSource get_constant_or_zero(const op::AffineSum &AffineSum)
     }
     else
     {
-        return op::ParameterSource(0.0);
+        return ParameterSource(0.0);
     }
 }
 
 // convert sparse matrix format "dictionary of keys" to "column compressed storage"
 void sparse_DOK_to_CCS(
-    const map<pair<idxint, idxint>, op::ParameterSource> &sparse_DOK,
-    vector<op::ParameterSource> &data_CCS,
+    const map<pair<idxint, idxint>, ParameterSource> &sparse_DOK,
+    vector<ParameterSource> &data_CCS,
     vector<idxint> &columns_CCS,
     vector<idxint> &rows_CCS,
     size_t n_columns)
@@ -91,7 +94,7 @@ void sparse_DOK_to_CCS(
     assert(rows_CCS.empty());
 
     // convert to coordinate list
-    vector<tuple<idxint, idxint, op::ParameterSource>> sparse_COO;
+    vector<tuple<idxint, idxint, ParameterSource>> sparse_COO;
     sparse_COO.reserve(sparse_DOK.size());
     std::transform(sparse_DOK.begin(), sparse_DOK.end(), std::back_inserter(sparse_COO),
                    [](const auto &e) { return std::make_tuple(e.first.first, e.first.second, e.second); });
@@ -99,8 +102,8 @@ void sparse_DOK_to_CCS(
 
     // sort coordinate list by column, then by row
     std::sort(sparse_COO.begin(), sparse_COO.end(),
-              [](const tuple<idxint, idxint, op::ParameterSource> &a,
-                 const tuple<idxint, idxint, op::ParameterSource> &b) -> bool {
+              [](const tuple<idxint, idxint, ParameterSource> &a,
+                 const tuple<idxint, idxint, ParameterSource> &b) -> bool {
                   // define coordinate list order
                   if (get<1>(a) == get<1>(b))
                   {
@@ -125,8 +128,8 @@ void sparse_DOK_to_CCS(
 }
 
 void copy_affine_expression_linear_parts_to_sparse_DOK(
-    map<pair<idxint, idxint>, op::ParameterSource> &sparse_DOK,
-    const op::AffineSum &AffineSum,
+    map<pair<idxint, idxint>, ParameterSource> &sparse_DOK,
+    const AffineSum &AffineSum,
     size_t row_index)
 {
     for (const auto &term : AffineSum.terms)
@@ -139,7 +142,7 @@ void copy_affine_expression_linear_parts_to_sparse_DOK(
     }
 }
 
-EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
+EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
 {
     ecos_cone_constraint_dimensions.clear();
     ecos_G_data_CCS.clear();
@@ -187,8 +190,8 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
     /* Build equality constraint parameters (b - A*x == 0) */
     {
         // Construct the sparse A matrix in the "Dictionary of keys" format
-        map<pair<idxint, idxint>, op::ParameterSource> A_sparse_DOK;
-        vector<op::ParameterSource> b(socp.equalityConstraints.size());
+        map<pair<idxint, idxint>, ParameterSource> A_sparse_DOK;
+        vector<ParameterSource> b(socp.equalityConstraints.size());
 
         for (size_t i = 0; i < socp.equalityConstraints.size(); i++)
         {
@@ -205,8 +208,8 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
     /* Build inequality constraint parameters */
     {
         // Construct the sparse G matrix in the "Dictionary of keys" format
-        map<pair<idxint, idxint>, op::ParameterSource> G_sparse_DOK;
-        vector<op::ParameterSource> h(ecos_n_constraint_rows);
+        map<pair<idxint, idxint>, ParameterSource> G_sparse_DOK;
+        vector<ParameterSource> h(ecos_n_constraint_rows);
 
         size_t row_index = 0;
 
@@ -240,7 +243,7 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
 
     /* Build cost function parameters */
     {
-        vector<op::ParameterSource> c(ecos_n_variables);
+        vector<ParameterSource> c(ecos_n_variables);
         for (const auto &term : socp.costFunction.terms)
         {
             if (term.variable)
@@ -252,7 +255,7 @@ EcosWrapper::EcosWrapper(op::SecondOrderConeProgram &_socp) : socp(_socp)
     }
 }
 
-inline vector<double> get_parameter_values(const vector<op::ParameterSource> &params, double factor)
+inline vector<double> get_parameter_values(const vector<ParameterSource> &params, double factor)
 {
     vector<double> result;
     result.reserve(params.size());
@@ -311,3 +314,5 @@ int EcosWrapper::solveProblem(bool verbose)
 
     return ecos_exitflag;
 }
+
+} // namespace op

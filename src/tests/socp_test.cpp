@@ -1,4 +1,4 @@
-#include "activeSolver.hpp"
+#include "socpSolver.hpp"
 
 #include <array>
 #include <iostream>
