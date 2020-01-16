@@ -144,6 +144,8 @@ void copy_affine_expression_linear_parts_to_sparse_DOK(
 
 EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
 {
+    socp.cleanUp();
+
     ecos_cone_constraint_dimensions.clear();
     ecos_G_data_CCS.clear();
     ecos_G_columns_CCS.clear();

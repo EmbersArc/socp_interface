@@ -107,6 +107,22 @@ AffineSum AffineSum::operator-() const
     return *this * ParameterSource(-1.0);
 }
 
+void AffineSum::clean()
+{
+    terms.erase(std::remove_if(terms.begin(), terms.end(),
+                               [](const AffineTerm &term) {
+                                   return term.parameter.is_zero();
+                               }), terms.end());
+}
+
+bool AffineSum::is_constant() const
+{
+    return not std::any_of(terms.begin(), terms.end(),
+                           [](const AffineTerm &term) {
+                               return term.variable.has_value();
+                           });
+}
+
 AffineSum operator+(const AffineSum &lhs, const double &rhs)
 {
     AffineSum result;

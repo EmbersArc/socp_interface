@@ -50,7 +50,12 @@ bool ParameterSource::is_callback() const
 
 bool ParameterSource::is_zero() const
 {
-    return is_constant() and std::abs(get_value()) < 1e-12;
+    return is_constant() and std::abs(get_value()) < 1e-10;
+}
+
+bool ParameterSource::is_one() const
+{
+    return is_constant() and std::abs(get_value() - 1.) < 1e-10;
 }
 
 ParameterSource ParameterSource::operator+(const ParameterSource &other) const
@@ -106,7 +111,7 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 {
     assert(not other.is_zero());
 
-    if (other.is_constant() and other.get_value() == 1.)
+    if (other.is_one())
     {
         return *this;
     }

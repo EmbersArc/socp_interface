@@ -19,6 +19,8 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     void addMinimizationTerm(const AffineSum &affine);
     void addMinimizationTerm(const Affine &affine);
 
+    void cleanUp();
+
     bool isFeasible() const;
 
     friend std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp);

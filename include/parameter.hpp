@@ -32,6 +32,7 @@ public:
     bool is_pointer() const;
     bool is_callback() const;
     bool is_zero() const;
+    bool is_one() const;
 
     ParameterSource operator+(const ParameterSource &other) const;
     ParameterSource operator-(const ParameterSource &other) const;
