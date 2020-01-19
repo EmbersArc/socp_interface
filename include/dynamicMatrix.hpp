@@ -31,7 +31,16 @@ public:
     auto row(size_t index) const;
     auto col(size_t index) const;
     auto block(size_t start_row, size_t start_col,
-               int n_rows, int n_cols) const;
+               size_t n_rows, size_t n_cols) const;
+    auto block(size_t n_rows, size_t n_cols) const;
+    auto topLeftCorner(size_t n_rows, size_t n_cols) const;
+    auto bottomLeftCorner(size_t n_rows, size_t n_cols) const;
+    auto topRightCorner(size_t n_rows, size_t n_cols) const;
+    auto bottomRightCorner(size_t n_rows, size_t n_cols) const;
+    auto topRows(size_t n_rows) const;
+    auto bottomRows(size_t n_rows) const;
+    auto leftCols(size_t n_cols) const;
+    auto rightCols(size_t n_cols) const;
     auto transpose() const;
 
     T &coeffRef(size_t row, size_t col = 0);
@@ -156,24 +165,69 @@ auto DynamicMatrix<T, Derived>::col(size_t index) const
 
 template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
-                                      int n_rows, int n_cols) const
+                                      size_t n_rows, size_t n_cols) const
 {
-    size_t m = n_rows == -1 ? rows() - start_row : n_rows;
-    size_t n = n_cols == -1 ? cols() - start_col : n_cols;
-
-    assert((start_row + m - 1) < rows() and
-           (start_col + n - 1) < cols());
+    assert((start_row + n_rows - 1) < rows() and
+           (start_col + n_cols - 1) < cols());
 
     return_t result = *static_cast<const return_t *>(this);
-    result.resize(m, n);
-    for (size_t row = 0; row < m; row++)
+    result.resize(n_rows, n_cols);
+    for (size_t row = 0; row < n_rows; row++)
     {
-        for (size_t col = 0; col < n; col++)
+        for (size_t col = 0; col < n_cols; col++)
         {
             result.coeffRef(row, col) = coeff(start_row + row, start_col + col);
         }
     }
     return result;
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::topLeftCorner(size_t n_rows, size_t n_cols) const
+{
+    return block(0, 0, n_rows, n_cols);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::bottomLeftCorner(size_t n_rows, size_t n_cols) const
+{
+    return block(rows() - n_rows - 1, 0, n_rows, n_cols);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::topRightCorner(size_t n_rows, size_t n_cols) const
+{
+    return block(0, cols() - n_cols - 1, n_rows, n_cols);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::bottomRightCorner(size_t n_rows, size_t n_cols) const
+{
+    return block(rows() - n_rows - 1, cols() - n_cols - 1, n_rows, n_cols);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::topRows(size_t n_rows) const
+{
+    return block(0, 0, n_rows, cols());
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::bottomRows(size_t n_rows) const
+{
+    return block(rows() - n_rows - 1, 0, n_rows, cols());
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::leftCols(size_t n_cols) const
+{
+    return block(0, 0, rows(), n_cols);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::rightCols(size_t n_cols) const
+{
+    return block(0, cols() - n_cols - 1, rows(), n_cols);
 }
 
 template <typename T, class Derived>
