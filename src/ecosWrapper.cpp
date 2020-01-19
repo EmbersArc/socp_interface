@@ -266,7 +266,7 @@ inline vector<double> get_parameter_values(const vector<ParameterSource> &params
     return result;
 }
 
-int EcosWrapper::solveProblem(bool verbose)
+bool EcosWrapper::solveProblem(bool verbose)
 {
     vector<double> ecos_cost_function_weights_values = get_parameter_values(ecos_cost_function_weights, 1.0);
     vector<double> ecos_h_values = get_parameter_values(ecos_h, 1.0);
@@ -314,7 +314,52 @@ int EcosWrapper::solveProblem(bool verbose)
         throw std::runtime_error("Could not set up problem.");
     }
 
-    return ecos_exitflag;
+    if (ecos_exitflag == ECOS_SIGINT)
+    {
+        std::terminate();
+    }
+
+    last_exit_flag = ecos_exitflag;
+
+    return ecos_exitflag != ECOS_SIGINT and
+           ecos_exitflag != ECOS_FATAL and
+           ecos_exitflag != ECOS_PINF + ECOS_INACC_OFFSET and
+           ecos_exitflag != ECOS_PINF + ECOS_INACC_OFFSET;
+}
+
+std::string EcosWrapper::getResultString() const
+{
+    switch (last_exit_flag)
+    {
+    case -99:
+        return "Problem not solved yet.";
+    case ECOS_OPTIMAL:
+        return "Optimal solution found.";
+    case ECOS_PINF:
+        return "Certificate of primal infeasibility found.";
+    case ECOS_DINF:
+        return "Certificate of dual infeasibility found.";
+
+    case ECOS_OPTIMAL + ECOS_INACC_OFFSET:
+        return "Optimal solution found subject to reduced tolerances.";
+    case ECOS_PINF + ECOS_INACC_OFFSET:
+        return "Certificate of primal infeasibility found subject to reduced tolerances.";
+    case ECOS_DINF + ECOS_INACC_OFFSET:
+        return "Certificate of dual infeasibility found subject to reduced tolerances.";
+
+    case ECOS_MAXIT:
+        return "Maximum number of iterations reached.";
+
+    case ECOS_NUMERICS:
+        return "Numerical problems (unreliable search direction).";
+    case ECOS_OUTCONE:
+        return "Numerical problems (slacks or multipliers outside cone)";
+
+    case ECOS_SIGINT:
+        return "Interrupted by signal or CTRL-C.";
+    default: // ECOS_FATAL:
+        return "Unknown problem in solver.";
+    }
 }
 
 } // namespace op

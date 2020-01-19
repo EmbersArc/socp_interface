@@ -45,17 +45,12 @@ private:
     source_variant_t source;
 };
 
-using parameter_source_ptr_t = std::shared_ptr<ParameterSource>;
-using parameter_source_vector_t = std::vector<ParameterSource>;
-using parameter_source_matrix_t = std::vector<parameter_source_vector_t>;
-
 class Parameter : public DynamicMatrix<ParameterSource, Parameter>
 {
 public:
     using DynamicMatrix<ParameterSource, Parameter>::DynamicMatrix;
     explicit Parameter(const double const_value);
     explicit Parameter(double *value_ptr);
-    explicit Parameter(const parameter_source_matrix_t &sources);
     explicit Parameter(const std::function<double()> &callback);
 
     template <typename Derived>
@@ -71,7 +66,7 @@ public:
     Affine cwiseProduct(const Affine &affine) const;
     double get_value(const size_t row = 0,
                     const size_t col = 0) const;
-    DynamicMatrix<double> get_values() const;
+    Eigen::MatrixXd get_values() const;
 
     operator Affine() const;
 };

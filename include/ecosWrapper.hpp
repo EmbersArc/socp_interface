@@ -11,13 +11,6 @@
 #include <map>
 #include <string>
 
-// void sparse_DOK_to_CCS(
-//     const std::map<std::pair<idxint, idxint>, ParameterSource> &sparse_DOK,
-//     std::vector<ParameterSource> &data_CCS,
-//     std::vector<idxint> &columns_CCS,
-//     std::vector<idxint> &rows_CCS,
-//     size_t n_columns);
-
 namespace op
 {
 
@@ -42,11 +35,12 @@ class EcosWrapper
     std::vector<ParameterSource> ecos_cost_function_weights;
     std::vector<ParameterSource> ecos_h;
     std::vector<ParameterSource> ecos_b;
+    idxint last_exit_flag = -99;
 
 public:
     explicit EcosWrapper(SecondOrderConeProgram &_socp);
-
-    int solveProblem(bool verbose = false);
+    bool solveProblem(bool verbose = false);
+    std::string getResultString() const;
 };
 
 } // namespace op

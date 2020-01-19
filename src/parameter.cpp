@@ -138,20 +138,14 @@ Parameter::Parameter(const std::function<double()> &callback)
     data_matrix = {{ParameterSource(callback)}};
 }
 
-Parameter::Parameter(const parameter_source_matrix_t &sources)
-{
-    assert(not sources.empty());
-    data_matrix = sources;
-}
-
 double Parameter::get_value(const size_t row, const size_t col) const
 {
     return coeff(row, col).get_value();
 }
 
-DynamicMatrix<double> Parameter::get_values() const
+Eigen::MatrixXd Parameter::get_values() const
 {
-    DynamicMatrix<double> result_matrix(rows(), cols());
+    Eigen::MatrixXd result_matrix(rows(), cols());
 
     for (size_t row = 0; row < rows(); row++)
     {
