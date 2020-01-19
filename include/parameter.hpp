@@ -5,7 +5,6 @@
 #include <utility>
 #include <variant>
 #include <memory>
-#include <iostream>
 
 #include "dynamicMatrix.hpp"
 
