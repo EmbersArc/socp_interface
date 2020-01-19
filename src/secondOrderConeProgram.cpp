@@ -141,31 +141,35 @@ void SecondOrderConeProgram::cleanUp()
         }
     }
 
-    equalityConstraints.erase(
-        std::remove_if(equalityConstraints.begin(),
-                       equalityConstraints.end(),
-                       [](const EqualityConstraint &constraint) { return constraint.affine.is_constant(); }),
-        equalityConstraints.end());
-
-    positiveConstraints.erase(
-        std::remove_if(positiveConstraints.begin(),
-                       positiveConstraints.end(),
-                       [](const PositiveConstraint &constraint) { return constraint.affine.is_constant(); }),
-        positiveConstraints.end());
-
-    secondOrderConeConstraints.erase(
-        std::remove_if(secondOrderConeConstraints.begin(),
-                       secondOrderConeConstraints.end(),
-                       [](const SecondOrderConeConstraint &constraint) {
-                           constraint.affine.is_constant();
-                           bool all_terms_constant = true;
-                           for (const AffineSum &affineSum : constraint.norm2.arguments)
-                           {
-                               all_terms_constant &= affineSum.is_constant();
-                           }
-                           return all_terms_constant;
-                       }),
-        secondOrderConeConstraints.end());
+    {
+        auto erase_from = std::remove_if(equalityConstraints.begin(),
+                                         equalityConstraints.end(),
+                                         [](const EqualityConstraint &constraint) { return constraint.affine.is_constant(); });
+        equalityConstraints.erase(erase_from,
+                                  equalityConstraints.end());
+    }
+    {
+        auto erase_from = std::remove_if(positiveConstraints.begin(),
+                                         positiveConstraints.end(),
+                                         [](const PositiveConstraint &constraint) { return constraint.affine.is_constant(); });
+        positiveConstraints.erase(erase_from,
+                                  positiveConstraints.end());
+    }
+    {
+        auto erase_from = std::remove_if(secondOrderConeConstraints.begin(),
+                                         secondOrderConeConstraints.end(),
+                                         [](const SecondOrderConeConstraint &constraint) {
+                                             constraint.affine.is_constant();
+                                             bool all_terms_constant = true;
+                                             for (const AffineSum &affineSum : constraint.norm2.arguments)
+                                             {
+                                                 all_terms_constant &= affineSum.is_constant();
+                                             }
+                                             return all_terms_constant;
+                                         });
+        secondOrderConeConstraints.erase(erase_from,
+                                         secondOrderConeConstraints.end());
+    }
 }
 
 } // namespace op

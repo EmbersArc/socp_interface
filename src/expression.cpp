@@ -107,12 +107,17 @@ AffineSum AffineSum::operator-() const
     return *this * ParameterSource(-1.0);
 }
 
-void AffineSum::clean()
+size_t AffineSum::clean()
 {
-    terms.erase(std::remove_if(terms.begin(), terms.end(),
-                               [](const AffineTerm &term) {
-                                   return term.parameter.is_zero();
-                               }), terms.end());
+    auto erase_from = std::remove_if(terms.begin(),
+                                     terms.end(),
+                                     [](const AffineTerm &term) {
+                                         return term.parameter.is_zero();
+                                     });
+    auto erase_to = terms.end();
+    terms.erase(erase_from, erase_to);
+
+    return std::distance(erase_from, erase_to);
 }
 
 bool AffineSum::is_constant() const
