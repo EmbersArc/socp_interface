@@ -3,24 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-// #ifdef EIGEN_AVAILABLE
 #include <Eigen/Dense>
-
-template <typename Derived>
-bool compareMatrices(op::Parameter &param, Eigen::DenseBase<Derived> &matrix)
-{
-    bool is_same = true;
-    for (size_t row = 0; row < size_t(matrix.rows()); row++)
-    {
-        for (size_t col = 0; col < size_t(matrix.cols()); col++)
-        {
-            is_same &= std::abs(param.get_value(row, col) - matrix(row, col)) < 1e-8;
-        }
-    }
-    return is_same;
-}
-
-// #endif
 
 int main()
 {
@@ -56,46 +39,56 @@ int main()
 
     // Matrix
     // multiply 2x2/2x2
-    scalar = 3.;
-    op::parameter_source_matrix_t matrix = {{1., 2.},
-                                            {op::ParameterSource(&scalar), 4.}};
-    op::Parameter matrix_parameter(matrix);
+    Eigen::Matrix2d dyn_matrix;
+    dyn_matrix << 1., 2., 3., 4.;
+    op::Parameter matrix_parameter(&dyn_matrix);
     op::Parameter result_matrix = matrix_parameter * matrix_parameter;
-    assert(result_matrix.get_values().is_same(op::DynamicMatrix<double>({{7., 10.}, {15., 22.}})));
-    scalar = 1.;
-    assert(result_matrix.get_values().is_same(op::DynamicMatrix<double>({{3., 10.}, {5., 18.}})));
-    scalar = 3.;
 
-    // multiply 2x1/2x2
-    op::Parameter vector_parameter({{1., 2.}});
-    result_matrix = vector_parameter * matrix_parameter;
-    assert(result_matrix.get_values().is_same(op::DynamicMatrix<double>({{7., 10.}})));
+    Eigen::Matrix2d reference_matrix;
+
+    reference_matrix << 7., 10., 15., 22.;
+    assert(result_matrix.get_values() == reference_matrix);
+
+    dyn_matrix(1, 0) = 1.;
+    reference_matrix << 3., 10., 5., 18.;
+    assert(result_matrix.get_values() == reference_matrix);
+
+    dyn_matrix(1, 0) = 3.;
+
+    Eigen::Vector2d dyn_vector(1., 2.);
+
+    // multiply 2x2/2x1
+    op::Parameter vector_parameter(&dyn_vector);
+    result_matrix = matrix_parameter * vector_parameter;
+    assert(result_matrix.get_values() == Eigen::Vector2d(5., 11));
+
+    // multiply 1x2/2x2
+    result_matrix = vector_parameter.transpose() * matrix_parameter;
+    assert(result_matrix.get_values() == Eigen::Vector2d(7., 10.).transpose());
 
     // multiply 1x1/2x2
     result_matrix = scalar_param_2 * matrix_parameter;
-    assert(result_matrix.get_values().is_same(op::DynamicMatrix<double>({{2., 4.}, {6., 8.}})));
+    reference_matrix << 2., 4., 6., 8.;
+    assert(result_matrix.get_values() == reference_matrix);
 
     // multiply 2x2/1x1
     result_matrix = matrix_parameter * scalar_param_2;
-    assert(result_matrix.get_values().is_same(op::DynamicMatrix<double>({{2., 4.}, {6., 8.}})));
+    assert(result_matrix.get_values() == reference_matrix);
 
-    // #ifdef EIGEN_AVAILABLE
     Eigen::Matrix3d m1, m2;
     m1.setRandom();
     m2.setRandom();
     op::Parameter eigen1(&m1);
     op::Parameter eigen2(m2);
 
+    scalar = 3.;
     Eigen::MatrixXd m = scalar * m1 * m2;
     op::Parameter result = scalar_param_ptr * eigen1 * eigen2;
+    assert((result.get_values() - m).cwiseAbs().sum() < 1e-10);
 
-    assert(compareMatrices(result, m));
-
-    scalar = 5.;
-    m1.setRandom();
+    scalar = 10.;
     m = scalar * m1 * m2;
-
-    assert(compareMatrices(result, m));
+    assert((result.get_values() - m).cwiseAbs().sum() < 1e-10);
 
     Eigen::MatrixXd m3x2(3, 2);
     Eigen::MatrixXd m2x5(2, 5);
@@ -105,8 +98,7 @@ int main()
     m = m3x2 * m2x5;
     result = op::Parameter(m3x2) * op::Parameter(m2x5);
 
-    assert(compareMatrices(result, m));
-    // #endif
+    assert((result.get_values() - m).cwiseAbs().sum() < 1e-10);
 
     std::cout << "All tests were successful."
               << "\n";
