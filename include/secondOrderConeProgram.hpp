@@ -16,7 +16,6 @@ struct SecondOrderConeProgram : public GenericOptimizationProblem
     void addConstraint(std::vector<PositiveConstraint> constraints);
     void addConstraint(std::vector<SecondOrderConeConstraint> constraints);
 
-    void addMinimizationTerm(const AffineSum &affine);
     void addMinimizationTerm(const Affine &affine);
 
     void cleanUp();

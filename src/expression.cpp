@@ -114,7 +114,7 @@ size_t AffineSum::clean()
                                      [](const AffineTerm &term) {
                                          return term.parameter.is_zero();
                                      });
-    auto erase_to = terms.end();
+    const auto erase_to = terms.end();
     terms.erase(erase_from, erase_to);
 
     return std::distance(erase_from, erase_to);

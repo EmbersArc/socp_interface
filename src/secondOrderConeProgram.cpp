@@ -21,11 +21,6 @@ void SecondOrderConeProgram::addConstraint(std::vector<SecondOrderConeConstraint
     secondOrderConeConstraints.insert(secondOrderConeConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addMinimizationTerm(const AffineSum &affine)
-{
-    costFunction += affine;
-}
-
 void SecondOrderConeProgram::addMinimizationTerm(const Affine &affine)
 {
     assert(affine.is_scalar());
@@ -39,6 +34,7 @@ std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp)
     os << "Number of equality constraints:          " << socp.equalityConstraints.size() << "\n";
     os << "Number of positive constraints:          " << socp.positiveConstraints.size() << "\n";
     os << "Number of second order cone constraints: " << socp.secondOrderConeConstraints.size() << "\n";
+    os << "\n";
 
     os << "Minimize:"
        << "\n";
@@ -118,58 +114,74 @@ bool SecondOrderConeProgram::isFeasible() const
 
 void SecondOrderConeProgram::cleanUp()
 {
+    std::cout << "Cleaning up problem...\n";
+
+    size_t variables_removed = 0;
+
+    variables_removed += costFunction.clean();
+
     for (auto &equalityConstraint : equalityConstraints)
     {
-        equalityConstraint.affine.clean();
+        variables_removed += equalityConstraint.affine.clean();
     }
     for (auto &positiveConstraint : positiveConstraints)
     {
-        positiveConstraint.affine.clean();
+        variables_removed += positiveConstraint.affine.clean();
     }
     for (auto &secondOrderConeConstraint : secondOrderConeConstraints)
     {
         { // Affine
-            secondOrderConeConstraint.affine.clean();
+            variables_removed += secondOrderConeConstraint.affine.clean();
         }
 
         { // Norm2
-            secondOrderConeConstraint.affine.clean();
+            variables_removed += secondOrderConeConstraint.affine.clean();
             for (auto &affineSum : secondOrderConeConstraint.norm2.arguments)
             {
-                affineSum.clean();
+                variables_removed += affineSum.clean();
             }
         }
     }
 
+    std::cout << "Removed " << variables_removed << " variable(s) from constraints.\n";
+
+    size_t constraints_removed = 0;
     {
         auto erase_from = std::remove_if(equalityConstraints.begin(),
                                          equalityConstraints.end(),
                                          [](const EqualityConstraint &constraint) { return constraint.affine.is_constant(); });
-        equalityConstraints.erase(erase_from,
-                                  equalityConstraints.end());
+        const auto erase_to = equalityConstraints.end();
+        equalityConstraints.erase(erase_from, erase_to);
+
+        constraints_removed += std::distance(erase_from, erase_to);
     }
     {
         auto erase_from = std::remove_if(positiveConstraints.begin(),
                                          positiveConstraints.end(),
                                          [](const PositiveConstraint &constraint) { return constraint.affine.is_constant(); });
-        positiveConstraints.erase(erase_from,
-                                  positiveConstraints.end());
+        const auto erase_to = positiveConstraints.end();
+        positiveConstraints.erase(erase_from, erase_to);
+
+        constraints_removed += std::distance(erase_from, erase_to);
     }
     {
         auto erase_from = std::remove_if(secondOrderConeConstraints.begin(),
                                          secondOrderConeConstraints.end(),
                                          [](const SecondOrderConeConstraint &constraint) {
-                                             constraint.affine.is_constant();
-                                             bool all_terms_constant = true;
+                                             bool all_terms_constant = constraint.affine.is_constant();
                                              for (const AffineSum &affineSum : constraint.norm2.arguments)
                                              {
                                                  all_terms_constant &= affineSum.is_constant();
                                              }
                                              return all_terms_constant;
                                          });
-        secondOrderConeConstraints.erase(erase_from,
-                                         secondOrderConeConstraints.end());
+        const auto erase_to = secondOrderConeConstraints.end();
+        secondOrderConeConstraints.erase(erase_from, erase_to);
+
+        constraints_removed += std::distance(erase_from, erase_to);
     }
+
+    std::cout << "Removed " << constraints_removed << " constraint(s).\n";
 }
 
 } // namespace op
