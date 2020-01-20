@@ -14,7 +14,7 @@ class DynamicMatrix
 public:
     using return_t = typename std::conditional_t<std::is_same_v<Derived, void>, DynamicMatrix<T>, Derived>;
     DynamicMatrix();
-    DynamicMatrix(size_t rows, size_t cols = 1);
+    explicit DynamicMatrix(size_t rows, size_t cols = 1);
     explicit DynamicMatrix(const std::vector<std::vector<T>> &matrix);
 
     bool empty() const;

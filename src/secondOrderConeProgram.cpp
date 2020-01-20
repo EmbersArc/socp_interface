@@ -151,18 +151,20 @@ void SecondOrderConeProgram::cleanUp()
                                          equalityConstraints.end(),
                                          [](const EqualityConstraint &constraint) { return constraint.affine.is_constant(); });
         const auto erase_to = equalityConstraints.end();
+        const size_t erased_elements = std::distance(erase_from, erase_to);
         equalityConstraints.erase(erase_from, erase_to);
 
-        constraints_removed += std::distance(erase_from, erase_to);
+        constraints_removed += erased_elements;
     }
     {
         auto erase_from = std::remove_if(positiveConstraints.begin(),
                                          positiveConstraints.end(),
                                          [](const PositiveConstraint &constraint) { return constraint.affine.is_constant(); });
         const auto erase_to = positiveConstraints.end();
+        const size_t erased_elements = std::distance(erase_from, erase_to);
         positiveConstraints.erase(erase_from, erase_to);
 
-        constraints_removed += std::distance(erase_from, erase_to);
+        constraints_removed += erased_elements;
     }
     {
         auto erase_from = std::remove_if(secondOrderConeConstraints.begin(),
@@ -176,9 +178,10 @@ void SecondOrderConeProgram::cleanUp()
                                              return all_terms_constant;
                                          });
         const auto erase_to = secondOrderConeConstraints.end();
+        const size_t erased_elements = std::distance(erase_from, erase_to);
         secondOrderConeConstraints.erase(erase_from, erase_to);
 
-        constraints_removed += std::distance(erase_from, erase_to);
+        constraints_removed += erased_elements;
     }
 
     std::cout << "Removed " << constraints_removed << " constraint(s).\n";

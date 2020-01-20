@@ -75,12 +75,12 @@ std::ostream &operator<<(std::ostream &os, const AffineSum &expression)
 }
 double AffineSum::evaluate(const std::vector<double> &soln_values) const
 {
-    double sum = 0.;
+    double result = 0.;
     for (const auto &term : terms)
     {
-        sum += term.evaluate(soln_values);
+        result += term.evaluate(soln_values);
     }
-    return sum;
+    return result;
 }
 
 AffineSum AffineSum::operator+(const AffineSum &other) const
@@ -115,9 +115,10 @@ size_t AffineSum::clean()
                                          return term.parameter.is_zero();
                                      });
     const auto erase_to = terms.end();
+    const size_t erased_elements = std::distance(erase_from, erase_to);
     terms.erase(erase_from, erase_to);
 
-    return std::distance(erase_from, erase_to);
+    return erased_elements;
 }
 
 bool AffineSum::is_constant() const
