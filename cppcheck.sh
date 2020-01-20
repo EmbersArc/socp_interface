@@ -1,1 +1,0 @@
-clear && cppcheck src -I include --enable=all --inconclusive --language=c++
