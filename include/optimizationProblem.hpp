@@ -10,20 +10,46 @@ namespace op
 
 class GenericOptimizationProblem
 {
-protected:
-    size_t n_variables = 0;
-
-    /* Set of named tensor variables in the optimization problem */
-    std::map<std::string, std::vector<size_t>> tensor_variable_dimensions;
-    std::map<std::string, std::vector<size_t>> tensor_variable_indices;
-
-    size_t allocateVariableIndex();
-
 public:
-    void createTensorVariable(const std::string &name, const std::vector<size_t> &dimensions = {});
-    size_t getTensorVariableIndex(const std::string &name, const std::vector<size_t> &indices);
-    Variable getVariable(const std::string &name, const std::vector<size_t> &indices);
-    size_t getNumVariables() const { return n_variables; }
+    Variable createVariable(const std::string &name,
+                            size_t rows = 1, size_t cols = 1);
+
+    Variable getVariable(const std::string &name) const;
+
+    size_t getNumVariables() const;
+
+    void readSolution(const std::string &name,
+                      double &solution) const;
+    void readSolution(const std::string &name,
+                      DynamicMatrix<double> &solution) const;
+
+// #ifdef EIGEN_AVAILABLE
+    template <typename Derived>
+    void readSolution(const std::string &name,
+                      Eigen::PlainObjectBase<Derived> &solution) const;
+// #endif
+
+    std::vector<double> solution_vector;
+
+protected:
+    std::map<std::string, Variable> variables;
 };
+
+// #ifdef EIGEN_AVAILABLE
+template <typename Derived>
+void GenericOptimizationProblem::readSolution(const std::string &name,
+                                              Eigen::PlainObjectBase<Derived> &solution) const
+{
+    const Variable &variable = variables.at(name);
+    solution.resize(variable.rows(), variable.cols());
+    for (size_t row = 0; row < variable.rows(); row++)
+    {
+        for (size_t col = 0; col < variable.cols(); col++)
+        {
+            solution(row, col) = solution_vector[variable.coeff(row, col).getProblemIndex()];
+        }
+    }
+}
+// #endif
 
 } // namespace op

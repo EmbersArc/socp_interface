@@ -1,26 +1,3 @@
-# socp_interface
-
-A C++ interface to formulate Second Order Cone Problems for the [ECOS](https://github.com/embotech/ecos) solver.
-
-## Dependencies
-
-* C++17
-* Eigen
-* ECOS (included as submodule)
-
-## Installation
-``` 
-git clone --recurse-submodules https://github.com/EmbersArc/socp_interface.git
-cd socp_interface  
-mkdir build  
-cd build  
-cmake ..  
-make  
-```
-
-## Example
-
-```cpp
 #include "socpSolver.hpp"
 
 #include <array>
@@ -125,5 +102,3 @@ int main()
     std::cout << "Solution 2:\n"
               << x_sol << "\n\n";
 }
-```
-

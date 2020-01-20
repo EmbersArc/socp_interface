@@ -6,59 +6,77 @@
 namespace op
 {
 
-void SecondOrderConeProgram::addConstraint(SecondOrderConeConstraint c)
+void SecondOrderConeProgram::addConstraint(std::vector<EqualityConstraint> constraints)
 {
-    secondOrderConeConstraints.push_back(c);
+    equalityConstraints.insert(equalityConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addConstraint(PostiveConstraint c)
+void SecondOrderConeProgram::addConstraint(std::vector<PositiveConstraint> constraints)
 {
-    postiveConstraints.push_back(c);
+    positiveConstraints.insert(positiveConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addConstraint(EqualityConstraint c)
+void SecondOrderConeProgram::addConstraint(std::vector<SecondOrderConeConstraint> constraints)
 {
-    equalityConstraints.push_back(c);
+    secondOrderConeConstraints.insert(secondOrderConeConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addMinimizationTerm(const AffineExpression &c)
+void SecondOrderConeProgram::addMinimizationTerm(const Affine &affine)
 {
-    costFunction = costFunction + c;
+    assert(affine.is_scalar());
+    costFunction += affine.coeff(0);
 }
 
-void SecondOrderConeProgram::printProblem(std::ostream &out) const
+std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp)
 {
-    out << "Minimize"
-        << "\n";
-    out << costFunction << "\n";
+    os << "Second order cone problem with " << socp.solution_vector.size() << " variables.\n";
 
-    out << "\n"
-        << "Subject to equality constraints"
-        << "\n";
-    for (const auto &equalityConstraint : equalityConstraints)
+    os << "Number of equality constraints:          " << socp.equalityConstraints.size() << "\n";
+    os << "Number of positive constraints:          " << socp.positiveConstraints.size() << "\n";
+    os << "Number of second order cone constraints: " << socp.secondOrderConeConstraints.size() << "\n";
+    os << "\n";
+
+    os << "Minimize:"
+       << "\n";
+    os << socp.costFunction << "\n";
+
+    if (not socp.equalityConstraints.empty())
     {
-        out << equalityConstraint << "\n";
+        os << "\n"
+           << "Subject to equality constraints:"
+           << "\n";
+        for (const auto &equalityConstraint : socp.equalityConstraints)
+        {
+            os << equalityConstraint << "\n";
+        }
     }
 
-    out << "\n"
-        << "Subject to linear inequalities"
-        << "\n";
-    for (const auto &postiveConstraint : postiveConstraints)
+    if (not socp.positiveConstraints.empty())
     {
-        out << postiveConstraint << "\n";
+        os << "\n"
+           << "Subject to linear inequalities:"
+           << "\n";
+        for (const auto &positiveConstraint : socp.positiveConstraints)
+        {
+            os << positiveConstraint << "\n";
+        }
     }
 
-    out << "\n"
-        << "Subject to cone constraints"
-        << "\n";
-    for (const auto &secondOrderConeConstraint : secondOrderConeConstraints)
+    if (not socp.secondOrderConeConstraints.empty())
     {
-        out << secondOrderConeConstraint << "\n";
+        os << "\n"
+           << "Subject to cone constraints:"
+           << "\n";
+        for (const auto &secondOrderConeConstraint : socp.secondOrderConeConstraints)
+        {
+            os << secondOrderConeConstraint << "\n";
+        }
     }
+    return os;
 }
 
 template <typename T>
-bool feasibility_check_message(double tol, double val, const T &constraint)
+bool check_constraint(double tol, double val, const T &constraint)
 {
     if (val > tol)
     {
@@ -70,18 +88,100 @@ bool feasibility_check_message(double tol, double val, const T &constraint)
     return true;
 }
 
-bool SecondOrderConeProgram::feasibilityCheck(const std::vector<double> &soln_values) const
+bool SecondOrderConeProgram::isFeasible() const
 {
-    const double tol = 0.1;
+    const double tol = 0.01;
     bool feasible = true;
-    auto check_feasibility = [&](const auto &constraint) { return feasibility_check_message(tol, constraint.evaluate(soln_values), constraint); };
-    auto check_feasibility_abs = [&](const auto &constraint) { return feasibility_check_message(tol, std::fabs(constraint.evaluate(soln_values)), constraint); };
+    auto check = [&](const auto &constraint) { return check_constraint(tol,
+                                                                       constraint.evaluate(solution_vector),
+                                                                       constraint); };
+    auto check_abs = [&](const auto &constraint) { return check_constraint(tol,
+                                                                           std::fabs(constraint.evaluate(solution_vector)),
+                                                                           constraint); };
 
-    feasible &= std::all_of(secondOrderConeConstraints.begin(), secondOrderConeConstraints.end(), check_feasibility);
-    feasible &= std::all_of(postiveConstraints.begin(), postiveConstraints.end(), check_feasibility);
-    feasible &= std::all_of(equalityConstraints.begin(), equalityConstraints.end(), check_feasibility_abs);
+    feasible &= std::all_of(secondOrderConeConstraints.begin(),
+                            secondOrderConeConstraints.end(),
+                            check);
+    feasible &= std::all_of(positiveConstraints.begin(),
+                            positiveConstraints.end(),
+                            check);
+    feasible &= std::all_of(equalityConstraints.begin(),
+                            equalityConstraints.end(),
+                            check_abs);
 
     return feasible;
+}
+
+void SecondOrderConeProgram::cleanUp()
+{
+    std::cout << "Cleaning up problem...\n";
+
+    size_t variables_removed = 0;
+
+    variables_removed += costFunction.clean();
+
+    for (auto &equalityConstraint : equalityConstraints)
+    {
+        variables_removed += equalityConstraint.affine.clean();
+    }
+    for (auto &positiveConstraint : positiveConstraints)
+    {
+        variables_removed += positiveConstraint.affine.clean();
+    }
+    for (auto &secondOrderConeConstraint : secondOrderConeConstraints)
+    {
+        { // Affine
+            variables_removed += secondOrderConeConstraint.affine.clean();
+        }
+
+        { // Norm2
+            variables_removed += secondOrderConeConstraint.affine.clean();
+            for (auto &affineSum : secondOrderConeConstraint.norm2.arguments)
+            {
+                variables_removed += affineSum.clean();
+            }
+        }
+    }
+
+    std::cout << "Removed " << variables_removed << " variable(s) from constraints.\n";
+
+    size_t constraints_removed = 0;
+    {
+        auto erase_from = std::remove_if(equalityConstraints.begin(),
+                                         equalityConstraints.end(),
+                                         [](const EqualityConstraint &constraint) { return constraint.affine.is_constant(); });
+        const auto erase_to = equalityConstraints.end();
+        equalityConstraints.erase(erase_from, erase_to);
+
+        constraints_removed += std::distance(erase_from, erase_to);
+    }
+    {
+        auto erase_from = std::remove_if(positiveConstraints.begin(),
+                                         positiveConstraints.end(),
+                                         [](const PositiveConstraint &constraint) { return constraint.affine.is_constant(); });
+        const auto erase_to = positiveConstraints.end();
+        positiveConstraints.erase(erase_from, erase_to);
+
+        constraints_removed += std::distance(erase_from, erase_to);
+    }
+    {
+        auto erase_from = std::remove_if(secondOrderConeConstraints.begin(),
+                                         secondOrderConeConstraints.end(),
+                                         [](const SecondOrderConeConstraint &constraint) {
+                                             bool all_terms_constant = constraint.affine.is_constant();
+                                             for (const AffineSum &affineSum : constraint.norm2.arguments)
+                                             {
+                                                 all_terms_constant &= affineSum.is_constant();
+                                             }
+                                             return all_terms_constant;
+                                         });
+        const auto erase_to = secondOrderConeConstraints.end();
+        secondOrderConeConstraints.erase(erase_from, erase_to);
+
+        constraints_removed += std::distance(erase_from, erase_to);
+    }
+
+    std::cout << "Removed " << constraints_removed << " constraint(s).\n";
 }
 
 } // namespace op

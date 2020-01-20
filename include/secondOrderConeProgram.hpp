@@ -2,26 +2,27 @@
 
 #include "optimizationProblem.hpp"
 
-#include <vector>
-#include <ostream>
-
 namespace op
 {
 
 struct SecondOrderConeProgram : public GenericOptimizationProblem
 {
-    std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
-    std::vector<PostiveConstraint> postiveConstraints;
     std::vector<EqualityConstraint> equalityConstraints;
-    AffineExpression costFunction = Parameter();
+    std::vector<PositiveConstraint> positiveConstraints;
+    std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
+    AffineSum costFunction = AffineSum(0.);
 
-    void addConstraint(SecondOrderConeConstraint c);
-    void addConstraint(PostiveConstraint c);
-    void addConstraint(EqualityConstraint c);
-    void addMinimizationTerm(const AffineExpression &c);
-    void printProblem(std::ostream &out) const;
+    void addConstraint(std::vector<EqualityConstraint> constraints);
+    void addConstraint(std::vector<PositiveConstraint> constraints);
+    void addConstraint(std::vector<SecondOrderConeConstraint> constraints);
 
-    bool feasibilityCheck(const std::vector<double> &soln_values) const;
+    void addMinimizationTerm(const Affine &affine);
+
+    void cleanUp();
+
+    bool isFeasible() const;
+
+    friend std::ostream &operator<<(std::ostream &os, const SecondOrderConeProgram &socp);
 };
 
 } // namespace op

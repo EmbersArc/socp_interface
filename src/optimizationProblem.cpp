@@ -6,52 +6,46 @@
 namespace op
 {
 
-inline size_t tensor_index(const std::vector<size_t> &indices, const std::vector<size_t> &dimensions)
+size_t allocateVariableIndex();
+
+Variable GenericOptimizationProblem::createVariable(const std::string &name,
+                                                    size_t rows, size_t cols)
 {
-    assert(indices.size() == dimensions.size());
-    size_t index = 0;
-    for (size_t d = 0; d < indices.size(); ++d)
-        index = index * dimensions[d] + indices[d];
-    return index;
+    Variable variable(name, solution_vector.size(), rows, cols);
+    variables.insert({name, variable});
+    solution_vector.resize(solution_vector.size() + rows * cols);
+    return variable;
 }
 
-size_t GenericOptimizationProblem::allocateVariableIndex()
+Variable GenericOptimizationProblem::getVariable(const std::string &name) const
 {
-    size_t i = n_variables;
-    n_variables++;
-    return i;
+    return variables.at(name);
 }
 
-void GenericOptimizationProblem::createTensorVariable(const std::string &name, const std::vector<size_t> &dimensions)
+size_t GenericOptimizationProblem::getNumVariables() const
 {
-    size_t tensor_size = std::accumulate(dimensions.begin(), dimensions.end(), 1, std::multiplies<size_t>());
-
-    std::vector<size_t> new_variable_indices(tensor_size);
-    std::generate(new_variable_indices.begin(), new_variable_indices.end(), [this]() { return allocateVariableIndex(); });
-
-    tensor_variable_dimensions[name] = dimensions;
-    tensor_variable_indices[name] = new_variable_indices;
+    return solution_vector.size();
 }
 
-size_t GenericOptimizationProblem::getTensorVariableIndex(const std::string &name, const std::vector<size_t> &indices)
+void GenericOptimizationProblem::readSolution(const std::string &name,
+                                              double &solution) const
 {
-    assert(tensor_variable_indices.count(name) > 0);
-    std::vector<size_t> &dims = tensor_variable_dimensions[name];
-    assert(indices.size() == dims.size());
-    for (size_t i = 0; i < indices.size(); i++)
+    const Variable &variable = variables.at(name);
+    assert(variable.is_scalar());
+    solution = solution_vector[variable.coeff(0).getProblemIndex()];
+}
+void GenericOptimizationProblem::readSolution(const std::string &name,
+                                              DynamicMatrix<double> &solution) const
+{
+    const Variable &variable = variables.at(name);
+    solution.resize(variable.rows(), variable.cols());
+    for (size_t row = 0; row < variable.rows(); row++)
     {
-        assert(indices[i] < dims[i]);
+        for (size_t col = 0; col < variable.cols(); col++)
+        {
+            solution.coeffRef(row, col) = solution_vector[variable.coeff(row, col).getProblemIndex()];
+        }
     }
-    return tensor_variable_indices[name][tensor_index(indices, dims)];
-}
-
-Variable GenericOptimizationProblem::getVariable(const std::string &name, const std::vector<size_t> &indices)
-{
-    Variable var;
-    var.name = name;
-    var.tensor_indices = indices;
-    var.problem_index = getTensorVariableIndex(name, indices);
-    return var;
 }
 
 } // end namespace op

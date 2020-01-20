@@ -3,7 +3,7 @@ project(socp_interface)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(TARGET_INCLUDE
     include
@@ -29,12 +29,24 @@ set(SOCP_SOURCES
 execute_process(COMMAND make shared WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/solvers/ecos)
 link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Wpedantic")
-
 add_library(socp_lib SHARED ${SOCP_SOURCES})
 target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
 target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
-# target_link_libraries(socp_lib Eigen3::Eigen)
 
-add_executable(example src/example.cpp)
-target_link_libraries(example socp_lib)
+set(DEBUG_OPTIONS -Wall -Wextra -Wpedantic)
+set(RELEASE_OPTIONS -O2)
+target_compile_options(socp_lib PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")
+target_compile_options(socp_lib PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
+
+if(${EIGEN3_FOUND})
+    message("Eigen found.")
+    add_definitions(-DEIGEN_AVAILABLE)
+endif()
+
+target_link_libraries(socp_lib Eigen3::Eigen)
+
+add_executable(socp_test src/tests/socp_test.cpp)
+target_link_libraries(socp_test socp_lib)
+
+add_executable(parameter_test src/tests/parameter_test.cpp)
+target_link_libraries(parameter_test socp_lib)
