@@ -8,6 +8,9 @@
 namespace op
 {
 
+namespace internal
+{
+
 // A linear term (p_1*x_1) or constant term (p_1)
 struct AffineTerm
 {
@@ -17,7 +20,7 @@ struct AffineTerm
     AffineTerm(const ParameterSource &parameter,
                const VariableSource &variable);
 
-    operator AffineSum() const;
+    operator internal::AffineSum() const;
 
     ParameterSource parameter;
     std::optional<VariableSource> variable; // a missing Variable represents a constant 1.0
@@ -50,14 +53,16 @@ struct AffineSum
 AffineSum operator+(const double &lhs, const AffineSum &rhs);
 AffineSum operator+(const AffineSum &lhs, const double &rhs);
 
+} // namespace internal
+
 // A scalar/vector/matrix of affine expressions
-class Affine : public DynamicMatrix<AffineSum, Affine>
+class Affine : public DynamicMatrix<internal::AffineSum, Affine>
 {
 public:
-    using DynamicMatrix<AffineSum, Affine>::DynamicMatrix;
+    using DynamicMatrix<internal::AffineSum, Affine>::DynamicMatrix;
     explicit Affine(const Parameter &parameter);
     explicit Affine(const Variable &variable);
-    explicit Affine(const AffineSum &expression);
+    explicit Affine(const internal::AffineSum &expression);
     friend std::ostream &operator<<(std::ostream &os, const Affine &expression);
     Affine &operator+=(const Affine &other);
     Affine operator-() const;
@@ -67,25 +72,30 @@ Affine operator*(const Parameter &parameter, const Variable &variable);
 Affine operator*(const Variable &variable, const Parameter &parameter);
 Affine operator*(const Parameter &parameter, const Affine &affine);
 
+namespace internal
+{
+
 // A term like norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2, ... ])
 struct Norm2Term
 {
     Norm2Term() = default;
     explicit Norm2Term(const Affine &affine);
-    std::vector<AffineSum> arguments;
+    std::vector<internal::AffineSum> arguments;
     friend std::ostream &operator<<(std::ostream &os, const Norm2Term &norm2);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-struct Norm2Lhs;
+} // namespace internal
 
-class Norm2 : public DynamicMatrix<Norm2Term, Norm2>
+struct SOCLhs;
+
+class Norm2 : public DynamicMatrix<internal::Norm2Term, Norm2>
 {
 public:
-    using DynamicMatrix<Norm2Term, Norm2>::DynamicMatrix;
+    using DynamicMatrix<internal::Norm2Term, Norm2>::DynamicMatrix;
     explicit Norm2(const Affine &affine);
     Norm2(const Affine &affine, size_t axis);
-    operator Norm2Lhs() const;
+    operator SOCLhs() const;
 };
 
 Affine operator-(const Variable &variable);
@@ -93,7 +103,7 @@ Affine operator-(const Variable &variable);
 Affine sum(const Affine &affine);
 Affine sum(const Affine &affine, size_t axis);
 
-struct Norm2Lhs
+struct SOCLhs
 {
     Norm2 norm2;
     std::optional<Affine> affine;
@@ -101,10 +111,10 @@ struct Norm2Lhs
     size_t rows() const;
     size_t cols() const;
     std::pair<size_t, size_t> shape() const;
-    Norm2Lhs operator+(const Affine &affine) const;
-    Norm2Lhs &operator+=(const Affine &affine);
+    SOCLhs operator+(const Affine &affine) const;
+    SOCLhs &operator+=(const Affine &affine);
 };
 
-Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine);
+SOCLhs operator+(const Norm2 &norm2, const Affine &affine);
 
 } // namespace op

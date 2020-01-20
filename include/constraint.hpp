@@ -12,8 +12,8 @@ namespace op
 //     p_1*x_1 + p_2*x_2 + ... + b == 0
 struct EqualityConstraint
 {
-    explicit EqualityConstraint(const AffineSum &affine);
-    AffineSum affine;
+    explicit EqualityConstraint(const internal::AffineSum &affine);
+    internal::AffineSum affine;
     friend std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
@@ -25,8 +25,8 @@ std::vector<EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs)
 //     p_1*x_1 + p_2*x_2 + ... + b >= 0
 struct PositiveConstraint
 {
-    explicit PositiveConstraint(const AffineSum &affine);
-    AffineSum affine;
+    explicit PositiveConstraint(const internal::AffineSum &affine);
+    internal::AffineSum affine;
     friend std::ostream &operator<<(std::ostream &os, const PositiveConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
@@ -39,14 +39,14 @@ std::vector<PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs)
 //        <= p_5*x_5 + p_6*x_6 + ... + b_3
 struct SecondOrderConeConstraint
 {
-    SecondOrderConeConstraint(const Norm2Term &norm2, const AffineSum &affine);
-    Norm2Term norm2;
-    AffineSum affine;
+    SecondOrderConeConstraint(const internal::Norm2Term &norm2, const internal::AffineSum &affine);
+    internal::Norm2Term norm2;
+    internal::AffineSum affine;
     friend std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-std::vector<SecondOrderConeConstraint> operator<=(const Norm2Lhs &norm2lhs, const Affine &affine);
-std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const Norm2Lhs &norm2lhs);
+std::vector<SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine);
+std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const SOCLhs &SOCLhs);
 
 } // namespace op

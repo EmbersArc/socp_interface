@@ -13,9 +13,13 @@
 namespace op
 {
 
+class Affine;
+
+namespace internal
+{
+
 struct AffineTerm;
 struct AffineSum;
-class Affine;
 
 class ParameterSource
 {
@@ -45,10 +49,12 @@ private:
     source_variant_t source;
 };
 
-class Parameter : public DynamicMatrix<ParameterSource, Parameter>
+} // namespace internal
+
+class Parameter : public DynamicMatrix<internal::ParameterSource, Parameter>
 {
 public:
-    using DynamicMatrix<ParameterSource, Parameter>::DynamicMatrix;
+    using DynamicMatrix<internal::ParameterSource, Parameter>::DynamicMatrix;
     explicit Parameter(const double const_value);
     explicit Parameter(double *value_ptr);
     explicit Parameter(const std::function<double()> &callback);
@@ -65,7 +71,7 @@ public:
     Parameter operator/(const Parameter &other) const;
     Affine cwiseProduct(const Affine &affine) const;
     double get_value(const size_t row = 0,
-                    const size_t col = 0) const;
+                     const size_t col = 0) const;
     Eigen::MatrixXd get_values() const;
 
     operator Affine() const;
@@ -79,7 +85,7 @@ Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
     {
         for (size_t col = 0; col < size_t(matrix.cols()); col++)
         {
-            coeffRef(row, col) = ParameterSource(matrix(row, col));
+            coeffRef(row, col) = internal::ParameterSource(matrix(row, col));
         }
     }
 }
@@ -91,7 +97,7 @@ Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
     {
         for (size_t col = 0; col < size_t(matrix->cols()); col++)
         {
-            coeffRef(row, col) = ParameterSource(&matrix->coeffRef(row, col));
+            coeffRef(row, col) = internal::ParameterSource(&matrix->coeffRef(row, col));
         }
     }
 }

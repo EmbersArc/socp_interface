@@ -5,6 +5,9 @@
 namespace op
 {
 
+namespace internal
+{
+
 VariableSource::VariableSource(const std::string &name, size_t problem_index,
                                size_t row, size_t col)
     : name(name), problem_index(problem_index), index(row, col) {}
@@ -22,6 +25,8 @@ std::ostream &operator<<(std::ostream &os, const VariableSource &variable)
     return os;
 }
 
+} // namespace internal
+
 Variable::Variable(const std::string &name, size_t start_index,
                    size_t rows, size_t cols)
     : name(name)
@@ -33,7 +38,7 @@ Variable::Variable(const std::string &name, size_t start_index,
     {
         for (size_t col = 0; col < cols; col++)
         {
-            data_matrix[row][col] = VariableSource(name, index, row, col);
+            data_matrix[row][col] = internal::VariableSource(name, index, row, col);
             index++;
         }
     }

@@ -11,6 +11,9 @@ bool isZero(double x)
 namespace op
 {
 
+namespace internal
+{
+
 ParameterSource::ParameterSource(const double const_value)
     : source(const_value) {}
 
@@ -123,19 +126,21 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
     return ParameterSource(divide_op);
 }
 
+} // namespace internal
+
 Parameter::Parameter(const double const_value)
 {
-    data_matrix = {{ParameterSource(const_value)}};
+    data_matrix = {{internal::ParameterSource(const_value)}};
 }
 
 Parameter::Parameter(double *value_ptr)
 {
-    data_matrix = {{ParameterSource(value_ptr)}};
+    data_matrix = {{internal::ParameterSource(value_ptr)}};
 }
 
 Parameter::Parameter(const std::function<double()> &callback)
 {
-    data_matrix = {{ParameterSource(callback)}};
+    data_matrix = {{internal::ParameterSource(callback)}};
 }
 
 double Parameter::get_value(const size_t row, const size_t col) const
@@ -192,7 +197,7 @@ Parameter Parameter::operator-(const Parameter &other) const
     return parameter;
 }
 
-Parameter scaleMatrix(const ParameterSource &scalar, const Parameter &matrix)
+Parameter scaleMatrix(const internal::ParameterSource &scalar, const Parameter &matrix)
 {
     Parameter parameter(matrix.rows(), matrix.cols());
     for (size_t row = 0; row < matrix.rows(); row++)
@@ -214,8 +219,8 @@ Parameter multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
     {
         for (size_t col = 0; col < matrix2.cols(); col++)
         {
-            std::vector<ParameterSource> row_vector(matrix1.cols());
-            std::vector<ParameterSource> column_vector(matrix2.rows());
+            std::vector<internal::ParameterSource> row_vector(matrix1.cols());
+            std::vector<internal::ParameterSource> column_vector(matrix2.rows());
             for (size_t inner = 0; inner < matrix1.cols(); inner++)
             {
                 row_vector.at(inner) = matrix1.coeff(row, inner);
@@ -229,7 +234,7 @@ Parameter multiplyMatrices(const Parameter &matrix1, const Parameter &matrix2)
                 }
                 return element;
             };
-            parameter.coeffRef(row, col) = ParameterSource(sum_op);
+            parameter.coeffRef(row, col) = internal::ParameterSource(sum_op);
         }
     }
     return parameter;

@@ -171,7 +171,7 @@ void SecondOrderConeProgram::cleanUp()
                                          secondOrderConeConstraints.end(),
                                          [](const SecondOrderConeConstraint &constraint) {
                                              bool all_terms_constant = constraint.affine.is_constant();
-                                             for (const AffineSum &affineSum : constraint.norm2.arguments)
+                                             for (const internal::AffineSum &affineSum : constraint.norm2.arguments)
                                              {
                                                  all_terms_constant &= affineSum.is_constant();
                                              }

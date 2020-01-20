@@ -8,6 +8,9 @@
 namespace op
 {
 
+namespace internal
+{
+
 AffineTerm::AffineTerm()
     : parameter(0.) {}
 
@@ -41,27 +44,27 @@ double AffineTerm::evaluate(const std::vector<double> &soln_values) const
     }
 }
 
-AffineTerm &AffineTerm::operator*=(const ParameterSource &parameter)
+AffineTerm &AffineTerm::operator*=(const internal::ParameterSource &parameter)
 {
     this->parameter = this->parameter * parameter;
     return *this;
 }
 
-AffineTerm AffineTerm::operator*(const ParameterSource &parameter) const
+AffineTerm AffineTerm::operator*(const internal::ParameterSource &parameter) const
 {
     AffineTerm result = *this;
     result.parameter = parameter * result.parameter;
     return result;
 }
 
-AffineTerm operator*(const ParameterSource &parameter, const VariableSource &variable)
+AffineTerm operator*(const internal::ParameterSource &parameter, const VariableSource &variable)
 {
     return AffineTerm(parameter, variable);
 }
 
 AffineTerm operator*(const double &const_parameter, const VariableSource &variable)
 {
-    return AffineTerm(ParameterSource(const_parameter), variable);
+    return AffineTerm(internal::ParameterSource(const_parameter), variable);
 }
 
 ParameterSource::operator AffineTerm() const
@@ -152,7 +155,7 @@ AffineSum operator+(const AffineSum &lhs, const double &rhs)
 {
     AffineSum result;
     result.terms.insert(result.terms.end(), lhs.terms.begin(), lhs.terms.end());
-    result.terms.push_back(ParameterSource(rhs));
+    result.terms.push_back(internal::ParameterSource(rhs));
     return result;
 }
 
@@ -182,6 +185,8 @@ AffineTerm::operator AffineSum() const
     return AffineSum(*this);
 }
 
+} // namespace internal
+
 Affine::Affine(const Parameter &parameter)
 {
     resize(parameter.rows(), parameter.cols());
@@ -189,7 +194,7 @@ Affine::Affine(const Parameter &parameter)
     {
         for (size_t col = 0; col < parameter.cols(); col++)
         {
-            coeffRef(row, col) = AffineSum(parameter.coeff(row, col));
+            coeffRef(row, col) = internal::AffineSum(parameter.coeff(row, col));
         }
     }
 }
@@ -201,18 +206,20 @@ Affine::Affine(const Variable &variable)
     {
         for (size_t col = 0; col < variable.cols(); col++)
         {
-            coeffRef(row, col) = AffineSum(variable.coeff(row, col));
+            coeffRef(row, col) = internal::AffineSum(variable.coeff(row, col));
         }
     }
 }
 
-Affine::Affine(const AffineSum &expression)
+Affine::Affine(const internal::AffineSum &expression)
 {
     resize(1, 1);
     coeffRef(0) = expression;
 }
 
-std::ostream &operator<<(std::ostream &os, const Norm2Term &norm2)
+namespace internal
+{
+std::ostream &operator<<(std::ostream &os, const internal::Norm2Term &norm2)
 {
     os << "norm2([";
     for (size_t i = 0; i < norm2.arguments.size(); i++)
@@ -224,6 +231,7 @@ std::ostream &operator<<(std::ostream &os, const Norm2Term &norm2)
     os << "])";
     return os;
 }
+} // namespace internal
 
 Affine operator+(const Affine &lhs, const Affine &rhs)
 {
@@ -255,7 +263,7 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                AffineSum expression;
+                internal::AffineSum expression;
                 for (size_t inner = 0; inner < parameter.cols(); inner++)
                 {
                     expression.terms.emplace_back(parameter.coeff(row, inner),
@@ -273,8 +281,8 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                result.coeffRef(row, col) = AffineTerm(parameter.coeff(0),
-                                                       variable.coeff(row, col));
+                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(0),
+                                                                 variable.coeff(row, col));
             }
         }
         return result;
@@ -286,8 +294,8 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                result.coeffRef(row, col) = AffineTerm(parameter.coeff(row, col),
-                                                       variable.coeff(0));
+                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(row, col),
+                                                                 variable.coeff(0));
             }
         }
         return result;
@@ -309,7 +317,7 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                AffineSum expression;
+                internal::AffineSum expression;
                 for (size_t inner = 0; inner < variable.cols(); inner++)
                 {
                     expression.terms.emplace_back(parameter.coeff(inner, col),
@@ -327,8 +335,8 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                result.coeffRef(row, col) = AffineTerm(parameter.coeff(row, col),
-                                                       variable.coeff(0));
+                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(row, col),
+                                                                 variable.coeff(0));
             }
         }
         return result;
@@ -340,7 +348,7 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
         {
             for (size_t col = 0; col < result.cols(); col++)
             {
-                result.coeffRef(row, col) = AffineTerm(parameter.coeff(0), variable.coeff(row, col));
+                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(0), variable.coeff(row, col));
             }
         }
         return result;
@@ -409,6 +417,9 @@ Variable::operator Affine() const
     return Affine(*this);
 }
 
+namespace internal
+{
+
 Norm2Term::Norm2Term(const Affine &affine)
 {
     assert(affine.rows() == 1 or affine.cols() == 1);
@@ -431,6 +442,8 @@ double Norm2Term::evaluate(const std::vector<double> &soln_values) const
     };
     return std::sqrt(std::accumulate(arguments.begin(), arguments.end(), 0., sum_squares));
 }
+
+} // namespace internal
 
 Norm2::Norm2(const Affine &affine)
 {
@@ -470,11 +483,11 @@ Norm2::Norm2(const Affine &affine, size_t axis)
     }
 }
 
-Norm2::operator Norm2Lhs() const
+Norm2::operator SOCLhs() const
 {
-    Norm2Lhs norm2lhs;
-    norm2lhs.norm2 = *this;
-    return norm2lhs;
+    SOCLhs SOCLhs;
+    SOCLhs.norm2 = *this;
+    return SOCLhs;
 }
 
 Affine operator-(const Variable &variable)
@@ -518,7 +531,7 @@ Affine sum(const Affine &affine, size_t axis)
         sum.resize(1, affine.cols());
         for (size_t col = 0; col < affine.cols(); col++)
         {
-            op::AffineSum row_sum;
+            op::internal::AffineSum row_sum;
             for (size_t row = 0; row < affine.rows(); row++)
             {
                 row_sum += affine.coeff(row, col);
@@ -531,7 +544,7 @@ Affine sum(const Affine &affine, size_t axis)
         sum.resize(affine.rows(), 1);
         for (size_t row = 0; row < affine.rows(); row++)
         {
-            op::AffineSum col_sum;
+            op::internal::AffineSum col_sum;
             for (size_t col = 0; col < affine.cols(); col++)
             {
                 col_sum += affine.coeff(row, col);
@@ -542,30 +555,30 @@ Affine sum(const Affine &affine, size_t axis)
     return sum;
 }
 
-bool Norm2Lhs::is_scalar() const
+bool SOCLhs::is_scalar() const
 {
     return norm2.is_scalar();
 }
 
-size_t Norm2Lhs::rows() const
+size_t SOCLhs::rows() const
 {
     return norm2.rows();
 }
 
-size_t Norm2Lhs::cols() const
+size_t SOCLhs::cols() const
 {
     return norm2.cols();
 }
 
-std::pair<size_t, size_t> Norm2Lhs::shape() const
+std::pair<size_t, size_t> SOCLhs::shape() const
 {
     return norm2.shape();
 }
 
-Norm2Lhs Norm2Lhs::operator+(const Affine &affine) const
+SOCLhs SOCLhs::operator+(const Affine &affine) const
 {
     assert(affine.shape() == norm2.shape());
-    Norm2Lhs result = *this;
+    SOCLhs result = *this;
     if (result.affine.has_value())
     {
         result.affine.value() += affine;
@@ -577,7 +590,7 @@ Norm2Lhs Norm2Lhs::operator+(const Affine &affine) const
     return result;
 }
 
-Norm2Lhs &Norm2Lhs::operator+=(const Affine &affine)
+SOCLhs &SOCLhs::operator+=(const Affine &affine)
 {
     if (this->affine.has_value())
     {
@@ -590,13 +603,13 @@ Norm2Lhs &Norm2Lhs::operator+=(const Affine &affine)
     return *this;
 }
 
-Norm2Lhs operator+(const Norm2 &norm2, const Affine &affine)
+SOCLhs operator+(const Norm2 &norm2, const Affine &affine)
 {
     assert(norm2.shape() == affine.shape());
-    Norm2Lhs norm2lhs;
-    norm2lhs.norm2 = norm2;
-    norm2lhs.affine = affine;
-    return norm2lhs;
+    SOCLhs SOCLhs;
+    SOCLhs.norm2 = norm2;
+    SOCLhs.affine = affine;
+    return SOCLhs;
 }
 
 } // namespace op
