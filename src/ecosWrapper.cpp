@@ -324,7 +324,7 @@ bool EcosWrapper::solveProblem(bool verbose)
     return ecos_exitflag != ECOS_SIGINT and
            ecos_exitflag != ECOS_FATAL and
            ecos_exitflag != ECOS_PINF + ECOS_INACC_OFFSET and
-           ecos_exitflag != ECOS_PINF + ECOS_INACC_OFFSET;
+           ecos_exitflag != ECOS_DINF + ECOS_INACC_OFFSET;
 }
 
 std::string EcosWrapper::getResultString() const
