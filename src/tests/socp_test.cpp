@@ -88,9 +88,10 @@ int main()
     // Get Solution.
     Eigen::Matrix<double, n, 1> x_sol;
     socp.readSolution("x", x_sol);
+    std::cout << "Solver message: " << solver.getResultString() << "\n";
 
     // Print the first solution.
-    std::cout << "Solution 1:\n"
+    std::cout << "First solution:\n"
               << x_sol << "\n\n";
 
     // Change the problem parameters and solve again.
@@ -99,6 +100,6 @@ int main()
     socp.readSolution("x", x_sol);
 
     // Print the new solution.
-    std::cout << "Solution 2:\n"
+    std::cout << "Solution after changing the cost function:\n"
               << x_sol << "\n\n";
 }
