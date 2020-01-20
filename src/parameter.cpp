@@ -11,15 +11,6 @@ bool isZero(double x)
 namespace op
 {
 
-<<<<<<< HEAD
-Parameter::Parameter() : source(0) {}
-
-Parameter::Parameter(double const_value)
-    : source(const_value) {}
-
-Parameter::Parameter(const double *dynamic_value_ptr)
-    : source(dynamic_value_ptr)
-=======
 ParameterSource::ParameterSource(const double const_value)
     : source(const_value) {}
 
@@ -68,7 +59,6 @@ bool ParameterSource::is_one() const
 }
 
 ParameterSource ParameterSource::operator+(const ParameterSource &other) const
->>>>>>> revamp
 {
     if (other.is_zero())
     {
@@ -84,12 +74,7 @@ ParameterSource ParameterSource::operator+(const ParameterSource &other) const
     }
 }
 
-<<<<<<< HEAD
-Parameter::Parameter(std::function<double()> callback)
-    : source(callback)
-=======
 ParameterSource ParameterSource::operator-(const ParameterSource &other) const
->>>>>>> revamp
 {
     if (other.is_zero())
     {
@@ -105,9 +90,6 @@ ParameterSource ParameterSource::operator-(const ParameterSource &other) const
     }
 }
 
-<<<<<<< HEAD
-Parameter::~Parameter() {}
-=======
 ParameterSource ParameterSource::operator*(const ParameterSource &other) const
 {
     if (is_zero() or other.is_zero())
@@ -124,21 +106,9 @@ ParameterSource ParameterSource::operator*(const ParameterSource &other) const
         return p1.get_value() * p2.get_value();
     });
 }
->>>>>>> revamp
 
 ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 {
-<<<<<<< HEAD
-    switch (source.index())
-    {
-    case 0: // constant
-        return std::get<0>(source);
-    case 1: // pointer
-        return *std::get<1>(source);
-    default: // callback
-        return std::get<2>(source)();
-    }
-=======
     assert(not other.is_zero());
 
     if (other.is_one())
@@ -151,7 +121,6 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
         return p1.get_value() / p2.get_value();
     };
     return ParameterSource(divide_op);
->>>>>>> revamp
 }
 
 Parameter::Parameter(const double const_value)
@@ -159,31 +128,6 @@ Parameter::Parameter(const double const_value)
     data_matrix = {{ParameterSource(const_value)}};
 }
 
-<<<<<<< HEAD
-Parameter Parameter::operator+(const Parameter &par)
-{
-    return Parameter([*this, par]() { return this->get_value() + par.get_value(); });
-}
-
-Parameter Parameter::operator-(const Parameter &par)
-{
-    return Parameter([*this, par]() { return this->get_value() - par.get_value(); });
-}
-
-Parameter Parameter::operator-()
-{
-    return Parameter([*this]() { return -this->get_value(); });
-}
-
-Parameter Parameter::operator*(const Parameter &par)
-{
-    return Parameter([*this, par]() { return this->get_value() * par.get_value(); });
-}
-
-Parameter Parameter::operator/(const Parameter &par)
-{
-    return Parameter([*this, par]() { return this->get_value() / par.get_value(); });
-=======
 Parameter::Parameter(double *value_ptr)
 {
     data_matrix = {{ParameterSource(value_ptr)}};
@@ -324,7 +268,6 @@ Parameter Parameter::operator/(const Parameter &other) const
         }
     }
     return parameter;
->>>>>>> revamp
 }
 
 } // namespace op

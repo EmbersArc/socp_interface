@@ -13,16 +13,6 @@
 namespace op
 {
 
-<<<<<<< HEAD
-// Represents a parameter p_i in the opt-problem that can be changed between problem evaluations.
-// The parameter value can either be constant or dynamically accessed through a pointer or callback.
-class Parameter
-{
-    using parameter_variant_t = std::variant<double,
-                                             const double *,
-                                             std::function<double()>>;
-    parameter_variant_t source;
-=======
 struct AffineTerm;
 struct AffineSum;
 class Affine;
@@ -54,23 +44,14 @@ private:
                                           std::function<double()>>;
     source_variant_t source;
 };
->>>>>>> revamp
 
 class Parameter : public DynamicMatrix<ParameterSource, Parameter>
 {
 public:
-<<<<<<< HEAD
-    Parameter();
-    Parameter(double const_value);
-    explicit Parameter(const double *dynamic_value_ptr);
-    explicit Parameter(std::function<double()> callback);
-    ~Parameter();
-=======
     using DynamicMatrix<ParameterSource, Parameter>::DynamicMatrix;
     explicit Parameter(const double const_value);
     explicit Parameter(double *value_ptr);
     explicit Parameter(const std::function<double()> &callback);
->>>>>>> revamp
 
     template <typename Derived>
     explicit Parameter(const Eigen::DenseBase<Derived> &matrix);
@@ -87,14 +68,6 @@ public:
                     const size_t col = 0) const;
     Eigen::MatrixXd get_values() const;
 
-<<<<<<< HEAD
-    Parameter operator+(const Parameter &par);
-    Parameter operator-(const Parameter &par);
-    Parameter operator-();
-    Parameter operator*(const Parameter &par);
-    Parameter operator/(const Parameter &par);
-};
-=======
     operator Affine() const;
 };
 
@@ -122,6 +95,5 @@ Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
         }
     }
 }
->>>>>>> revamp
 
 } // namespace op
