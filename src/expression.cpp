@@ -10,12 +10,16 @@ namespace op
 
 AffineTerm::AffineTerm()
     : parameter(0.) {}
+
 AffineTerm::AffineTerm(const ParameterSource &parameter)
     : parameter(parameter) {}
+
 AffineTerm::AffineTerm(const VariableSource &variable)
     : parameter(1.0), variable(variable) {}
+
 AffineTerm::AffineTerm(const ParameterSource &parameter, const VariableSource &variable)
     : parameter(parameter), variable(variable) {}
+
 std::ostream &operator<<(std::ostream &os, const AffineTerm &term)
 {
     os << term.parameter.get_value();
@@ -23,6 +27,7 @@ std::ostream &operator<<(std::ostream &os, const AffineTerm &term)
         os << "*" << term.variable.value();
     return os;
 }
+
 double AffineTerm::evaluate(const std::vector<double> &soln_values) const
 {
     double p = parameter.get_value();
@@ -35,16 +40,25 @@ double AffineTerm::evaluate(const std::vector<double> &soln_values) const
         return p;
     }
 }
+
+AffineTerm &AffineTerm::operator*=(const ParameterSource &parameter)
+{
+    this->parameter = this->parameter * parameter;
+    return *this;
+}
+
 AffineTerm AffineTerm::operator*(const ParameterSource &parameter) const
 {
     AffineTerm result = *this;
     result.parameter = parameter * result.parameter;
     return result;
 }
+
 AffineTerm operator*(const ParameterSource &parameter, const VariableSource &variable)
 {
     return AffineTerm(parameter, variable);
 }
+
 AffineTerm operator*(const double &const_parameter, const VariableSource &variable)
 {
     return AffineTerm(ParameterSource(const_parameter), variable);
@@ -61,8 +75,11 @@ VariableSource::operator AffineTerm() const
 }
 
 AffineSum::AffineSum(const ParameterSource &parameter) : terms{parameter} {}
+
 AffineSum::AffineSum(const VariableSource &variable) : terms{variable} {}
+
 AffineSum::AffineSum(const AffineTerm &term) : terms{term} {}
+
 std::ostream &operator<<(std::ostream &os, const AffineSum &expression)
 {
     for (size_t i = 0; i < expression.terms.size(); i++)
@@ -73,6 +90,7 @@ std::ostream &operator<<(std::ostream &os, const AffineSum &expression)
     }
     return os;
 }
+
 double AffineSum::evaluate(const std::vector<double> &soln_values) const
 {
     double result = 0.;
@@ -97,7 +115,7 @@ AffineSum AffineSum::operator*(const ParameterSource &parameter) const
     result.terms = terms;
     for (AffineTerm &term : result.terms)
     {
-        term = term * parameter;
+        term *= parameter;
     }
     return result;
 }
@@ -109,6 +127,7 @@ AffineSum AffineSum::operator-() const
 
 size_t AffineSum::clean()
 {
+    // erase variables that are multiplied by zero
     auto erase_from = std::remove_if(terms.begin(),
                                      terms.end(),
                                      [](const AffineTerm &term) {

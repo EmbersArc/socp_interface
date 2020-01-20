@@ -76,7 +76,13 @@ int main()
 
     // Solve the problem and show solver output.
     t0 = std::chrono::high_resolution_clock::now();
-    solver.solveProblem(true);
+    const bool success = solver.solveProblem(true);
+    if (not success)
+    {
+        // This should not happen in this example.
+        throw std::runtime_error("Solver returned a critical error.");
+    }
+    std::cout << "Solver message: " << solver.getResultString() << "\n";
 
     // Check if the solver has produced a valid solution.
     assert(socp.isFeasible());
@@ -88,7 +94,6 @@ int main()
     // Get Solution.
     Eigen::Matrix<double, n, 1> x_sol;
     socp.readSolution("x", x_sol);
-    std::cout << "Solver message: " << solver.getResultString() << "\n";
 
     // Print the first solution.
     std::cout << "First solution:\n"
