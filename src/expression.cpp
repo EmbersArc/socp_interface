@@ -445,54 +445,47 @@ double Norm2Term::evaluate(const std::vector<double> &soln_values) const
 
 } // namespace internal
 
-Norm2::Norm2(const Affine &affine)
+SOCLhs norm2(const Affine &affine)
 {
+    SOCLhs socLhs;
     for (size_t col = 0; col < affine.cols(); col++)
     {
         for (size_t row = 0; row < affine.rows(); row++)
         {
-            coeffRef(0, 0).arguments.push_back(affine.coeff(row, col));
+            socLhs.norm2.coeffRef(0, 0).arguments.push_back(affine.coeff(row, col));
         }
     }
+    return socLhs;
 }
 
-Norm2::Norm2(const Affine &affine, size_t axis)
+SOCLhs norm2(const Affine &affine, size_t axis)
 {
     assert(axis == 0 or axis == 1);
+
+    SOCLhs socLhs;
     if (axis == 0)
     {
-        resize(1, affine.cols());
+        socLhs.norm2.resize(1, affine.cols());
         for (size_t col = 0; col < affine.cols(); col++)
         {
             for (size_t row = 0; row < affine.rows(); row++)
             {
-                coeffRef(0, col).arguments.push_back(affine.coeff(row, col));
+                socLhs.norm2.coeffRef(0, col).arguments.push_back(affine.coeff(row, col));
             }
         }
     }
     else if (axis == 1)
     {
-        resize(affine.rows(), 1);
+        socLhs.norm2.resize(affine.rows(), 1);
         for (size_t row = 0; row < affine.rows(); row++)
         {
             for (size_t col = 0; col < affine.cols(); col++)
             {
-                coeffRef(row, 0).arguments.push_back(affine.coeff(row, col));
+                socLhs.norm2.coeffRef(row, 0).arguments.push_back(affine.coeff(row, col));
             }
         }
     }
-}
-
-Norm2::operator SOCLhs() const
-{
-    SOCLhs SOCLhs;
-    SOCLhs.norm2 = *this;
-    return SOCLhs;
-}
-
-Affine operator-(const Variable &variable)
-{
-    return Affine(Parameter(-1.) * variable);
+    return socLhs;
 }
 
 Affine Parameter::cwiseProduct(const Affine &affine) const
@@ -555,6 +548,11 @@ Affine sum(const Affine &affine, size_t axis)
     return sum;
 }
 
+Affine Variable::operator-() const
+{
+    return Affine(Parameter(-1.) * *this);
+}
+
 bool SOCLhs::is_scalar() const
 {
     return norm2.is_scalar();
@@ -601,15 +599,6 @@ SOCLhs &SOCLhs::operator+=(const Affine &affine)
         this->affine = affine;
     }
     return *this;
-}
-
-SOCLhs operator+(const Norm2 &norm2, const Affine &affine)
-{
-    assert(norm2.shape() == affine.shape());
-    SOCLhs SOCLhs;
-    SOCLhs.norm2 = norm2;
-    SOCLhs.affine = affine;
-    return SOCLhs;
 }
 
 } // namespace op

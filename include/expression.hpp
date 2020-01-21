@@ -87,25 +87,12 @@ struct Norm2Term
 
 } // namespace internal
 
-struct SOCLhs;
-
-class Norm2 : public DynamicMatrix<internal::Norm2Term, Norm2>
-{
-public:
-    using DynamicMatrix<internal::Norm2Term, Norm2>::DynamicMatrix;
-    explicit Norm2(const Affine &affine);
-    Norm2(const Affine &affine, size_t axis);
-    operator SOCLhs() const;
-};
-
-Affine operator-(const Variable &variable);
-
 Affine sum(const Affine &affine);
 Affine sum(const Affine &affine, size_t axis);
 
 struct SOCLhs
 {
-    Norm2 norm2;
+    DynamicMatrix<internal::Norm2Term> norm2;
     std::optional<Affine> affine;
     bool is_scalar() const;
     size_t rows() const;
@@ -115,6 +102,7 @@ struct SOCLhs
     SOCLhs &operator+=(const Affine &affine);
 };
 
-SOCLhs operator+(const Norm2 &norm2, const Affine &affine);
+SOCLhs norm2(const Affine &affine);
+SOCLhs norm2(const Affine &affine, size_t axis);
 
 } // namespace op

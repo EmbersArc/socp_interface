@@ -50,6 +50,8 @@ public:
                                     const Variable &variable);
     operator Affine() const;
 
+    Affine operator-() const;
+
 private:
     std::string name;
     // indices of the value in the solution vector x

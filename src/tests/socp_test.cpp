@@ -56,7 +56,7 @@ int main()
     // Add constraints.
     for (size_t i = 0; i < m; i++)
     {
-        socp.addConstraint(op::Norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
+        socp.addConstraint(op::norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
                            op::Parameter(c[i]).transpose() * x + op::Parameter(d[i]));
     }
     socp.addConstraint(op::Parameter(F) * x == op::Parameter(g));
