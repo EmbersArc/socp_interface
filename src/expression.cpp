@@ -62,11 +62,6 @@ AffineTerm operator*(const internal::ParameterSource &parameter, const VariableS
     return AffineTerm(parameter, variable);
 }
 
-AffineTerm operator*(const double &const_parameter, const VariableSource &variable)
-{
-    return AffineTerm(internal::ParameterSource(const_parameter), variable);
-}
-
 ParameterSource::operator AffineTerm() const
 {
     return AffineTerm(*this);
@@ -149,19 +144,6 @@ bool AffineSum::is_constant() const
                            [](const AffineTerm &term) {
                                return term.variable.has_value();
                            });
-}
-
-AffineSum operator+(const AffineSum &lhs, const double &rhs)
-{
-    AffineSum result;
-    result.terms.insert(result.terms.end(), lhs.terms.begin(), lhs.terms.end());
-    result.terms.push_back(internal::ParameterSource(rhs));
-    return result;
-}
-
-AffineSum operator+(const double &lhs, const AffineSum &rhs)
-{
-    return rhs + lhs;
 }
 
 AffineSum &AffineSum::operator+=(const AffineSum &other)

@@ -30,7 +30,6 @@ struct AffineTerm
     AffineTerm &operator*=(const ParameterSource &parameter);
 };
 AffineTerm operator*(const ParameterSource &parameter, const VariableSource &variable);
-AffineTerm operator*(const double &const_parameter, const VariableSource &variable);
 
 // A term like (p_1*x_1 + p_2*x_2 + ... + b)
 struct AffineSum
@@ -50,8 +49,6 @@ struct AffineSum
     size_t clean();
     bool is_constant() const;
 };
-AffineSum operator+(const double &lhs, const AffineSum &rhs);
-AffineSum operator+(const AffineSum &lhs, const double &rhs);
 
 } // namespace internal
 
