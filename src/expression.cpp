@@ -213,6 +213,7 @@ std::ostream &operator<<(std::ostream &os, const internal::Norm2Term &norm2)
     os << "])";
     return os;
 }
+
 } // namespace internal
 
 Affine operator+(const Affine &lhs, const Affine &rhs)

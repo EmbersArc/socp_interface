@@ -20,7 +20,7 @@ struct AffineTerm
     AffineTerm(const ParameterSource &parameter,
                const VariableSource &variable);
 
-    operator internal::AffineSum() const;
+    operator AffineSum() const;
 
     ParameterSource parameter;
     std::optional<VariableSource> variable; // a missing Variable represents a constant 1.0

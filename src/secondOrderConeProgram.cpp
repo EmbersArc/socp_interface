@@ -143,7 +143,7 @@ void SecondOrderConeProgram::cleanUp()
         }
     }
 
-    std::cout << "Removed " << variables_removed << " variable(s) from constraints.\n";
+    std::cout << "Removed " << variables_removed << " term(s) from constraints.\n";
 
     size_t constraints_removed = 0;
     {

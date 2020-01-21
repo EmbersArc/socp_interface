@@ -34,18 +34,5 @@ void GenericOptimizationProblem::readSolution(const std::string &name,
     assert(variable.is_scalar());
     solution = solution_vector[variable.coeff(0).getProblemIndex()];
 }
-void GenericOptimizationProblem::readSolution(const std::string &name,
-                                              DynamicMatrix<double> &solution) const
-{
-    const Variable &variable = variables.at(name);
-    solution.resize(variable.rows(), variable.cols());
-    for (size_t row = 0; row < variable.rows(); row++)
-    {
-        for (size_t col = 0; col < variable.cols(); col++)
-        {
-            solution.coeffRef(row, col) = solution_vector[variable.coeff(row, col).getProblemIndex()];
-        }
-    }
-}
 
 } // end namespace op

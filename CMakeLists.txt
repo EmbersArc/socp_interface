@@ -38,11 +38,6 @@ set(RELEASE_OPTIONS -O2)
 target_compile_options(socp_lib PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")
 target_compile_options(socp_lib PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
 
-if(${EIGEN3_FOUND})
-    message("Eigen found.")
-    add_definitions(-DEIGEN_AVAILABLE)
-endif()
-
 target_link_libraries(socp_lib Eigen3::Eigen)
 
 add_executable(socp_test src/tests/socp_test.cpp)

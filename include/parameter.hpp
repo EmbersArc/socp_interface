@@ -89,6 +89,7 @@ Parameter::Parameter(const Eigen::DenseBase<Derived> &matrix)
         }
     }
 }
+
 template <typename Derived>
 Parameter::Parameter(Eigen::DenseBase<Derived> *matrix)
 {
