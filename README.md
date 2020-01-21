@@ -18,6 +18,79 @@ cmake ..
 make  
 ```
 
+## Concepts
+
+### Parameters
+Parameters are symbolic representations of constants. Parameters can be scalars, vectors or matrices. They can be constant or point to a dynamic value. This makes it possible to change the value of a constant in a problem without reconstructing the entire problem. Parameters support basic arithmetic functions `+` `-` `*` `/`.
+```cpp
+// scalar parameter
+const double scalar = 5.;
+op::Parameter scalar_par(scalar);
+
+// vector parameter
+const auto vector = Eigen::Vector3d::Ones();
+op::Parameter vector_par(vector);
+
+// matrix parameter
+const auto matrix = Eigen::Matrix3d::Identity();
+op::Parameter matrix_par(matrix);
+
+// all parameters may also be pointers to values so that their values can be changed dynamically
+auto mutable_matrix = Eigen::Matrix3d::Identity();
+op::Parameter matrix_ptr_par(matrix);
+```
+
+### Variables
+Problem variables can again be scalars, vectors or matrices and have to be added directly to the problem.
+```cpp
+op::SecondOrderConeProgram socp;
+
+// scalar variable
+op::Variable scalar_var = socp.createVariable("x_scalar");
+
+// vector variable
+op::Variable vector_var = socp.createVariable("x_vector", 3);
+
+// matrix variable
+op::Variable matrix_var = socp.createVariable("x_matrix", 3, 3);
+```
+
+### Expressions
+
+#### Affine
+Affine expressions include Parameters, Variables and sums or products of the two.
+
+```cpp
+op::Affine = op::Parameter(Eigen::Matrix3d::Random()) * vector_var;
+```
+
+#### SOCLhs
+This is the left hand side of a second order cone constraint and gets created by calling `op::norm(<Affine>)`. Apart from the 2-norm, it can also contain an `Affine` expression of the same dimension.
+
+```cpp
+op::SOCLhs soc_lhs = op::norm(vector_var);
+soc_lhs += scalar_par;
+soc_lhs += scalar_var;
+```
+
+### Constraints
+A second order cone program generally supports three kinds of constraints. Those are equality, linear and second order cone constraints.
+#### Equality Constraints
+```
+<Affine> == 0.
+<Affine> == <Affine>
+```
+#### Linear Constraints
+```
+<Affine> >= 0.
+0. <= <Affine>
+<Affine> >= <Affine>
+<Affine> <= <Affine>
+```
+#### Second Order Cone Constraints
+```
+<SOCLhs> <= <Affine>
+```
 ## Example
 
 ```cpp
