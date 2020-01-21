@@ -3,11 +3,6 @@
 #include <sstream>
 #include <cassert>
 
-bool isZero(double x)
-{
-    return std::abs(x) < 1e-12;
-}
-
 namespace op
 {
 

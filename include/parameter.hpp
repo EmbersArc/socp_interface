@@ -25,7 +25,7 @@ class ParameterSource
 {
 public:
     ParameterSource() = default;
-    ParameterSource(const double const_value);
+    explicit ParameterSource(const double const_value);
     explicit ParameterSource(double *value_ptr);
     explicit ParameterSource(const std::function<double()> &callback);
     double get_value() const;
