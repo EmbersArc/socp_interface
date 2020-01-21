@@ -12,7 +12,7 @@ namespace internal
 EqualityConstraint::EqualityConstraint(const internal::AffineSum &affine)
     : affine(affine) {}
 
-EqualityConstraint operator==(const internal::AffineSum &affine, const double &zero)
+EqualityConstraint operator==(const internal::AffineSum &affine, const double zero)
 {
     assert(zero == 0.0);
     (void)zero;
@@ -45,7 +45,7 @@ double PositiveConstraint::evaluate(const std::vector<double> &soln_values) cons
     return -affine.evaluate(soln_values);
 }
 
-PositiveConstraint operator>=(const internal::AffineSum &affine, const double &zero)
+PositiveConstraint operator>=(const internal::AffineSum &affine, const double zero)
 {
     assert(zero == 0.0);
     (void)zero;
@@ -53,7 +53,7 @@ PositiveConstraint operator>=(const internal::AffineSum &affine, const double &z
     return PositiveConstraint(affine);
 }
 
-PositiveConstraint operator<=(const double &zero, const internal::AffineSum &affine)
+PositiveConstraint operator<=(const double zero, const internal::AffineSum &affine)
 {
     return affine >= zero;
 }
@@ -75,7 +75,7 @@ double SecondOrderConeConstraint::evaluate(const std::vector<double> &soln_value
 
 } // namespace internal
 
-std::vector<internal::EqualityConstraint> operator==(const Affine &affine, const double &zero)
+std::vector<internal::EqualityConstraint> operator==(const Affine &affine, const double zero)
 {
     assert(zero == 0.0);
     (void)zero;
@@ -118,7 +118,7 @@ std::vector<internal::EqualityConstraint> operator==(const Affine &lhs, const Af
     return constraints;
 }
 
-std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const double &zero)
+std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const double zero)
 {
     assert(zero == 0.0);
     (void)zero;
@@ -132,6 +132,11 @@ std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const
         }
     }
     return constraints;
+}
+
+std::vector<internal::PositiveConstraint> operator<=(const double zero, const Affine &affine)
+{
+    return affine >= zero;
 }
 
 std::vector<internal::PositiveConstraint> operator<=(const double &zero, const Affine &affine)
@@ -166,6 +171,11 @@ std::vector<internal::PositiveConstraint> operator>=(const Affine &lhs, const Af
     return constraints;
 }
 
+std::vector<internal::PositiveConstraint> operator<=(const Affine &lhs, const Affine &rhs)
+{
+    return rhs >= lhs;
+}
+
 std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine)
 {
     assert(SOCLhs.shape() == affine.shape() or affine.is_scalar()); //or SOCLhs.is_scalar()); // Maybe TODO
@@ -196,11 +206,6 @@ std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs
         }
     }
     return constraints;
-}
-
-std::vector<internal::SecondOrderConeConstraint> operator>=(const Affine &affine, const SOCLhs &SOCLhs)
-{
-    return SOCLhs <= affine;
 }
 
 } // namespace op

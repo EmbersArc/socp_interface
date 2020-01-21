@@ -45,13 +45,14 @@ struct SecondOrderConeConstraint
 
 } // namespace internal
 
-std::vector<internal::EqualityConstraint> operator==(const Affine &affine, const double &zero);
+std::vector<internal::EqualityConstraint> operator==(const Affine &affine, const double zero);
 std::vector<internal::EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs);
 
-std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const double &zero);
+std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const double zero);
+std::vector<internal::PositiveConstraint> operator<=(const double zero, const Affine &affine);
 std::vector<internal::PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs);
+std::vector<internal::PositiveConstraint> operator<=(const Affine &lhs, const Affine &rhs);
 
 std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine);
-std::vector<internal::SecondOrderConeConstraint> operator>=(const Affine &affine, const SOCLhs &SOCLhs);
 
 } // namespace op
