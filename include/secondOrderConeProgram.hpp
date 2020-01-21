@@ -7,14 +7,14 @@ namespace op
 
 struct SecondOrderConeProgram : public GenericOptimizationProblem
 {
-    std::vector<EqualityConstraint> equalityConstraints;
-    std::vector<PositiveConstraint> positiveConstraints;
-    std::vector<SecondOrderConeConstraint> secondOrderConeConstraints;
+    std::vector<internal::EqualityConstraint> equalityConstraints;
+    std::vector<internal::PositiveConstraint> positiveConstraints;
+    std::vector<internal::SecondOrderConeConstraint> secondOrderConeConstraints;
     internal::AffineSum costFunction;
 
-    void addConstraint(std::vector<EqualityConstraint> constraints);
-    void addConstraint(std::vector<PositiveConstraint> constraints);
-    void addConstraint(std::vector<SecondOrderConeConstraint> constraints);
+    void addConstraint(std::vector<internal::EqualityConstraint> constraints);
+    void addConstraint(std::vector<internal::PositiveConstraint> constraints);
+    void addConstraint(std::vector<internal::SecondOrderConeConstraint> constraints);
 
     void addMinimizationTerm(const Affine &affine);
 

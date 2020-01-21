@@ -6,17 +6,17 @@
 namespace op
 {
 
-void SecondOrderConeProgram::addConstraint(std::vector<EqualityConstraint> constraints)
+void SecondOrderConeProgram::addConstraint(std::vector<internal::EqualityConstraint> constraints)
 {
     equalityConstraints.insert(equalityConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addConstraint(std::vector<PositiveConstraint> constraints)
+void SecondOrderConeProgram::addConstraint(std::vector<internal::PositiveConstraint> constraints)
 {
     positiveConstraints.insert(positiveConstraints.end(), constraints.begin(), constraints.end());
 }
 
-void SecondOrderConeProgram::addConstraint(std::vector<SecondOrderConeConstraint> constraints)
+void SecondOrderConeProgram::addConstraint(std::vector<internal::SecondOrderConeConstraint> constraints)
 {
     secondOrderConeConstraints.insert(secondOrderConeConstraints.end(), constraints.begin(), constraints.end());
 }
@@ -149,7 +149,7 @@ void SecondOrderConeProgram::cleanUp()
     {
         auto erase_from = std::remove_if(equalityConstraints.begin(),
                                          equalityConstraints.end(),
-                                         [](const EqualityConstraint &constraint) { return constraint.affine.is_constant(); });
+                                         [](const internal::EqualityConstraint &constraint) { return constraint.affine.is_constant(); });
         const auto erase_to = equalityConstraints.end();
         const size_t erased_elements = std::distance(erase_from, erase_to);
         equalityConstraints.erase(erase_from, erase_to);
@@ -159,7 +159,7 @@ void SecondOrderConeProgram::cleanUp()
     {
         auto erase_from = std::remove_if(positiveConstraints.begin(),
                                          positiveConstraints.end(),
-                                         [](const PositiveConstraint &constraint) { return constraint.affine.is_constant(); });
+                                         [](const internal::PositiveConstraint &constraint) { return constraint.affine.is_constant(); });
         const auto erase_to = positiveConstraints.end();
         const size_t erased_elements = std::distance(erase_from, erase_to);
         positiveConstraints.erase(erase_from, erase_to);
@@ -169,7 +169,7 @@ void SecondOrderConeProgram::cleanUp()
     {
         auto erase_from = std::remove_if(secondOrderConeConstraints.begin(),
                                          secondOrderConeConstraints.end(),
-                                         [](const SecondOrderConeConstraint &constraint) {
+                                         [](const internal::SecondOrderConeConstraint &constraint) {
                                              bool all_terms_constant = constraint.affine.is_constant();
                                              for (const internal::AffineSum &affineSum : constraint.norm2.arguments)
                                              {

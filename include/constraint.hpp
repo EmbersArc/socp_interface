@@ -8,6 +8,9 @@
 namespace op
 {
 
+namespace internal
+{
+
 // represents a constraint like
 //     p_1*x_1 + p_2*x_2 + ... + b == 0
 struct EqualityConstraint
@@ -18,9 +21,6 @@ struct EqualityConstraint
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-std::vector<EqualityConstraint> operator==(const Affine &affine, const double &zero);
-std::vector<EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs);
-
 // represents a constraint like
 //     p_1*x_1 + p_2*x_2 + ... + b >= 0
 struct PositiveConstraint
@@ -30,9 +30,6 @@ struct PositiveConstraint
     friend std::ostream &operator<<(std::ostream &os, const PositiveConstraint &constraint);
     double evaluate(const std::vector<double> &soln_values) const;
 };
-
-std::vector<PositiveConstraint> operator>=(const Affine &affine, const double &zero);
-std::vector<PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs);
 
 // represents a constraint like
 //      norm2([p_1*x_1 + p_2*x_2 + ... + b_1,   p_3*x_3 + p_4*x_4 + ... + b_2 ])
@@ -46,7 +43,15 @@ struct SecondOrderConeConstraint
     double evaluate(const std::vector<double> &soln_values) const;
 };
 
-std::vector<SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine);
-std::vector<SecondOrderConeConstraint> operator>=(const Affine &affine, const SOCLhs &SOCLhs);
+} // namespace internal
+
+std::vector<internal::EqualityConstraint> operator==(const Affine &affine, const double &zero);
+std::vector<internal::EqualityConstraint> operator==(const Affine &lhs, const Affine &rhs);
+
+std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const double &zero);
+std::vector<internal::PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs);
+
+std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine);
+std::vector<internal::SecondOrderConeConstraint> operator>=(const Affine &affine, const SOCLhs &SOCLhs);
 
 } // namespace op
