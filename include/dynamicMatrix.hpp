@@ -52,6 +52,7 @@ public:
 
     void resize(size_t rows, size_t cols);
 
+private:
     std::vector<std::vector<T>> data_matrix;
 };
 
