@@ -38,7 +38,7 @@ Variable::Variable(const std::string &name, size_t start_index,
     {
         for (size_t col = 0; col < cols; col++)
         {
-            data_matrix[row][col] = internal::VariableSource(name, index, row, col);
+            coeffRef(row, col) = internal::VariableSource(name, index, row, col);
             index++;
         }
     }

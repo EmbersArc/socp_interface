@@ -125,17 +125,20 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
 
 Parameter::Parameter(const double const_value)
 {
-    data_matrix = {{internal::ParameterSource(const_value)}};
+    resize(1, 1);
+    coeffRef(0) = internal::ParameterSource(const_value);
 }
 
 Parameter::Parameter(double *value_ptr)
 {
-    data_matrix = {{internal::ParameterSource(value_ptr)}};
+    resize(1, 1);
+    coeffRef(0) = internal::ParameterSource(value_ptr);
 }
 
 Parameter::Parameter(const std::function<double()> &callback)
 {
-    data_matrix = {{internal::ParameterSource(callback)}};
+    resize(1, 1);
+    coeffRef(0) = internal::ParameterSource(callback);
 }
 
 double Parameter::get_value(const size_t row, const size_t col) const

@@ -219,8 +219,7 @@ std::ostream &operator<<(std::ostream &os, const internal::Norm2Term &norm2)
 Affine operator+(const Affine &lhs, const Affine &rhs)
 {
     assert(lhs.shape() == rhs.shape());
-    Affine result;
-    result.data_matrix = lhs.data_matrix;
+    Affine result = lhs;
     for (size_t row = 0; row < lhs.rows(); row++)
     {
         for (size_t col = 0; col < lhs.cols(); col++)
