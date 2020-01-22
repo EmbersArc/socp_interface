@@ -53,6 +53,9 @@ op::Variable vector_var = socp.createVariable("x_vector", 3);
 
 // matrix variable
 op::Variable matrix_var = socp.createVariable("x_matrix", 3, 3);
+
+// the problem can always return existing variables if you lose track of them
+op::Variable matrix_var_copy = socp.getVariable("x_matrix");
 ```
 
 ### Expressions
