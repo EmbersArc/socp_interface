@@ -37,7 +37,7 @@ op::Parameter matrix_par(matrix);
 
 // all parameters may also be pointers to values so that their values can be changed dynamically
 auto mutable_matrix = Eigen::Matrix3d::Identity();
-op::Parameter matrix_ptr_par(matrix);
+op::Parameter matrix_ptr_par(&matrix);
 ```
 
 ### Variables
@@ -68,7 +68,7 @@ op::Affine affine_vector = op::Parameter(Eigen::Matrix3d::Random()) * vector_var
 ```
 
 #### SOCLhs
-This is the left hand side of a second order cone constraint and gets created by calling `op::norm(<Affine>)`. Apart from the 2-norm, it can also contain an `Affine` expression of the same dimension.
+This is the left hand side of a second order cone constraint and gets created by calling `op::norm(Affine affine, int axis)`. Apart from the 2-norm, it can also contain an `Affine` expression of the same dimension.
 
 ```cpp
 op::SOCLhs soc_lhs = op::norm(vector_var);
@@ -101,10 +101,16 @@ As opposed to the other constraint types, the left hand side can not be a scalar
 ```
 
 ### Cost Function
-A cost term can be added to the SOCP with the `addMinimizationTerm` method e.g. `socp.addMinimizationTerm(<Affine>)`. The `Affine` term has to be a scalar.
+A cost term can be added to the SOCP with the `addMinimizationTerm` method e.g. `socp.addMinimizationTerm(op::sum(affine_vector))`. The `Affine` term has to be a scalar.
 
 ### Solving the Problem
-TODO
+First, create a solver instance with `op::Solver solver(socp)` and call `solver.solveProblem()` to solve the problem. If `true` is passed to the function, the solver output will be shown. The solution for a variable `x` can be retrieved by calling `socp.readSolution("x", x_sol)` where `x_sol` is the solution variable of type `double` for scalars and `Eigen::Matrix` for higher dimensional variables.
+
+### Matrix Access
+All matrix expressions can be accessed like Eigen matrices i.e. `operator()` for coefficient-wise access and [Eigen Block Operations](https://eigen.tuxfamily.org/dox/group__TutorialBlockOperations.html) that return matrices.
+
+### Other Functions
+Matrices can be stacked horizontally and vertically using the `op::hstack({...})` and `op::vstack({...})` functions. For convenience, `op::sum(Affine affine, int axis)` can sum up elements of `Affine` matrices.
 
 ## Example
 
@@ -167,7 +173,7 @@ int main()
     // Add constraints.
     for (size_t i = 0; i < m; i++)
     {
-        socp.addConstraint(op::Norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
+        socp.addConstraint(op::norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
                            op::Parameter(c[i]).transpose() * x + op::Parameter(d[i]));
     }
     socp.addConstraint(op::Parameter(F) * x == op::Parameter(g));
@@ -215,4 +221,6 @@ int main()
               << x_sol << "\n\n";
 }
 ```
+
+For more examples, see the [SCpp](https://github.com/EmbersArc/SCpp) optimal guidance library.
 
