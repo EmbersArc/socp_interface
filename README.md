@@ -104,7 +104,7 @@ As opposed to the other constraint types, the left hand side can not be a scalar
 A cost term can be added to the SOCP with the `addMinimizationTerm` method e.g. `socp.addMinimizationTerm(op::sum(affine_vector))`. The `Affine` term has to be a scalar.
 
 ### Solving the Problem
-First, create a solver instance with `op::Solver solver(socp)` and call `solver.solveProblem()` to solve the problem. If `true` is passed to the function, the solver output will be shown. The solution for a variable `x` can be retrieved by calling `socp.readSolution("x", x_sol)` where `x_sol` is the solution variable of type `double` for scalars and `Eigen::Matrix` for higher dimensional variables.
+First, create a solver instance with `op::Solver solver(socp)` and call `solver.solveProblem()` to solve the problem. If `true` is passed to the function, the solver output will be shown. This method returns `true` if it was successful and a solution is available. The solution for a variable `x` can be retrieved by calling `socp.readSolution("x", x_sol)` where `x_sol` is the solution variable of type `double` for scalars and `Eigen::Matrix` for higher dimensional variables.
 
 ### Matrix Access
 All matrix expressions can be accessed like Eigen matrices i.e. `operator()` for coefficient-wise access and [Eigen Block Operations](https://eigen.tuxfamily.org/dox/group__TutorialBlockOperations.html) that return matrices.
