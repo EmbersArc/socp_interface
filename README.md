@@ -61,7 +61,7 @@ op::Variable matrix_var = socp.createVariable("x_matrix", 3, 3);
 Affine expressions include Parameters, Variables and sums or products of the two.
 
 ```cpp
-op::Affine = op::Parameter(Eigen::Matrix3d::Random()) * vector_var;
+op::Affine affine_vector = op::Parameter(Eigen::Matrix3d::Random()) * vector_var;
 ```
 
 #### SOCLhs
@@ -75,12 +75,16 @@ soc_lhs += scalar_var;
 
 ### Constraints
 A second order cone program generally supports three kinds of constraints. Those are equality, linear and second order cone constraints.
+Constraints are added to the SOCP with the `addConstraint` method e.g. `socp.addConstraint(soc_lhs <= affine_vector)`.
+
 #### Equality Constraints
+Either side can be a scalar while the other is a matrix. If both have the same shape, the equality is applied coefficient-wise.
 ```
 <Affine> == 0.
 <Affine> == <Affine>
 ```
 #### Linear Constraints
+Either side can be a scalar while the other is a matrix. If both have the same shape, the inequality is applied coefficient-wise.
 ```
 <Affine> >= 0.
 0. <= <Affine>
@@ -88,9 +92,17 @@ A second order cone program generally supports three kinds of constraints. Those
 <Affine> <= <Affine>
 ```
 #### Second Order Cone Constraints
+As opposed to the other constraint types, the left hand side can not be a scalar when the right hand side has a higher dimension.
 ```
 <SOCLhs> <= <Affine>
 ```
+
+### Cost Function
+A cost term can be added to the SOCP with the `addMinimizationTerm` method e.g. `socp.addMinimizationTerm(<Affine>)`. The `Affine` term has to be a scalar.
+
+### Solving the Problem
+TODO
+
 ## Example
 
 ```cpp
