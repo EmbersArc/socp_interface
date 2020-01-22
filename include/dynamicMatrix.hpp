@@ -32,7 +32,6 @@ public:
     auto col(size_t index) const;
     auto block(size_t start_row, size_t start_col,
                size_t n_rows, size_t n_cols) const;
-    auto block(size_t n_rows, size_t n_cols) const;
     auto topLeftCorner(size_t n_rows, size_t n_cols) const;
     auto bottomLeftCorner(size_t n_rows, size_t n_cols) const;
     auto topRightCorner(size_t n_rows, size_t n_cols) const;
@@ -42,6 +41,9 @@ public:
     auto leftCols(size_t n_cols) const;
     auto rightCols(size_t n_cols) const;
     auto transpose() const;
+    auto head(size_t n) const;
+    auto tail(size_t n) const;
+    auto segment(size_t i, size_t n) const;
 
     T &coeffRef(size_t row, size_t col = 0);
 
@@ -227,6 +229,27 @@ template <typename T, class Derived>
 auto DynamicMatrix<T, Derived>::rightCols(size_t n_cols) const
 {
     return block(0, cols() - n_cols - 1, rows(), n_cols);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::head(size_t n) const
+{
+    assert(cols() == 0);
+    return block(0, 0, n, 1);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::tail(size_t n) const
+{
+    assert(cols() == 0);
+    return block(rows() - n - 1, 0, n, 1);
+}
+
+template <typename T, class Derived>
+auto DynamicMatrix<T, Derived>::segment(size_t i, size_t n) const
+{
+    assert(cols() == 0);
+    return block(i, 0, n, 1);
 }
 
 template <typename T, class Derived>
