@@ -9,13 +9,18 @@
 
 #include "ecosWrapper.hpp"
 
+#define DCTRLC = 1
+#define DLONG
+#define LDL_LONG
+#include "ecos.h"
+
 using std::make_pair;
 using std::map;
 using std::pair;
 using std::tuple;
 using std::vector;
 
-static_assert(std::is_same_v<idxint, SuiteSparse_long>,
+static_assert(std::is_same_v<idxint, SuiteSparse_long> and std::is_same_v<idxint, long>,
               "Definitions of idxint might not be consistent."
               "Make sure ECOS is compiled with USE_LONG = 1.");
 
@@ -54,7 +59,7 @@ void error_check_affine_expression(const internal::AffineSum &affineSum)
     }
 }
 
-internal::ParameterSource get_constant_or_zero(const internal::AffineSum &affineSum)
+internal::ParameterSource accumulate_constants(const internal::AffineSum &affineSum)
 {
     auto pick_constant = [](const internal::ParameterSource &sum, const internal::AffineTerm &term) {
         if (term.variable)
@@ -67,15 +72,18 @@ internal::ParameterSource get_constant_or_zero(const internal::AffineSum &affine
         }
     };
 
-    return std::accumulate(affineSum.terms.begin(), affineSum.terms.end(), internal::ParameterSource(0.), pick_constant);
+    return std::accumulate(affineSum.terms.begin(),
+                           affineSum.terms.end(),
+                           internal::ParameterSource(0.),
+                           pick_constant);
 }
 
 // convert sparse matrix format "dictionary of keys" to "column compressed storage"
 void sparse_DOK_to_CCS(
-    const map<pair<idxint, idxint>, internal::ParameterSource> &sparse_DOK,
+    const map<pair<long, long>, internal::ParameterSource> &sparse_DOK,
     vector<internal::ParameterSource> &data_CCS,
-    vector<idxint> &columns_CCS,
-    vector<idxint> &rows_CCS,
+    vector<long> &columns_CCS,
+    vector<long> &rows_CCS,
     size_t n_columns)
 {
     using std::get;
@@ -84,7 +92,7 @@ void sparse_DOK_to_CCS(
     assert(rows_CCS.empty());
 
     // convert to coordinate list
-    vector<tuple<idxint, idxint, internal::ParameterSource>> sparse_COO;
+    vector<tuple<long, long, internal::ParameterSource>> sparse_COO;
     sparse_COO.reserve(sparse_DOK.size());
     std::transform(sparse_DOK.begin(), sparse_DOK.end(), std::back_inserter(sparse_COO),
                    [](const auto &e) { return std::make_tuple(e.first.first, e.first.second, e.second); });
@@ -92,8 +100,8 @@ void sparse_DOK_to_CCS(
 
     // sort coordinate list by column, then by row
     std::sort(sparse_COO.begin(), sparse_COO.end(),
-              [](const tuple<idxint, idxint, internal::ParameterSource> &a,
-                 const tuple<idxint, idxint, internal::ParameterSource> &b) -> bool {
+              [](const tuple<long, long, internal::ParameterSource> &a,
+                 const tuple<long, long, internal::ParameterSource> &b) -> bool {
                   // define coordinate list order
                   if (get<1>(a) == get<1>(b))
                   {
@@ -118,7 +126,7 @@ void sparse_DOK_to_CCS(
 }
 
 void copy_affine_expression_linear_parts_to_sparse_DOK(
-    map<pair<idxint, idxint>, internal::ParameterSource> &sparse_DOK,
+    map<pair<long, long>, internal::ParameterSource> &sparse_DOK,
     const internal::AffineSum &affineSum,
     size_t row_index)
 {
@@ -182,13 +190,13 @@ EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
     /* Build equality constraint parameters (b - A*x == 0) */
     {
         // Construct the sparse A matrix in the "Dictionary of keys" format
-        map<pair<idxint, idxint>, internal::ParameterSource> A_sparse_DOK;
+        map<pair<long, long>, internal::ParameterSource> A_sparse_DOK;
         vector<internal::ParameterSource> b(socp.equalityConstraints.size());
 
         for (size_t i = 0; i < socp.equalityConstraints.size(); i++)
         {
             const auto &affine_expression = socp.equalityConstraints[i].affine;
-            b[i] = get_constant_or_zero(affine_expression);
+            b[i] = accumulate_constants(affine_expression);
             copy_affine_expression_linear_parts_to_sparse_DOK(A_sparse_DOK, affine_expression, i);
         }
 
@@ -200,27 +208,27 @@ EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
     /* Build inequality constraint parameters */
     {
         // Construct the sparse G matrix in the "Dictionary of keys" format
-        map<pair<idxint, idxint>, internal::ParameterSource> G_sparse_DOK;
+        map<pair<long, long>, internal::ParameterSource> G_sparse_DOK;
         vector<internal::ParameterSource> h(ecos_n_constraint_rows);
 
         size_t row_index = 0;
 
         for (const auto &PositiveConstraint : socp.positiveConstraints)
         {
-            h[row_index] = get_constant_or_zero(PositiveConstraint.affine);
+            h[row_index] = accumulate_constants(PositiveConstraint.affine);
             copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, PositiveConstraint.affine, row_index);
             row_index++;
         }
 
         for (const auto &secondOrderConeConstraint : socp.secondOrderConeConstraints)
         {
-            h[row_index] = get_constant_or_zero(secondOrderConeConstraint.affine);
+            h[row_index] = accumulate_constants(secondOrderConeConstraint.affine);
             copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, secondOrderConeConstraint.affine, row_index);
             row_index++;
 
             for (const auto &norm2argument : secondOrderConeConstraint.norm2.arguments)
             {
-                h[row_index] = get_constant_or_zero(norm2argument);
+                h[row_index] = accumulate_constants(norm2argument);
                 copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, norm2argument, row_index);
                 row_index++;
             }
@@ -283,7 +291,7 @@ bool EcosWrapper::solveProblem(bool verbose)
         ecos_h_values.data(),
         ecos_b_values.data());
 
-    idxint ecos_exitflag;
+    long ecos_exitflag;
 
     if (mywork != nullptr)
     {
