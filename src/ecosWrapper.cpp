@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <numeric>
 #include <tuple>
-#include <utility>
 #include <functional>
 #include <cassert>
 #include <sstream>
@@ -14,7 +13,6 @@
 #define LDL_LONG
 #include "ecos.h"
 
-using std::make_pair;
 using std::map;
 using std::pair;
 using std::tuple;
@@ -135,7 +133,7 @@ void copy_affine_expression_linear_parts_to_sparse_DOK(
         if (term.variable)
         { // only consider linear terms, not constant terms
             size_t column_index = term.variable.value().getProblemIndex();
-            sparse_DOK[make_pair(row_index, column_index)] = term.parameter;
+            sparse_DOK[std::make_pair(row_index, column_index)] = term.parameter;
         }
     }
 }

@@ -3,7 +3,6 @@
 #include "secondOrderConeProgram.hpp"
 
 #include <vector>
-#include <map>
 #include <string>
 
 namespace op
