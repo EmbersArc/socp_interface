@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <algorithm>
+#include <numeric>
 #include <tuple>
 #include <utility>
 #include <functional>
@@ -42,11 +43,6 @@ bool check_unique_variables_in_affine_expression(const internal::AffineSum &affi
     return true;
 }
 
-size_t count_constants_in_affine_expression(const internal::AffineSum &affineSum)
-{
-    return std::count_if(affineSum.terms.begin(), affineSum.terms.end(), [](const auto &term) { return !term.variable; });
-}
-
 void error_check_affine_expression(const internal::AffineSum &affineSum)
 {
     if (!check_unique_variables_in_affine_expression(affineSum))
@@ -56,28 +52,22 @@ void error_check_affine_expression(const internal::AffineSum &affineSum)
            << affineSum;
         throw std::runtime_error(ss.str());
     }
-    if (count_constants_in_affine_expression(affineSum) > 1)
-    {
-        std::stringstream ss;
-        ss << "Error: More than one constant in the expression: \n"
-           << affineSum;
-        throw std::runtime_error(ss.str());
-    }
 }
 
 internal::ParameterSource get_constant_or_zero(const internal::AffineSum &affineSum)
 {
-    auto constantIterator = std::find_if(affineSum.terms.begin(),
-                                         affineSum.terms.end(),
-                                         [](const auto &term) { return !term.variable; });
-    if (constantIterator != affineSum.terms.end())
-    {
-        return constantIterator->parameter;
-    }
-    else
-    {
-        return internal::ParameterSource(0.0);
-    }
+    auto pick_constant = [](internal::ParameterSource sum, const internal::AffineTerm &term) {
+        if (term.variable)
+        {
+            return internal::ParameterSource(0.);
+        }
+        else
+        {
+            return sum + term.parameter;
+        }
+    };
+
+    return std::accumulate(affineSum.terms.begin(), affineSum.terms.end(), internal::ParameterSource(0.), pick_constant);
 }
 
 // convert sparse matrix format "dictionary of keys" to "column compressed storage"
