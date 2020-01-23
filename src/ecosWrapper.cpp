@@ -56,10 +56,10 @@ void error_check_affine_expression(const internal::AffineSum &affineSum)
 
 internal::ParameterSource get_constant_or_zero(const internal::AffineSum &affineSum)
 {
-    auto pick_constant = [](internal::ParameterSource sum, const internal::AffineTerm &term) {
+    auto pick_constant = [](const internal::ParameterSource &sum, const internal::AffineTerm &term) {
         if (term.variable)
         {
-            return internal::ParameterSource(0.);
+            return sum;
         }
         else
         {
