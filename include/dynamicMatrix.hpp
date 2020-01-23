@@ -7,6 +7,38 @@
 namespace op
 {
 
+template <typename T>
+T vstack(std::initializer_list<T> elements)
+{
+    T stacked;
+    for (const auto &e : elements)
+    {
+        assert(elements.begin()->cols() == e.cols());
+        stacked.data_matrix.insert(stacked.data_matrix.end(),
+                                   e.data_matrix.begin(),
+                                   e.data_matrix.end());
+    }
+    return stacked;
+}
+
+template <typename T>
+T hstack(std::initializer_list<T> elements)
+{
+    T stacked;
+    stacked.data_matrix.resize(elements.begin()->rows());
+    for (const auto &e : elements)
+    {
+        assert(elements.begin()->rows() == e.rows());
+        for (size_t row = 0; row < stacked.rows(); row++)
+        {
+            stacked.data_matrix.at(row).insert(stacked.data_matrix.at(row).begin(),
+                                               e.data_matrix.at(row).begin(),
+                                               e.data_matrix.at(row).end());
+        }
+    }
+    return stacked;
+}
+
 template <typename T, class Derived = void>
 class DynamicMatrix
 {
@@ -51,6 +83,12 @@ public:
     const T &coeff(size_t row, size_t col = 0) const;
 
     void resize(size_t rows, size_t cols);
+
+    template <typename T_>
+    friend T_ hstack(std::initializer_list<T_> elements);
+
+    template <typename T_>
+    friend T_ vstack(std::initializer_list<T_> elements);
 
 private:
     std::vector<std::vector<T>> data_matrix;
@@ -290,38 +328,6 @@ void DynamicMatrix<T, Derived>::resize(size_t rows, size_t cols)
     {
         row.resize(cols);
     }
-}
-
-template <typename T>
-T vstack(std::initializer_list<T> elements)
-{
-    T stacked;
-    for (const auto &e : elements)
-    {
-        assert(elements.begin()->cols() == e.cols());
-        stacked.data_matrix.insert(stacked.data_matrix.end(),
-                                   e.data_matrix.begin(),
-                                   e.data_matrix.end());
-    }
-    return stacked;
-}
-
-template <typename T>
-T hstack(std::initializer_list<T> elements)
-{
-    T stacked;
-    stacked.data_matrix.resize(elements.begin()->rows());
-    for (const auto &e : elements)
-    {
-        assert(elements.begin()->rows() == e.rows());
-        for (size_t row = 0; row < stacked.rows(); row++)
-        {
-            stacked.data_matrix.at(row).insert(stacked.data_matrix.at(row).begin(),
-                                               e.data_matrix.at(row).begin(),
-                                               e.data_matrix.at(row).end());
-        }
-    }
-    return stacked;
 }
 
 } // namespace op
