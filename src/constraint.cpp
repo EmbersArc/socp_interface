@@ -188,20 +188,15 @@ std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs
             if (affine.is_scalar())
             {
                 internal::AffineSum rhs = affine.coeff(0);
-                if (SOCLhs.affine.has_value())
-                {
-                    rhs += -SOCLhs.affine.value().coeff(0);
-                }
-                constraints.emplace_back(SOCLhs.norm2.coeff(row, col), rhs);
+                rhs += -SOCLhs.coeff(0).second;
+                constraints.emplace_back(SOCLhs.coeff(row, col).first, rhs);
             }
             else
             {
                 internal::AffineSum rhs = affine.coeff(row, col);
-                if (SOCLhs.affine.has_value())
-                {
-                    rhs += -SOCLhs.affine.value().coeff(row, col);
-                }
-                constraints.emplace_back(SOCLhs.norm2.coeff(row, col), rhs);
+                rhs += -SOCLhs.coeff(row, col).second;
+
+                constraints.emplace_back(SOCLhs.coeff(row, col).first, rhs);
             }
         }
     }

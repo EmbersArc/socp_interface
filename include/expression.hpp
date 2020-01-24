@@ -87,14 +87,8 @@ struct Norm2Term
 Affine sum(const Affine &affine);
 Affine sum(const Affine &affine, size_t axis);
 
-struct SOCLhs
+class SOCLhs : public DynamicMatrix<std::pair<internal::Norm2Term, internal::AffineSum>, SOCLhs>
 {
-    DynamicMatrix<internal::Norm2Term> norm2;
-    std::optional<Affine> affine;
-    bool is_scalar() const;
-    size_t rows() const;
-    size_t cols() const;
-    std::pair<size_t, size_t> shape() const;
     SOCLhs operator+(const Affine &affine) const;
     SOCLhs &operator+=(const Affine &affine);
 };

@@ -434,7 +434,7 @@ SOCLhs norm2(const Affine &affine)
     {
         for (size_t row = 0; row < affine.rows(); row++)
         {
-            socLhs.norm2.coeffRef(0, 0).arguments.push_back(affine.coeff(row, col));
+            socLhs.coeffRef(0, 0).first.arguments.push_back(affine.coeff(row, col));
         }
     }
     return socLhs;
@@ -447,23 +447,23 @@ SOCLhs norm2(const Affine &affine, size_t axis)
     SOCLhs socLhs;
     if (axis == 0)
     {
-        socLhs.norm2.resize(1, affine.cols());
+        socLhs.resize(1, affine.cols());
         for (size_t col = 0; col < affine.cols(); col++)
         {
             for (size_t row = 0; row < affine.rows(); row++)
             {
-                socLhs.norm2.coeffRef(0, col).arguments.push_back(affine.coeff(row, col));
+                socLhs.coeffRef(0, col).first.arguments.push_back(affine.coeff(row, col));
             }
         }
     }
     else if (axis == 1)
     {
-        socLhs.norm2.resize(affine.rows(), 1);
+        socLhs.resize(affine.rows(), 1);
         for (size_t row = 0; row < affine.rows(); row++)
         {
             for (size_t col = 0; col < affine.cols(); col++)
             {
-                socLhs.norm2.coeffRef(row, 0).arguments.push_back(affine.coeff(row, col));
+                socLhs.coeffRef(row, 0).first.arguments.push_back(affine.coeff(row, col));
             }
         }
     }
@@ -532,53 +532,33 @@ Affine sum(const Affine &affine, size_t axis)
 
 Affine Variable::operator-() const
 {
-    return Affine(Parameter(-1.) * *this);
-}
-
-bool SOCLhs::is_scalar() const
-{
-    return norm2.is_scalar();
-}
-
-size_t SOCLhs::rows() const
-{
-    return norm2.rows();
-}
-
-size_t SOCLhs::cols() const
-{
-    return norm2.cols();
-}
-
-std::pair<size_t, size_t> SOCLhs::shape() const
-{
-    return norm2.shape();
+    return Parameter(-1.) * *this;
 }
 
 SOCLhs SOCLhs::operator+(const Affine &affine) const
 {
-    assert(affine.shape() == norm2.shape());
+    assert(affine.shape() == shape());
     SOCLhs result = *this;
-    if (result.affine.has_value())
+
+    for (size_t row = 0; row < rows(); row++)
     {
-        result.affine.value() += affine;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            result.coeffRef(row, col).second += affine.coeff(row, col);
+        }
     }
-    else
-    {
-        result.affine = affine;
-    }
+
     return result;
 }
 
 SOCLhs &SOCLhs::operator+=(const Affine &affine)
 {
-    if (this->affine.has_value())
+    for (size_t row = 0; row < rows(); row++)
     {
-        this->affine.value() += affine;
-    }
-    else
-    {
-        this->affine = affine;
+        for (size_t col = 0; col < cols(); col++)
+        {
+            coeffRef(row, col).second += affine.coeff(row, col);
+        }
     }
     return *this;
 }
