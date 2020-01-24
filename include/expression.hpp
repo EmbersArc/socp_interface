@@ -89,6 +89,7 @@ Affine sum(const Affine &affine, size_t axis);
 
 class SOCLhs : public DynamicMatrix<std::pair<internal::Norm2Term, internal::AffineSum>, SOCLhs>
 {
+public:
     SOCLhs operator+(const Affine &affine) const;
     SOCLhs &operator+=(const Affine &affine);
 };
