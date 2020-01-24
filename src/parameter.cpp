@@ -62,14 +62,15 @@ ParameterSource ParameterSource::operator+(const ParameterSource &other) const
     {
         return *this;
     }
-    else
+    if (is_constant() and other.is_constant())
     {
-        auto add_op = [p1 = *this,
-                       p2 = other]() {
-            return p1.get_value() + p2.get_value();
-        };
-        return ParameterSource(add_op);
+        return ParameterSource(get_value() + other.get_value());
     }
+
+    return ParameterSource([p1 = *this,
+                            p2 = other]() {
+        return p1.get_value() + p2.get_value();
+    });
 }
 
 ParameterSource ParameterSource::operator-(const ParameterSource &other) const
@@ -78,14 +79,15 @@ ParameterSource ParameterSource::operator-(const ParameterSource &other) const
     {
         return *this;
     }
-    else
+    if (is_constant() and other.is_constant())
     {
-        auto subtract_op = [p1 = *this,
-                            p2 = other]() {
-            return p1.get_value() - p2.get_value();
-        };
-        return ParameterSource(subtract_op);
+        return ParameterSource(get_value() - other.get_value());
     }
+
+    return ParameterSource([p1 = *this,
+                            p2 = other]() {
+        return p1.get_value() - p2.get_value();
+    });
 }
 
 ParameterSource ParameterSource::operator*(const ParameterSource &other) const
@@ -113,12 +115,15 @@ ParameterSource ParameterSource::operator/(const ParameterSource &other) const
     {
         return *this;
     }
+    if (is_constant() and other.is_constant())
+    {
+        return ParameterSource(get_value() / other.get_value());
+    }
 
-    auto divide_op = [p1 = *this,
-                      p2 = other]() {
+    return ParameterSource([p1 = *this,
+                            p2 = other]() {
         return p1.get_value() / p2.get_value();
-    };
-    return ParameterSource(divide_op);
+    });
 }
 
 } // namespace internal
