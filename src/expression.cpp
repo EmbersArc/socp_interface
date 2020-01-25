@@ -101,8 +101,7 @@ double AffineSum::evaluate(const std::vector<double> &soln_values) const
 
 AffineSum AffineSum::operator+(const AffineSum &other) const
 {
-    AffineSum result;
-    result.terms.insert(result.terms.end(), terms.begin(), terms.end());
+    AffineSum result = *this;
     result.terms.insert(result.terms.end(), other.terms.begin(), other.terms.end());
     return result;
 }
@@ -195,6 +194,7 @@ Affine::Affine(const internal::AffineSum &expression)
 
 namespace internal
 {
+
 std::ostream &operator<<(std::ostream &os, const internal::Norm2Term &norm2)
 {
     os << "norm2([";
@@ -490,18 +490,17 @@ Affine Variable::operator-() const
 SOCLhs SOCLhs::operator+(const Affine &affine) const
 {
     assert(affine.shape() == shape());
+
     SOCLhs result = *this;
 
-    for (auto [row, col] : all_indices())
-    {
-        result.coeffRef(row, col).second += affine.coeff(row, col);
-    }
+    result += affine;
 
     return result;
 }
 
 SOCLhs &SOCLhs::operator+=(const Affine &affine)
 {
+    assert(affine.shape() == shape());
     for (auto [row, col] : all_indices())
     {
         coeffRef(row, col).second += affine.coeff(row, col);
