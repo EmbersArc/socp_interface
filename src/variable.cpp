@@ -34,13 +34,10 @@ Variable::Variable(const std::string &name, size_t start_index,
     resize(rows, cols);
 
     size_t index = start_index;
-    for (size_t row = 0; row < rows; row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols; col++)
-        {
-            coeffRef(row, col) = internal::VariableSource(name, index, row, col);
-            index++;
-        }
+        coeffRef(row, col) = internal::VariableSource(name, index, row, col);
+        index++;
     }
 }
 

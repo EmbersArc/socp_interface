@@ -155,12 +155,9 @@ Eigen::MatrixXd Parameter::get_values() const
 {
     Eigen::MatrixXd result_matrix(rows(), cols());
 
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            result_matrix.coeffRef(row, col) = get_value(row, col);
-        }
+        result_matrix.coeffRef(row, col) = get_value(row, col);
     }
     return result_matrix;
 }
@@ -170,12 +167,9 @@ Parameter Parameter::operator+(const Parameter &other) const
     assert(shape() == other.shape());
 
     Parameter parameter(rows(), cols());
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            parameter.coeffRef(row, col) = coeff(row, col) + other.coeff(row, col);
-        }
+        parameter.coeffRef(row, col) = coeff(row, col) + other.coeff(row, col);
     }
     return parameter;
 }
@@ -190,12 +184,9 @@ Parameter Parameter::operator-(const Parameter &other) const
     assert(shape() == other.shape());
 
     Parameter parameter(rows(), cols());
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            parameter.coeffRef(row, col) = coeff(row, col) - other.coeff(row, col);
-        }
+        parameter.coeffRef(row, col) = coeff(row, col) - other.coeff(row, col);
     }
     return parameter;
 }
@@ -203,12 +194,9 @@ Parameter Parameter::operator-(const Parameter &other) const
 Parameter scaleMatrix(const internal::ParameterSource &scalar, const Parameter &matrix)
 {
     Parameter parameter(matrix.rows(), matrix.cols());
-    for (size_t row = 0; row < matrix.rows(); row++)
+    for (auto [row, col] : matrix.all_indices())
     {
-        for (size_t col = 0; col < matrix.cols(); col++)
-        {
-            parameter.coeffRef(row, col) = scalar * matrix.coeff(row, col);
-        }
+        parameter.coeffRef(row, col) = scalar * matrix.coeff(row, col);
     }
     return parameter;
 }
@@ -268,12 +256,9 @@ Parameter Parameter::operator/(const Parameter &other) const
     assert(other.is_scalar());
 
     Parameter parameter(rows(), cols());
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            parameter.coeffRef(row, col) = coeff(row, col) / other.coeff(0);
-        }
+        parameter.coeffRef(row, col) = coeff(row, col) / other.coeff(0);
     }
     return parameter;
 }

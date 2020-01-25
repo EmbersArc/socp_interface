@@ -82,12 +82,9 @@ std::vector<internal::EqualityConstraint> operator==(const Affine &affine, const
 
     std::vector<internal::EqualityConstraint> constraints;
     constraints.reserve(affine.size());
-    for (size_t row = 0; row < affine.rows(); row++)
+    for (auto [row, col] : affine.all_indices())
     {
-        for (size_t col = 0; col < affine.cols(); col++)
-        {
-            constraints.push_back(affine.coeff(row, col) == 0.0);
-        }
+        constraints.push_back(affine.coeff(row, col) == 0.0);
     }
     return constraints;
 }
@@ -124,12 +121,9 @@ std::vector<internal::PositiveConstraint> operator>=(const Affine &affine, const
     (void)zero;
 
     std::vector<internal::PositiveConstraint> constraints;
-    for (size_t row = 0; row < affine.rows(); row++)
+    for (auto [row, col] : affine.all_indices())
     {
-        for (size_t col = 0; col < affine.cols(); col++)
-        {
-            constraints.push_back(affine.coeff(row, col) >= 0.0);
-        }
+        constraints.push_back(affine.coeff(row, col) >= 0.0);
     }
     return constraints;
 }
@@ -176,28 +170,25 @@ std::vector<internal::PositiveConstraint> operator<=(const Affine &lhs, const Af
     return rhs >= lhs;
 }
 
-std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine)
+std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &socLhs, const Affine &affine)
 {
-    assert(SOCLhs.shape() == affine.shape() or affine.is_scalar()); //or SOCLhs.is_scalar()); // Maybe TODO
+    assert(socLhs.shape() == affine.shape() or affine.is_scalar()); //or socLhs.is_scalar()); // Maybe TODO
     std::vector<internal::SecondOrderConeConstraint> constraints;
 
-    for (size_t row = 0; row < SOCLhs.rows(); row++)
+    for (auto [row, col] : socLhs.all_indices())
     {
-        for (size_t col = 0; col < SOCLhs.cols(); col++)
+        if (affine.is_scalar())
         {
-            if (affine.is_scalar())
-            {
-                internal::AffineSum rhs = affine.coeff(0);
-                rhs += -SOCLhs.coeff(0).second;
-                constraints.emplace_back(SOCLhs.coeff(row, col).first, rhs);
-            }
-            else
-            {
-                internal::AffineSum rhs = affine.coeff(row, col);
-                rhs += -SOCLhs.coeff(row, col).second;
+            internal::AffineSum rhs = affine.coeff(0);
+            rhs += -socLhs.coeff(0).second;
+            constraints.emplace_back(socLhs.coeff(row, col).first, rhs);
+        }
+        else
+        {
+            internal::AffineSum rhs = affine.coeff(row, col);
+            rhs += -socLhs.coeff(row, col).second;
 
-                constraints.emplace_back(SOCLhs.coeff(row, col).first, rhs);
-            }
+            constraints.emplace_back(socLhs.coeff(row, col).first, rhs);
         }
     }
     return constraints;

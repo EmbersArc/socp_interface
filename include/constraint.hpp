@@ -53,6 +53,6 @@ std::vector<internal::PositiveConstraint> operator<=(const double zero, const Af
 std::vector<internal::PositiveConstraint> operator>=(const Affine &lhs, const Affine &rhs);
 std::vector<internal::PositiveConstraint> operator<=(const Affine &lhs, const Affine &rhs);
 
-std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &SOCLhs, const Affine &affine);
+std::vector<internal::SecondOrderConeConstraint> operator<=(const SOCLhs &socLhs, const Affine &affine);
 
 } // namespace op

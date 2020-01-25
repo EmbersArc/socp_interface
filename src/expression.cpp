@@ -172,24 +172,18 @@ AffineTerm::operator AffineSum() const
 Affine::Affine(const Parameter &parameter)
 {
     resize(parameter.rows(), parameter.cols());
-    for (size_t row = 0; row < parameter.rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < parameter.cols(); col++)
-        {
-            coeffRef(row, col) = internal::AffineSum(parameter.coeff(row, col));
-        }
+        coeffRef(row, col) = internal::AffineSum(parameter.coeff(row, col));
     }
 }
 
 Affine::Affine(const Variable &variable)
 {
     resize(variable.rows(), variable.cols());
-    for (size_t row = 0; row < variable.rows(); row++)
+    for (auto [row, col] : variable.all_indices())
     {
-        for (size_t col = 0; col < variable.cols(); col++)
-        {
-            coeffRef(row, col) = internal::AffineSum(variable.coeff(row, col));
-        }
+        coeffRef(row, col) = internal::AffineSum(variable.coeff(row, col));
     }
 }
 
@@ -220,12 +214,9 @@ Affine operator+(const Affine &lhs, const Affine &rhs)
 {
     assert(lhs.shape() == rhs.shape());
     Affine result = lhs;
-    for (size_t row = 0; row < lhs.rows(); row++)
+    for (auto [row, col] : lhs.all_indices())
     {
-        for (size_t col = 0; col < lhs.cols(); col++)
-        {
-            result.coeffRef(row, col) += rhs.coeff(row, col);
-        }
+        result.coeffRef(row, col) += rhs.coeff(row, col);
     }
     return result;
 }
@@ -241,44 +232,35 @@ Affine operator*(const Parameter &parameter, const Variable &variable)
         assert(parameter.cols() == variable.rows());
 
         Affine result(parameter.rows(), variable.cols());
-        for (size_t row = 0; row < result.rows(); row++)
+        for (auto [row, col] : result.all_indices())
         {
-            for (size_t col = 0; col < result.cols(); col++)
+            internal::AffineSum expression;
+            for (size_t inner = 0; inner < parameter.cols(); inner++)
             {
-                internal::AffineSum expression;
-                for (size_t inner = 0; inner < parameter.cols(); inner++)
-                {
-                    expression.terms.emplace_back(parameter.coeff(row, inner),
-                                                  variable.coeff(inner, col));
-                }
-                result.coeffRef(row, col) = expression;
+                expression.terms.emplace_back(parameter.coeff(row, inner),
+                                              variable.coeff(inner, col));
             }
+            result.coeffRef(row, col) = expression;
         }
         return result;
     }
     else if (parameter.is_scalar())
     {
         Affine result(variable.rows(), variable.cols());
-        for (size_t row = 0; row < result.rows(); row++)
+        for (auto [row, col] : result.all_indices())
         {
-            for (size_t col = 0; col < result.cols(); col++)
-            {
-                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(0),
-                                                                 variable.coeff(row, col));
-            }
+            result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(0),
+                                                             variable.coeff(row, col));
         }
         return result;
     }
     else // if (variable.is_scalar())
     {
         Affine result(parameter.rows(), parameter.cols());
-        for (size_t row = 0; row < result.rows(); row++)
+        for (auto [row, col] : result.all_indices())
         {
-            for (size_t col = 0; col < result.cols(); col++)
-            {
-                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(row, col),
-                                                                 variable.coeff(0));
-            }
+            result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(row, col),
+                                                             variable.coeff(0));
         }
         return result;
     }
@@ -295,43 +277,34 @@ Affine operator*(const Variable &variable, const Parameter &parameter)
         assert(variable.cols() == parameter.rows());
 
         Affine result(variable.rows(), parameter.cols());
-        for (size_t row = 0; row < result.rows(); row++)
+        for (auto [row, col] : result.all_indices())
         {
-            for (size_t col = 0; col < result.cols(); col++)
+            internal::AffineSum expression;
+            for (size_t inner = 0; inner < variable.cols(); inner++)
             {
-                internal::AffineSum expression;
-                for (size_t inner = 0; inner < variable.cols(); inner++)
-                {
-                    expression.terms.emplace_back(parameter.coeff(inner, col),
-                                                  variable.coeff(row, inner));
-                }
-                result.coeffRef(row, col) = expression;
+                expression.terms.emplace_back(parameter.coeff(inner, col),
+                                              variable.coeff(row, inner));
             }
+            result.coeffRef(row, col) = expression;
         }
         return result;
     }
     else if (variable.is_scalar())
     {
         Affine result(variable.rows(), parameter.cols());
-        for (size_t row = 0; row < result.rows(); row++)
+        for (auto [row, col] : result.all_indices())
         {
-            for (size_t col = 0; col < result.cols(); col++)
-            {
-                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(row, col),
-                                                                 variable.coeff(0));
-            }
+            result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(row, col),
+                                                             variable.coeff(0));
         }
         return result;
     }
     else // if (parameter.is_scalar())
     {
         Affine result(parameter.rows(), parameter.cols());
-        for (size_t row = 0; row < result.rows(); row++)
+        for (auto [row, col] : result.all_indices())
         {
-            for (size_t col = 0; col < result.cols(); col++)
-            {
-                result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(0), variable.coeff(row, col));
-            }
+            result.coeffRef(row, col) = internal::AffineTerm(parameter.coeff(0), variable.coeff(row, col));
         }
         return result;
     }
@@ -344,12 +317,9 @@ Affine operator*(const Parameter &parameter, const Affine &affine)
         throw std::runtime_error("This operation is not implemented for parameter matrices.");
     }
     Affine result(affine.rows(), affine.cols());
-    for (size_t row = 0; row < affine.rows(); row++)
+    for (auto [row, col] : affine.all_indices())
     {
-        for (size_t col = 0; col < affine.cols(); col++)
-        {
-            result.coeffRef(row, col) = affine.coeff(row, col) * parameter.coeff(0);
-        }
+        result.coeffRef(row, col) = affine.coeff(row, col) * parameter.coeff(0);
     }
     return result;
 }
@@ -374,12 +344,9 @@ std::ostream &operator<<(std::ostream &os, const Affine &expression)
 
 Affine &Affine::operator+=(const Affine &other)
 {
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            coeffRef(row, col) += other.coeff(row, col);
-        }
+        coeffRef(row, col) += other.coeff(row, col);
     }
     return *this;
 }
@@ -430,12 +397,9 @@ double Norm2Term::evaluate(const std::vector<double> &soln_values) const
 SOCLhs norm2(const Affine &affine)
 {
     SOCLhs socLhs;
-    for (size_t col = 0; col < affine.cols(); col++)
+    for (auto [row, col] : affine.all_indices())
     {
-        for (size_t row = 0; row < affine.rows(); row++)
-        {
-            socLhs.coeffRef(0, 0).first.arguments.push_back(affine.coeff(row, col));
-        }
+        socLhs.coeffRef(0, 0).first.arguments.push_back(affine.coeff(row, col));
     }
     return socLhs;
 }
@@ -448,23 +412,17 @@ SOCLhs norm2(const Affine &affine, size_t axis)
     if (axis == 0)
     {
         socLhs.resize(1, affine.cols());
-        for (size_t col = 0; col < affine.cols(); col++)
+        for (auto [row, col] : affine.all_indices())
         {
-            for (size_t row = 0; row < affine.rows(); row++)
-            {
-                socLhs.coeffRef(0, col).first.arguments.push_back(affine.coeff(row, col));
-            }
+            socLhs.coeffRef(0, col).first.arguments.push_back(affine.coeff(row, col));
         }
     }
     else if (axis == 1)
     {
         socLhs.resize(affine.rows(), 1);
-        for (size_t row = 0; row < affine.rows(); row++)
+        for (auto [row, col] : affine.all_indices())
         {
-            for (size_t col = 0; col < affine.cols(); col++)
-            {
-                socLhs.coeffRef(row, 0).first.arguments.push_back(affine.coeff(row, col));
-            }
+            socLhs.coeffRef(row, 0).first.arguments.push_back(affine.coeff(row, col));
         }
     }
     return socLhs;
@@ -474,12 +432,9 @@ Affine Parameter::cwiseProduct(const Affine &affine) const
 {
     assert(affine.shape() == shape());
     op::Affine product(rows(), cols());
-    for (size_t row = 0; row < affine.rows(); row++)
+    for (auto [row, col] : affine.all_indices())
     {
-        for (size_t col = 0; col < affine.cols(); col++)
-        {
-            product.coeffRef(row, col) = affine.coeff(row, col) * coeff(row, col);
-        }
+        product.coeffRef(row, col) = affine.coeff(row, col) * coeff(row, col);
     }
     return product;
 }
@@ -487,12 +442,9 @@ Affine Parameter::cwiseProduct(const Affine &affine) const
 Affine sum(const Affine &affine)
 {
     op::Affine sum;
-    for (size_t row = 0; row < affine.rows(); row++)
+    for (auto [row, col] : affine.all_indices())
     {
-        for (size_t col = 0; col < affine.cols(); col++)
-        {
-            sum = sum + affine(row, col);
-        }
+        sum += affine(row, col);
     }
     return sum;
 }
@@ -540,12 +492,9 @@ SOCLhs SOCLhs::operator+(const Affine &affine) const
     assert(affine.shape() == shape());
     SOCLhs result = *this;
 
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            result.coeffRef(row, col).second += affine.coeff(row, col);
-        }
+        result.coeffRef(row, col).second += affine.coeff(row, col);
     }
 
     return result;
@@ -553,12 +502,9 @@ SOCLhs SOCLhs::operator+(const Affine &affine) const
 
 SOCLhs &SOCLhs::operator+=(const Affine &affine)
 {
-    for (size_t row = 0; row < rows(); row++)
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            coeffRef(row, col).second += affine.coeff(row, col);
-        }
+        coeffRef(row, col).second += affine.coeff(row, col);
     }
     return *this;
 }

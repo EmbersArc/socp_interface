@@ -23,12 +23,9 @@ T vstack(const std::initializer_list<T> elements)
         const size_t start_row = stacked.rows();
         stacked.resize(start_row + e_ptr->rows(), stacked.cols());
 
-        for (size_t row = 0; row < e_ptr->rows(); row++)
+        for (auto [row, col] : e_ptr->all_indices())
         {
-            for (size_t col = 0; col < e_ptr->cols(); col++)
-            {
-                stacked.coeffRef(start_row + row, col) = e_ptr->coeff(row, col);
-            }
+            stacked.coeffRef(start_row + row, col) = e_ptr->coeff(row, col);
         }
     }
     return stacked;
@@ -50,12 +47,9 @@ T hstack(const std::initializer_list<T> elements)
         const size_t start_col = stacked.cols();
         stacked.resize(stacked.rows(), start_col + e_ptr->cols());
 
-        for (size_t row = 0; row < e_ptr->rows(); row++)
+        for (auto [row, col] : e_ptr->all_indices())
         {
-            for (size_t col = 0; col < e_ptr->cols(); col++)
-            {
-                stacked.coeffRef(row, start_col + col) = e_ptr->coeff(row, col);
-            }
+            stacked.coeffRef(row, start_col + col) = e_ptr->coeff(row, col);
         }
     }
     return stacked;
@@ -98,6 +92,7 @@ public:
     auto head(size_t n) const;
     auto tail(size_t n) const;
     auto segment(size_t i, size_t n) const;
+    std::vector<std::pair<size_t, size_t>> all_indices() const;
 
     T &coeffRef(size_t row, size_t col = 0);
 
@@ -227,13 +222,12 @@ auto DynamicMatrix<T, Derived>::block(size_t start_row, size_t start_col,
            (start_col + n_cols - 1) < cols());
 
     return_t result = *static_cast<const return_t *>(this);
+
     result.resize(n_rows, n_cols);
-    for (size_t row = 0; row < n_rows; row++)
+
+    for (auto [row, col] : result.all_indices())
     {
-        for (size_t col = 0; col < n_cols; col++)
-        {
-            result.coeffRef(row, col) = coeff(start_row + row, start_col + col);
-        }
+        result.coeffRef(row, col) = coeff(start_row + row, start_col + col);
     }
     return result;
 }
@@ -312,13 +306,12 @@ auto DynamicMatrix<T, Derived>::transpose() const
 {
     return_t result = *static_cast<const return_t *>(this);
     result.resize(cols(), rows());
-    for (size_t row = 0; row < rows(); row++)
+
+    for (auto [row, col] : all_indices())
     {
-        for (size_t col = 0; col < cols(); col++)
-        {
-            result.coeffRef(col, row) = coeff(row, col);
-        }
+        result.coeffRef(col, row) = coeff(row, col);
     }
+
     return result;
 }
 
@@ -344,6 +337,22 @@ void DynamicMatrix<T, Derived>::resize(size_t rows, size_t cols)
     {
         row.resize(cols);
     }
+}
+
+template <typename T, class Derived>
+std::vector<std::pair<size_t, size_t>> DynamicMatrix<T, Derived>::all_indices() const
+{
+    std::vector<std::pair<size_t, size_t>> indices;
+
+    for (size_t row = 0; row < rows(); row++)
+    {
+        for (size_t col = 0; col < cols(); col++)
+        {
+            indices.emplace_back(row, col);
+        }
+    }
+
+    return indices;
 }
 
 } // namespace op
