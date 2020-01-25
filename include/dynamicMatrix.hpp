@@ -8,18 +8,26 @@ namespace op
 {
 
 template <typename T>
-T vstack(const std::vector<T> elements)
+T vstack(const std::initializer_list<T> elements)
 {
-    T stacked = elements.front();
-    for (size_t i = 1; i < elements.size(); i++)
+    if (elements.size() == 1)
     {
+        return *elements.begin();
+    }
+
+    T stacked = *elements.begin();
+    for (auto e_ptr = std::next(elements.begin()); e_ptr != elements.end(); e_ptr++)
+    {
+        assert(stacked.cols() == e_ptr->cols());
+
         const size_t start_row = stacked.rows();
-        stacked.resize(start_row + elements[i].rows(), stacked.cols());
-        for (size_t row = 0; row < stacked.rows(); row++)
+        stacked.resize(start_row + e_ptr->rows(), stacked.cols());
+
+        for (size_t row = 0; row < e_ptr->rows(); row++)
         {
-            for (size_t col = 0; col < stacked.cols(); col++)
+            for (size_t col = 0; col < e_ptr->cols(); col++)
             {
-                stacked.coeffRef(start_row + row, col) = elements[i].coeff(row, col);
+                stacked.coeffRef(start_row + row, col) = e_ptr->coeff(row, col);
             }
         }
     }
@@ -27,18 +35,26 @@ T vstack(const std::vector<T> elements)
 }
 
 template <typename T>
-T hstack(const std::vector<T> elements)
+T hstack(const std::initializer_list<T> elements)
 {
-    T stacked = elements.front();
-    for (size_t i = 1; i < elements.size(); i++)
+    if (elements.size() == 1)
     {
+        return *elements.begin();
+    }
+
+    T stacked = *elements.begin();
+    for (auto e_ptr = std::next(elements.begin()); e_ptr != elements.end(); e_ptr++)
+    {
+        assert(stacked.rows() == e_ptr->rows());
+
         const size_t start_col = stacked.cols();
-        stacked.resize(stacked.rows(), start_col + elements[i].cols());
-        for (size_t row = 0; row < stacked.rows(); row++)
+        stacked.resize(stacked.rows(), start_col + e_ptr->cols());
+
+        for (size_t row = 0; row < e_ptr->rows(); row++)
         {
-            for (size_t col = 0; col < stacked.cols(); col++)
+            for (size_t col = 0; col < e_ptr->cols(); col++)
             {
-                stacked.coeffRef(row, start_col + col) = elements[i].coeff(row, col);
+                stacked.coeffRef(row, start_col + col) = e_ptr->coeff(row, col);
             }
         }
     }
