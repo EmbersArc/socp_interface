@@ -396,6 +396,8 @@ double Norm2Term::evaluate(const std::vector<double> &soln_values) const
 
 SOCLhs norm2(const Affine &affine)
 {
+    assert(affine.rows() == 1 or affine.cols() == 1);
+
     SOCLhs socLhs;
     for (auto [row, col] : affine.all_indices())
     {
