@@ -6,27 +6,16 @@
 #include <cassert>
 #include <sstream>
 
-#include "ecosWrapper.hpp"
-
-#define DCTRLC = 1
-#define DLONG
-#define LDL_LONG
-#include "ecos/include/ecos.h"
+#include "eicosWrapper.hpp"
 
 using std::map;
 using std::pair;
 using std::tuple;
 using std::vector;
 
-static_assert(std::is_same_v<idxint, SuiteSparse_long> and std::is_same_v<idxint, long>,
-              "Definitions of idxint might not be consistent."
-              "Make sure ECOS is compiled with USE_LONG = 1.");
-
 namespace op
 {
 
-namespace ecos
-{
 bool check_unique_variables_in_affine_expression(const internal::AffineSum &affineSum)
 {
     // check if a variable is used more than once in an expression
@@ -78,14 +67,12 @@ internal::ParameterSource accumulate_constants(const internal::AffineSum &affine
                            pick_constant);
 }
 
-} // namespace ecos
-
 // convert sparse matrix format "dictionary of keys" to "column compressed storage"
 void sparse_DOK_to_CCS(
-    const map<pair<long, long>, internal::ParameterSource> &sparse_DOK,
+    const map<pair<int, int>, internal::ParameterSource> &sparse_DOK,
     vector<internal::ParameterSource> &data_CCS,
-    vector<long> &columns_CCS,
-    vector<long> &rows_CCS,
+    vector<int> &columns_CCS,
+    vector<int> &rows_CCS,
     size_t n_columns)
 {
     using std::get;
@@ -94,7 +81,7 @@ void sparse_DOK_to_CCS(
     assert(rows_CCS.empty());
 
     // convert to coordinate list
-    vector<tuple<long, long, internal::ParameterSource>> sparse_COO;
+    vector<tuple<int, int, internal::ParameterSource>> sparse_COO;
     sparse_COO.reserve(sparse_DOK.size());
     std::transform(sparse_DOK.begin(), sparse_DOK.end(), std::back_inserter(sparse_COO),
                    [](const auto &e) { return std::make_tuple(e.first.first, e.first.second, e.second); });
@@ -102,8 +89,8 @@ void sparse_DOK_to_CCS(
 
     // sort coordinate list by column, then by row
     std::sort(sparse_COO.begin(), sparse_COO.end(),
-              [](const tuple<long, long, internal::ParameterSource> &a,
-                 const tuple<long, long, internal::ParameterSource> &b) -> bool {
+              [](const tuple<int, int, internal::ParameterSource> &a,
+                 const tuple<int, int, internal::ParameterSource> &b) -> bool {
                   // define coordinate list order
                   if (get<1>(a) == get<1>(b))
                   {
@@ -128,7 +115,7 @@ void sparse_DOK_to_CCS(
 }
 
 void copy_affine_expression_linear_parts_to_sparse_DOK(
-    map<pair<long, long>, internal::ParameterSource> &sparse_DOK,
+    map<pair<int, int>, internal::ParameterSource> &sparse_DOK,
     const internal::AffineSum &affineSum,
     size_t row_index)
 {
@@ -142,7 +129,7 @@ void copy_affine_expression_linear_parts_to_sparse_DOK(
     }
 }
 
-EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
+EicosWrapper::EicosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
 {
     socp.cleanUp();
 
@@ -173,32 +160,32 @@ EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
     /* Error checking for the problem description */
     for (const auto &cone : socp.secondOrderConeConstraints)
     {
-        ecos::error_check_affine_expression(cone.affine);
+        error_check_affine_expression(cone.affine);
         for (const auto &affine_expression : cone.norm2.arguments)
         {
-            ecos::error_check_affine_expression(affine_expression);
+            error_check_affine_expression(affine_expression);
         }
     }
     for (const auto &PositiveConstraint : socp.positiveConstraints)
     {
-        ecos::error_check_affine_expression(PositiveConstraint.affine);
+        error_check_affine_expression(PositiveConstraint.affine);
     }
     for (const auto &equalityConstraint : socp.equalityConstraints)
     {
-        ecos::error_check_affine_expression(equalityConstraint.affine);
+        error_check_affine_expression(equalityConstraint.affine);
     }
-    ecos::error_check_affine_expression(socp.costFunction);
+    error_check_affine_expression(socp.costFunction);
 
     /* Build equality constraint parameters (b - A*x == 0) */
     {
         // Construct the sparse A matrix in the "Dictionary of keys" format
-        map<pair<long, long>, internal::ParameterSource> A_sparse_DOK;
+        map<pair<int, int>, internal::ParameterSource> A_sparse_DOK;
         vector<internal::ParameterSource> b(socp.equalityConstraints.size());
 
         for (size_t i = 0; i < socp.equalityConstraints.size(); i++)
         {
             const auto &affine_expression = socp.equalityConstraints[i].affine;
-            b[i] = ecos::accumulate_constants(affine_expression);
+            b[i] = accumulate_constants(affine_expression);
             copy_affine_expression_linear_parts_to_sparse_DOK(A_sparse_DOK, affine_expression, i);
         }
 
@@ -210,27 +197,27 @@ EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
     /* Build inequality constraint parameters */
     {
         // Construct the sparse G matrix in the "Dictionary of keys" format
-        map<pair<long, long>, internal::ParameterSource> G_sparse_DOK;
+        map<pair<int, int>, internal::ParameterSource> G_sparse_DOK;
         vector<internal::ParameterSource> h(ecos_n_constraint_rows);
 
         size_t row_index = 0;
 
         for (const auto &PositiveConstraint : socp.positiveConstraints)
         {
-            h[row_index] = ecos::accumulate_constants(PositiveConstraint.affine);
+            h[row_index] = accumulate_constants(PositiveConstraint.affine);
             copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, PositiveConstraint.affine, row_index);
             row_index++;
         }
 
         for (const auto &secondOrderConeConstraint : socp.secondOrderConeConstraints)
         {
-            h[row_index] = ecos::accumulate_constants(secondOrderConeConstraint.affine);
+            h[row_index] = accumulate_constants(secondOrderConeConstraint.affine);
             copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, secondOrderConeConstraint.affine, row_index);
             row_index++;
 
             for (const auto &norm2argument : secondOrderConeConstraint.norm2.arguments)
             {
-                h[row_index] = ecos::accumulate_constants(norm2argument);
+                h[row_index] = accumulate_constants(norm2argument);
                 copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, norm2argument, row_index);
                 row_index++;
             }
@@ -255,109 +242,94 @@ EcosWrapper::EcosWrapper(SecondOrderConeProgram &_socp) : socp(_socp)
         }
         ecos_cost_function_weights = c;
     }
+
+    ecos_G_data_CCS_values.resize(ecos_G_data_CCS.size());
+    ecos_A_data_CCS_values.resize(ecos_A_data_CCS.size());
+    ecos_cost_function_weights_values.resize(ecos_n_variables);
+    ecos_h_values.resize(ecos_n_constraint_rows);
+    ecos_b_values.resize(ecos_n_equalities);
+
+    solver = std::make_unique<EiCOS::Solver>(ecos_n_variables,
+                                             ecos_n_constraint_rows,
+                                             ecos_n_equalities,
+                                             ecos_n_positive_constraints,
+                                             ecos_n_cone_constraints,
+                                             ecos_cone_constraint_dimensions.data(),
+                                             ecos_G_data_CCS_values.data(),
+                                             ecos_G_columns_CCS.data(),
+                                             ecos_G_rows_CCS.data(),
+                                             ecos_A_data_CCS_values.data(),
+                                             ecos_A_columns_CCS.data(),
+                                             ecos_A_rows_CCS.data(),
+                                             ecos_cost_function_weights_values.data(),
+                                             ecos_h_values.data(),
+                                             ecos_b_values.data());
 }
 
-inline vector<double> get_parameter_values(const vector<internal::ParameterSource> &params, double factor)
+void get_parameter_values(const vector<internal::ParameterSource> &params,
+                          double factor,
+                          std::vector<double> &values)
 {
-    vector<double> result;
-    result.reserve(params.size());
-    std::transform(params.begin(), params.end(), std::back_inserter(result),
+    assert(values.size() == params.size());
+    std::transform(params.begin(), params.end(), values.begin(),
                    [factor](const auto &param) { return param.get_value() * factor; });
-    return result;
 }
 
-bool EcosWrapper::solveProblem(bool verbose)
+bool EicosWrapper::solveProblem(bool /* verbose */)
 {
-    vector<double> ecos_cost_function_weights_values = get_parameter_values(ecos_cost_function_weights, 1.0);
-    vector<double> ecos_h_values = get_parameter_values(ecos_h, 1.0);
-    vector<double> ecos_b_values = get_parameter_values(ecos_b, 1.0);
-    vector<double> ecos_G_data_CCS_values = get_parameter_values(ecos_G_data_CCS, -1.0);
-    vector<double> ecos_A_data_CCS_values = get_parameter_values(ecos_A_data_CCS, -1.0);
+    get_parameter_values(ecos_cost_function_weights, 1.0, ecos_cost_function_weights_values);
+    get_parameter_values(ecos_h, 1.0, ecos_h_values);
+    get_parameter_values(ecos_b, 1.0, ecos_b_values);
+    get_parameter_values(ecos_G_data_CCS, -1.0, ecos_G_data_CCS_values);
+    get_parameter_values(ecos_A_data_CCS, -1.0, ecos_A_data_CCS_values);
     // The signs for A and G must be flipped because they are negative in the ECOS interface
 
-    pwork *mywork = ECOS_setup(
-        ecos_n_variables,
-        ecos_n_constraint_rows,
-        ecos_n_equalities,
-        ecos_n_positive_constraints,
-        ecos_n_cone_constraints,
-        ecos_cone_constraint_dimensions.data(),
-        ecos_n_exponential_cones,
-        ecos_G_data_CCS_values.data(),
-        ecos_G_columns_CCS.data(),
-        ecos_G_rows_CCS.data(),
-        ecos_A_data_CCS_values.data(),
-        ecos_A_columns_CCS.data(),
-        ecos_A_rows_CCS.data(),
-        ecos_cost_function_weights_values.data(),
-        ecos_h_values.data(),
-        ecos_b_values.data());
+    solver->updateData(ecos_G_data_CCS_values.data(),
+                       ecos_A_data_CCS_values.data(),
+                       ecos_cost_function_weights_values.data(),
+                       ecos_h_values.data(),
+                       ecos_b_values.data());
 
-    long ecos_exitflag;
+    EiCOS::exitcode ecos_exitflag = solver->solve();
 
-    if (mywork != nullptr)
+    // copy solution
+    for (int i = 0; i < solver->solution().size(); i++)
     {
-        mywork->stgs->verbose = verbose;
-
-        ecos_exitflag = ECOS_solve(mywork);
-
-        // copy solution
-        for (int i = 0; i < ecos_n_variables; i++)
-        {
-            socp.solution_vector[i] = mywork->x[i];
-        }
-
-        ECOS_cleanup(mywork, 0);
-    }
-    else
-    {
-        throw std::runtime_error("Could not set up problem.");
-    }
-
-    if (ecos_exitflag == ECOS_SIGINT)
-    {
-        std::terminate();
+        socp.solution_vector[i] = solver->solution()(i);
     }
 
     last_exit_flag = ecos_exitflag;
 
-    return ecos_exitflag != ECOS_SIGINT and
-           ecos_exitflag != ECOS_FATAL and
-           ecos_exitflag != ECOS_PINF + ECOS_INACC_OFFSET and
-           ecos_exitflag != ECOS_DINF + ECOS_INACC_OFFSET;
+    return ecos_exitflag != EiCOS::exitcode::fatal;
 }
 
-std::string EcosWrapper::getResultString() const
+std::string EicosWrapper::getResultString() const
 {
     switch (last_exit_flag)
     {
-    case -99:
-        return "Problem not solved yet.";
-    case ECOS_OPTIMAL:
+    case EiCOS::exitcode::optimal:
         return "Optimal solution found.";
-    case ECOS_PINF:
+    case EiCOS::exitcode::primal_infeasible:
         return "Certificate of primal infeasibility found.";
-    case ECOS_DINF:
+    case EiCOS::exitcode::dual_infeasible:
         return "Certificate of dual infeasibility found.";
 
-    case ECOS_OPTIMAL + ECOS_INACC_OFFSET:
+    case EiCOS::exitcode::close_to_optimal:
         return "Optimal solution found subject to reduced tolerances.";
-    case ECOS_PINF + ECOS_INACC_OFFSET:
+    case EiCOS::exitcode::close_to_primal_infeasible:
         return "Certificate of primal infeasibility found subject to reduced tolerances.";
-    case ECOS_DINF + ECOS_INACC_OFFSET:
+    case EiCOS::exitcode::close_to_dual_infeasible:
         return "Certificate of dual infeasibility found subject to reduced tolerances.";
 
-    case ECOS_MAXIT:
+    case EiCOS::exitcode::maxit:
         return "Maximum number of iterations reached.";
 
-    case ECOS_NUMERICS:
+    case EiCOS::exitcode::numerics:
         return "Numerical problems (unreliable search direction).";
-    case ECOS_OUTCONE:
+    case EiCOS::exitcode::outcone:
         return "Numerical problems (slacks or multipliers outside cone)";
 
-    case ECOS_SIGINT:
-        return "Interrupted by signal or CTRL-C.";
-    default: // ECOS_FATAL:
+    default: // EiCOS::exitcode::fatal
         return "Unknown problem in solver.";
     }
 }

@@ -7,10 +7,13 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 set(TARGET_INCLUDE
     include
+    solvers/wrappers/include
 )
 
+add_subdirectory(solvers/EiCOS)
+
 set(TARGET_INCLUDE_SYS
-    solvers/ecos/include
+    solvers
     solvers/ecos/external/SuiteSparse_config
 )
 
@@ -21,7 +24,9 @@ set(SOCP_SOURCES
     src/constraint.cpp
     src/optimizationProblem.cpp
     src/secondOrderConeProgram.cpp
-    src/ecosWrapper.cpp
+
+    solvers/wrappers/src/ecosWrapper.cpp
+    solvers/wrappers/src/eicosWrapper.cpp
 )
 
 # ECOS
@@ -38,7 +43,7 @@ set(RELEASE_OPTIONS -O2)
 target_compile_options(socp_lib PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")
 target_compile_options(socp_lib PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
 
-target_link_libraries(socp_lib Eigen3::Eigen)
+target_link_libraries(socp_lib Eigen3::Eigen eicos)
 
 add_executable(socp_test src/tests/socp_test.cpp)
 target_link_libraries(socp_test socp_lib)
