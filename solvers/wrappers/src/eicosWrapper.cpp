@@ -46,6 +46,8 @@ void get_parameter_values(const vector<internal::ParameterSource> &params,
 
 bool EicosWrapper::solveProblem(bool verbose)
 {
+    assert(solver != nullptr && "You must first call initialize()!");
+
     get_parameter_values(c, 1.0, c_values);
     get_parameter_values(h, 1.0, h_values);
     get_parameter_values(b, 1.0, b_values);

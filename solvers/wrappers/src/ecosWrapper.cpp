@@ -68,6 +68,8 @@ void EcosWrapper::initialize()
 
 bool EcosWrapper::solveProblem(bool verbose)
 {
+    assert(work != nullptr && "You must first call initialize()!");
+
     ecos_get_parameter_values(c, 1.0, c_values);
     ecos_get_parameter_values(h, 1.0, h_values);
     ecos_get_parameter_values(b, 1.0, b_values);
