@@ -69,6 +69,7 @@ int main()
 
     // Create the solver instance.
     op::Solver solver(socp);
+    solver.initialize();
 
     auto t = std::chrono::high_resolution_clock::now();
     auto t_setup = std::chrono::duration_cast<std::chrono::microseconds>(t - t0).count();

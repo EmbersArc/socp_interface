@@ -25,6 +25,7 @@ set(SOCP_SOURCES
     src/optimizationProblem.cpp
     src/secondOrderConeProgram.cpp
 
+    solvers/wrappers/src/wrapperBase.cpp
     solvers/wrappers/src/ecosWrapper.cpp
     solvers/wrappers/src/eicosWrapper.cpp
 )
