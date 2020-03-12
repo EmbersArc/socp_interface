@@ -1,9 +1,10 @@
-#include "ecosWrapper.hpp"
+// #include "ecosWrapper.hpp"
+#include "eicosWrapper.hpp"
 
 namespace op
 {
 
-// using Solver = EicosWrapper;
-using Solver = EcosWrapper;
+// using Solver = EcosWrapper;
+using Solver = EicosWrapper;
 
 }
