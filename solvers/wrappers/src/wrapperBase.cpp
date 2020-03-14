@@ -228,12 +228,6 @@ WrapperBase::WrapperBase(SecondOrderConeProgram &_socp) : socp(_socp)
             }
         }
     }
-
-    G_data_CCS_values.resize(G_data_CCS.size());
-    A_data_CCS_values.resize(A_data_CCS.size());
-    c_values.resize(n_variables);
-    h_values.resize(n_constraint_rows);
-    b_values.resize(n_equalities);
 }
 
 } // namespace op

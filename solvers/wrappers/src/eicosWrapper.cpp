@@ -1,23 +1,16 @@
-#include <stdexcept>
-#include <algorithm>
-#include <numeric>
-#include <tuple>
-#include <functional>
-#include <cassert>
-#include <sstream>
-
 #include "eicosWrapper.hpp"
-
-using std::map;
-using std::pair;
-using std::tuple;
-using std::vector;
 
 namespace op
 {
 
 void EicosWrapper::initialize()
 {
+    G_data_CCS_values.resize(G_data_CCS.size());
+    A_data_CCS_values.resize(A_data_CCS.size());
+    c_values.resize(n_variables);
+    h_values.resize(n_constraint_rows);
+    b_values.resize(n_equalities);
+
     solver = std::make_unique<EiCOS::Solver>(n_variables,
                                              n_constraint_rows,
                                              n_equalities,
@@ -35,7 +28,7 @@ void EicosWrapper::initialize()
                                              b_values.data());
 }
 
-void get_parameter_values(const vector<internal::ParameterSource> &params,
+void get_parameter_values(const std::vector<internal::ParameterSource> &params,
                           double factor,
                           std::vector<double> &values)
 {

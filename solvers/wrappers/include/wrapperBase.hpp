@@ -27,12 +27,6 @@ protected:
     std::vector<internal::ParameterSource> h;
     std::vector<internal::ParameterSource> b;
 
-    std::vector<double> c_values;
-    std::vector<double> h_values;
-    std::vector<double> b_values;
-    std::vector<double> G_data_CCS_values;
-    std::vector<double> A_data_CCS_values;
-
 public:
     explicit WrapperBase(SecondOrderConeProgram &_socp);
     virtual bool solveProblem(bool verbose = false) = 0;
