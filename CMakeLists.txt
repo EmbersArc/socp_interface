@@ -48,6 +48,8 @@ target_link_libraries(socp_lib Eigen3::Eigen eicos)
 
 add_executable(socp_test src/tests/socp_test.cpp)
 target_link_libraries(socp_test socp_lib)
+add_executable(portfolio_test src/tests/portfolio_test.cpp)
+target_link_libraries(portfolio_test socp_lib)
 
 add_executable(parameter_test src/tests/parameter_test.cpp)
 target_link_libraries(parameter_test socp_lib)
