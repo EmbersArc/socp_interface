@@ -35,21 +35,21 @@ set(SOCP_SOURCES
 execute_process(COMMAND make shared WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/solvers/ecos)
 link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
 
-add_library(socp_lib SHARED ${SOCP_SOURCES})
-target_include_directories(socp_lib PUBLIC ${TARGET_INCLUDE})
-target_include_directories(socp_lib SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
+add_library(socp_interface SHARED ${SOCP_SOURCES})
+target_include_directories(socp_interface PUBLIC ${TARGET_INCLUDE})
+target_include_directories(socp_interface SYSTEM PUBLIC ${TARGET_INCLUDE_SYS})
 
 set(DEBUG_OPTIONS -Wall -Wextra -Wpedantic)
 set(RELEASE_OPTIONS -O2)
-target_compile_options(socp_lib PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")
-target_compile_options(socp_lib PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
+target_compile_options(socp_interface PUBLIC "$<$<CONFIG:DEBUG>:${DEBUG_OPTIONS}>")
+target_compile_options(socp_interface PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
 
-target_link_libraries(socp_lib Eigen3::Eigen eicos)
+target_link_libraries(socp_interface Eigen3::Eigen eicos)
 
 add_executable(socp_test src/tests/socp_test.cpp)
-target_link_libraries(socp_test socp_lib)
+target_link_libraries(socp_test socp_interface)
 add_executable(portfolio_test src/tests/portfolio_test.cpp)
-target_link_libraries(portfolio_test socp_lib)
+target_link_libraries(portfolio_test socp_interface)
 
 add_executable(parameter_test src/tests/parameter_test.cpp)
-target_link_libraries(parameter_test socp_lib)
+target_link_libraries(parameter_test socp_interface)

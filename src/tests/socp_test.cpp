@@ -1,4 +1,4 @@
-#include "socpSolver.hpp"
+#include "socpInterface.hpp"
 
 #include <array>
 #include <iostream>
