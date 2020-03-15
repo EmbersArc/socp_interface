@@ -6,8 +6,7 @@
 
 #include <Eigen/Dense>
 
-// This example solves a simple random second order cone problem
-// based on https://www.cvxpy.org/examples/basic/socp.html
+// This example solves the portfolio optimization problem
 
 int main()
 {
@@ -56,16 +55,11 @@ int main()
         socp.addConstraint(op::norm2(op::vstack({op::Parameter(1.) + -s, op::Parameter(2.) * v})) <= op::Parameter(1.) + s);
 
         socp.addMinimizationTerm(-op::Parameter(&mu).transpose() * x);
-        socp.addMinimizationTerm(op::Parameter(gamma) * t);
-        socp.addMinimizationTerm(op::Parameter(gamma) * s);
+        socp.addMinimizationTerm(op::Parameter(gamma) * (t + s));
 
         // Create and initialize the solver instance.
         op::Solver solver(socp);
         solver.initialize();
-
-        auto t1 = std::chrono::high_resolution_clock::now();
-        double t_setup = std::chrono::duration<double>(t1 - t0).count();
-        // std::cout << "\nSetup duration: " << t_setup << "s.\n\n";
 
         // Solve the problem and show solver output.
         const size_t repetitions = 100;
@@ -81,7 +75,7 @@ int main()
 
             t0 = std::chrono::high_resolution_clock::now();
             const bool success = solver.solveProblem(false);
-            t1 = std::chrono::high_resolution_clock::now();
+            auto t1 = std::chrono::high_resolution_clock::now();
             total_time += std::chrono::duration<double>(t1 - t0).count();
         }
         solve_times.push_back(total_time / repetitions);
