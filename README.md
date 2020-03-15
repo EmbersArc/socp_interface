@@ -1,12 +1,15 @@
 # socp_interface
 
-A C++ interface to formulate Second Order Cone Problems for the [ECOS](https://github.com/embotech/ecos) solver.
+A C++ interface to formulate and solve Second Order Cone Problems.
 
 ## Dependencies
 
 * C++17
 * Eigen
-* ECOS (included as submodule)
+
+## Supported Solvers
+* [EiCOS](https://github.com/embersarc/eicos)
+* [ECOS](https://github.com/embotech/ecos)
 
 ## Installation
 ``` 
@@ -115,7 +118,7 @@ Matrices can be stacked horizontally and vertically using the `op::hstack({...})
 ## Example
 
 ```cpp
-#include "socpSolver.hpp"
+#include "socpInterface.hpp"
 
 #include <array>
 #include <iostream>
