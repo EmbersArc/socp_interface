@@ -155,9 +155,9 @@ WrapperBase::WrapperBase(SecondOrderConeProgram &_socp) : socp(_socp)
             error_check_affine_expression(affine_expression);
         }
     }
-    for (const auto &PositiveConstraint : socp.positiveConstraints)
+    for (const auto &positiveConstraint : socp.positiveConstraints)
     {
-        error_check_affine_expression(PositiveConstraint.affine);
+        error_check_affine_expression(positiveConstraint.affine);
     }
     for (const auto &equalityConstraint : socp.equalityConstraints)
     {
@@ -190,10 +190,10 @@ WrapperBase::WrapperBase(SecondOrderConeProgram &_socp) : socp(_socp)
 
         size_t row_index = 0;
 
-        for (const auto &PositiveConstraint : socp.positiveConstraints)
+        for (const auto &positiveConstraint : socp.positiveConstraints)
         {
-            h[row_index] = accumulate_constants(PositiveConstraint.affine);
-            copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, PositiveConstraint.affine, row_index);
+            h[row_index] = accumulate_constants(positiveConstraint.affine);
+            copy_affine_expression_linear_parts_to_sparse_DOK(G_sparse_DOK, positiveConstraint.affine, row_index);
             row_index++;
         }
 
