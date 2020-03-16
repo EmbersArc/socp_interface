@@ -1,8 +1,8 @@
 #include "socpInterface.hpp"
 
 #include <array>
-#include <iostream>
 #include <chrono>
+#include <fmt/format.h>
 
 #include <Eigen/Dense>
 
@@ -13,16 +13,19 @@ int main()
     std::vector<double> solve_times;
 
     // assets, factors pair
-    std::vector<std::pair<size_t, size_t>> sets = {{100, 5},
-                                                   {300, 10},
-                                                   {500, 20},
-                                                   {1000, 30},
-                                                   {2000, 40},
-                                                   {4000, 50},
-                                                   {7500, 60},
-                                                   {10000, 70}};
-    for (auto [n, m] : sets)
+    std::vector<std::tuple<size_t, size_t, size_t>> sets = {{100, 5, 10000},
+                                                            {300, 10, 5000},
+                                                            {500, 20, 1000},
+                                                            {1000, 30, 100},
+                                                            {2000, 40, 100},
+                                                            {4000, 50, 100},
+                                                            {7500, 60, 50},
+                                                            {10000, 70, 25},
+                                                            {20000, 80, 10}};
+    for (auto [n, m, repetitions] : sets)
     {
+        fmt::print("Running with assets: {}, factors: {}\n", n, m);
+
         // Set up problem data.
         double gamma = 0.5;      // risk aversion parameter
         Eigen::VectorXd mu(n);   // vector of expected returns
@@ -62,10 +65,10 @@ int main()
         solver.initialize();
 
         // Solve the problem and show solver output.
-        const size_t repetitions = 100;
         double total_time = 0.;
         for (size_t rep = 0; rep < repetitions; rep++)
         {
+            fmt::print("Repetition {}/{}\n", rep + 1, repetitions);
             mu.setRandom();
             F.setRandom();
             D.setRandom();
@@ -81,8 +84,9 @@ int main()
         solve_times.push_back(total_time / repetitions);
     }
 
+    fmt::print("\nAverage times:\n");
     for (size_t i = 0; i < sets.size(); i++)
     {
-        std::cout << sets[i].first << "," << sets[i].second << "," << solve_times[i] << "\n";
+        fmt::print("{},\n", solve_times[i]);
     }
 }
