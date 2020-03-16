@@ -10,13 +10,6 @@ set(TARGET_INCLUDE
     solvers/wrappers/include
 )
 
-add_subdirectory(solvers/EiCOS)
-
-set(TARGET_INCLUDE_SYS
-    solvers
-    solvers/ecos/external/SuiteSparse_config
-)
-
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
@@ -30,10 +23,22 @@ set(SOCP_SOURCES
     solvers/wrappers/src/eicosWrapper.cpp
 )
 
-# ECOS
+# ==== Solvers ====
 # Make sure the repository is cloned with --recurse-submodules
+
+# EiCOS
+add_subdirectory(solvers/EiCOS)
+
+# ECOS
 execute_process(COMMAND make shared WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/solvers/ecos)
 link_libraries(${CMAKE_CURRENT_LIST_DIR}/solvers/ecos/libecos.so)
+
+set(TARGET_INCLUDE_SYS
+    solvers
+    solvers/ecos/external/SuiteSparse_config
+)
+
+# ====
 
 add_library(socp_interface SHARED ${SOCP_SOURCES})
 target_include_directories(socp_interface PUBLIC ${TARGET_INCLUDE})
