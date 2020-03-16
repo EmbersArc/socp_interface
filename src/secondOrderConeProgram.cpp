@@ -114,7 +114,7 @@ bool SecondOrderConeProgram::isFeasible() const
 
 void SecondOrderConeProgram::cleanUp()
 {
-    std::cout << "Cleaning up problem...\n";
+    // std::cout << "Cleaning up problem...\n";
 
     size_t variables_removed = 0;
 
@@ -143,7 +143,7 @@ void SecondOrderConeProgram::cleanUp()
         }
     }
 
-    std::cout << "Removed " << variables_removed << " term(s) from constraints.\n";
+    // std::cout << "Removed " << variables_removed << " term(s) from constraints.\n";
 
     size_t constraints_removed = 0;
     {
@@ -184,7 +184,7 @@ void SecondOrderConeProgram::cleanUp()
         constraints_removed += erased_elements;
     }
 
-    std::cout << "Removed " << constraints_removed << " constraint(s).\n";
+    // std::cout << "Removed " << constraints_removed << " constraint(s).\n";
 }
 
 } // namespace op
