@@ -2,6 +2,8 @@
 
 #include "wrapperBase.hpp"
 
+#include <any>
+
 namespace op
 {
 
@@ -11,7 +13,7 @@ class EcosWrapper : public WrapperBase
 
     long last_exit_flag = -99;
 
-    void *work;
+    std::any work;
 
     size_t step = 0;
 
