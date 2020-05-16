@@ -115,12 +115,12 @@ bool EcosWrapper::solveProblem(bool verbose)
     exitflag = ECOS_solve(ecos_work);
 
     // copy solution
-    std::copy(ecos_work->x, ecos_work->x + n_variables,
+    std::copy(ecos_work->x, std::next(ecos_work->x, n_variables),
               socp.solution_vector.begin());
 
     if (exitflag == ECOS_SIGINT)
     {
-        std::terminate();
+        std::exit(130);
     }
 
     last_exit_flag = exitflag;
