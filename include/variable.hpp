@@ -1,7 +1,6 @@
 #pragma once
 
 #include <utility>
-#include <cstddef>
 #include <ostream>
 #include <vector>
 #include <string>
