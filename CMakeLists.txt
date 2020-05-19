@@ -13,14 +13,14 @@ set(TARGET_INCLUDE
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
-    src/expression.cpp
-    src/constraint.cpp
-    src/optimizationProblem.cpp
-    src/secondOrderConeProgram.cpp
+    src/scalar.cpp
+    # src/constraint.cpp
+    # src/optimizationProblem.cpp
+    # src/secondOrderConeProgram.cpp
 
-    solvers/wrappers/src/wrapperBase.cpp
-    solvers/wrappers/src/ecosWrapper.cpp
-    solvers/wrappers/src/eicosWrapper.cpp
+    # solvers/wrappers/src/wrapperBase.cpp
+    # solvers/wrappers/src/ecosWrapper.cpp
+    # solvers/wrappers/src/eicosWrapper.cpp
 )
 
 # ==== Solvers ====
@@ -51,10 +51,10 @@ target_compile_options(socp_interface PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTI
 
 target_link_libraries(socp_interface Eigen3::Eigen eicos)
 
-add_executable(socp_test src/tests/socp_test.cpp)
-target_link_libraries(socp_test socp_interface)
-add_executable(portfolio_test src/tests/portfolio_test.cpp)
-target_link_libraries(portfolio_test socp_interface)
+# add_executable(socp_test src/tests/socp_test.cpp)
+# target_link_libraries(socp_test socp_interface)
+# add_executable(portfolio_test src/tests/portfolio_test.cpp)
+# target_link_libraries(portfolio_test socp_interface)
 
-add_executable(parameter_test src/tests/parameter_test.cpp)
-target_link_libraries(parameter_test socp_interface)
+add_executable(matrix_test src/tests/matrix_test.cpp)
+target_link_libraries(matrix_test socp_interface)

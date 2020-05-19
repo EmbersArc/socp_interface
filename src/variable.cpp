@@ -5,47 +5,30 @@
 namespace op
 {
 
-namespace internal
-{
+    Variable::Variable(const std::string &name, size_t row, size_t col)
+        : name(name), index(row, col) {}
 
-VariableSource::VariableSource(const std::string &name, size_t problem_index,
-                               size_t row, size_t col)
-    : name(name), problem_index(problem_index), index(row, col) {}
-
-size_t VariableSource::getProblemIndex() const
-{
-    return problem_index;
-}
-
-std::ostream &operator<<(std::ostream &os, const VariableSource &variable)
-{
-    os << variable.name
-       << "[" << variable.index.first << ", " << variable.index.second << "]"
-       << "@(" << variable.problem_index << ")";
-    return os;
-}
-
-} // namespace internal
-
-Variable::Variable(const std::string &name, size_t start_index,
-                   size_t rows, size_t cols)
-    : name(name)
-{
-    resize(rows, cols);
-
-    size_t index = start_index;
-    for (auto [row, col] : all_indices())
+    bool Variable::operator==(const Variable &other) const
     {
-        coeffRef(row, col) = internal::VariableSource(name, index, row, col);
-        index++;
+        return this->name == other.name and this->index == other.index;
     }
-}
 
-std::ostream &operator<<(std::ostream &os, const Variable &variable)
-{
-    os << variable.name
-       << "(" << variable.rows() << "x" << variable.cols() << ")";
-    return os;
-}
+    bool Variable::hasProblemIndex() const
+    {
+        return problem_index.has_value();
+    }
+
+    size_t Variable::getProblemIndex() const
+    {
+        return problem_index.value();
+    }
+
+    std::ostream &operator<<(std::ostream &os, const Variable &variable)
+    {
+        os << variable.name
+           << "[" << variable.index.first << ", " << variable.index.second << "]"
+           << "@(" << variable.problem_index.value() << ")";
+        return os;
+    }
 
 } // namespace op
