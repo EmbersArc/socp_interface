@@ -11,8 +11,8 @@
 namespace op
 {
 
-    struct Expression;
-    struct Scalar;
+    struct Term;
+    class Scalar;
 
     class Parameter
     {
@@ -20,13 +20,11 @@ namespace op
         Parameter() = default;
         explicit Parameter(const double const_value);
         explicit Parameter(double *value_ptr);
-        explicit Parameter(const std::function<double()> &callback);
 
         double get_value() const;
 
         bool is_constant() const;
         bool is_pointer() const;
-        bool is_callback() const;
 
         bool is_zero() const;
         bool is_one() const;
@@ -37,13 +35,24 @@ namespace op
         Parameter operator-(const Parameter &other) const;
         Parameter operator*(const Parameter &other) const;
         Parameter operator/(const Parameter &other) const;
-        operator Expression() const;
+        operator Term() const;
         operator Scalar() const;
 
     private:
+        enum class Opcode
+        {
+            Add,
+            Sub,
+            Mul,
+            Div
+        };
+
+        Parameter(Opcode op, const Parameter &p1, const Parameter &p2);
+
+        using operation_source_t = std::pair<Opcode, std::vector<Parameter>>;
         using source_variant_t = std::variant<double,
                                               const double *,
-                                              std::function<double()>>;
+                                              operation_source_t>;
         source_variant_t source;
     };
 

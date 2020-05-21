@@ -12,8 +12,13 @@ namespace op
     Parameter::Parameter(double *value_ptr)
         : source(value_ptr) {}
 
-    Parameter::Parameter(const std::function<double()> &callback)
-        : source(callback) {}
+    Parameter::Parameter(Opcode op, const Parameter &p1, const Parameter &p2)
+        : source(std::make_pair(op, std::vector({p1, p2}))) {}
+
+    bool Parameter::operator==(const Parameter &other) const
+    {
+        return this->source == other.source;
+    }
 
     double Parameter::get_value() const
     {
@@ -23,8 +28,25 @@ namespace op
             return std::get<0>(source);
         case 1:
             return *std::get<1>(source);
-        default:
-            return std::get<2>(source)();
+        default: // case 2
+        {
+            const operation_source_t &op_params = std::get<2>(source);
+            const Opcode op = op_params.first;
+            const Parameter &p1 = op_params.second[0];
+            const Parameter &p2 = op_params.second[1];
+
+            switch (op)
+            {
+            case Opcode::Add:
+                return p1.get_value() + p2.get_value();
+            case Opcode::Sub:
+                return p1.get_value() - p2.get_value();
+            case Opcode::Mul:
+                return p1.get_value() * p2.get_value();
+            default: // case Opcode::Div
+                return p1.get_value() / p2.get_value();
+            }
+        }
         }
     }
 
@@ -36,11 +58,6 @@ namespace op
     bool Parameter::is_pointer() const
     {
         return source.index() == 1;
-    }
-
-    bool Parameter::is_callback() const
-    {
-        return source.index() == 2;
     }
 
     bool Parameter::is_zero() const
@@ -64,10 +81,7 @@ namespace op
             return Parameter(get_value() + other.get_value());
         }
 
-        return Parameter([p1 = *this,
-                          p2 = other]() {
-            return p1.get_value() + p2.get_value();
-        });
+        return Parameter(Opcode::Add, *this, other);
     }
 
     Parameter Parameter::operator-(const Parameter &other) const
@@ -81,10 +95,7 @@ namespace op
             return Parameter(get_value() - other.get_value());
         }
 
-        return Parameter([p1 = *this,
-                          p2 = other]() {
-            return p1.get_value() - p2.get_value();
-        });
+        return Parameter(Opcode::Sub, *this, other);
     }
 
     Parameter Parameter::operator*(const Parameter &other) const
@@ -98,10 +109,7 @@ namespace op
             return Parameter(get_value() * other.get_value());
         }
 
-        return Parameter([p1 = *this,
-                          p2 = other]() {
-            return p1.get_value() * p2.get_value();
-        });
+        return Parameter(Opcode::Mul, *this, other);
     }
 
     Parameter Parameter::operator/(const Parameter &other) const
@@ -117,10 +125,7 @@ namespace op
             return Parameter(get_value() / other.get_value());
         }
 
-        return Parameter([p1 = *this,
-                          p2 = other]() {
-            return p1.get_value() / p2.get_value();
-        });
+        return Parameter(Opcode::Div, *this, other);
     }
 
 } // namespace op

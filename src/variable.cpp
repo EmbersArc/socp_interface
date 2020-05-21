@@ -26,8 +26,11 @@ namespace op
     std::ostream &operator<<(std::ostream &os, const Variable &variable)
     {
         os << variable.name
-           << "[" << variable.index.first << ", " << variable.index.second << "]"
-           << "@(" << variable.problem_index.value() << ")";
+           << "[" << variable.index.first << ", " << variable.index.second << "]";
+
+        if (variable.hasProblemIndex())
+            os << "@(" << variable.problem_index.value() << ")";
+
         return os;
     }
 
