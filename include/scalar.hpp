@@ -43,6 +43,7 @@ namespace op
         std::optional<Variable> variable;
 
         bool operator==(const Term &other) const;
+        Term &operator*=(const Parameter &param);
 
         operator Affine() const;
 
@@ -58,8 +59,13 @@ namespace op
         std::vector<Term> terms;
         friend std::ostream &operator<<(std::ostream &os, const Affine &affine);
         double evaluate(const std::vector<double> &soln_values) const;
+        Affine &operator+=(const Affine &other);
         Affine operator+(const Affine &other) const;
         Affine operator-(const Affine &other) const;
+        Affine operator*(const Affine &other) const;
+
+        bool isConstant() const;
+        bool isFirstOrder() const;
     };
 
     using MatrixXe = Eigen::Matrix<op::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
@@ -71,12 +77,14 @@ namespace op
         Scalar() = default;
         explicit Scalar(double x);
 
+        Scalar &operator+=(const Scalar &other);
         Scalar operator+(const Scalar &other) const;
         Scalar operator-(const Scalar &other) const;
         Scalar operator*(const Scalar &other) const;
 
         bool operator==(const Scalar &other) const;
 
+        bool isConstant() const;
         bool isFirstOrder() const;
         bool isSecondOrder() const;
         bool isNorm() const;
@@ -84,7 +92,7 @@ namespace op
     private:
         Affine affine;
         std::vector<Affine> squared_affine;
-        bool is_norm = false;
+        bool sqrt = false;
 
         friend std::ostream &operator<<(std::ostream &os, const Scalar &scalar);
 
@@ -94,7 +102,7 @@ namespace op
          * Possible when only squared expressions are present.
          * 
          */
-        friend Scalar sqrt(Scalar &s);
+        friend Scalar sqrt(Scalar s);
         friend Parameter::operator Scalar() const;
         friend Variable::operator Scalar() const;
 
@@ -114,11 +122,11 @@ namespace op
     {
         MatrixXe parameters(m.rows(), m.cols());
 
-        for (size_t row = 0; row < m.rows(); row++)
+        for (int row = 0; row < m.rows(); row++)
         {
-            for (size_t col = 0; col < m.cols(); col++)
+            for (int col = 0; col < m.cols(); col++)
             {
-                parameters(row, col) = Parameter(m.coeffRef(row, col));
+                parameters(row, col) = Parameter(m.coeff(row, col));
             }
         }
         return parameters;
@@ -129,9 +137,9 @@ namespace op
     {
         MatrixXe parameters(m.rows(), m.cols());
 
-        for (size_t row = 0; row < m.rows(); row++)
+        for (int row = 0; row < m.rows(); row++)
         {
-            for (size_t col = 0; col < m.cols(); col++)
+            for (int col = 0; col < m.cols(); col++)
             {
                 parameters(row, col) = Parameter(&m.coeffRef(row, col));
             }

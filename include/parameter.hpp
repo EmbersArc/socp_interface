@@ -17,17 +17,17 @@ namespace op
     class Parameter
     {
     public:
-        Parameter() = default;
+        Parameter();
         explicit Parameter(const double const_value);
         explicit Parameter(double *value_ptr);
 
-        double get_value() const;
+        double getValue() const;
 
-        bool is_constant() const;
-        bool is_pointer() const;
+        bool isConstant() const;
+        bool isPointer() const;
 
-        bool is_zero() const;
-        bool is_one() const;
+        bool isZero() const;
+        bool isOne() const;
 
         bool operator==(const Parameter &other) const;
 
@@ -37,6 +37,8 @@ namespace op
         Parameter operator/(const Parameter &other) const;
         operator Term() const;
         operator Scalar() const;
+
+        friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);
 
     private:
         enum class Opcode

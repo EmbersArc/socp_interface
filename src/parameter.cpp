@@ -6,6 +6,9 @@
 namespace op
 {
 
+    Parameter::Parameter()
+        : source(0.) {}
+
     Parameter::Parameter(const double const_value)
         : source(const_value) {}
 
@@ -20,7 +23,7 @@ namespace op
         return this->source == other.source;
     }
 
-    double Parameter::get_value() const
+    double Parameter::getValue() const
     {
         switch (source.index())
         {
@@ -38,47 +41,54 @@ namespace op
             switch (op)
             {
             case Opcode::Add:
-                return p1.get_value() + p2.get_value();
+                return p1.getValue() + p2.getValue();
             case Opcode::Sub:
-                return p1.get_value() - p2.get_value();
+                return p1.getValue() - p2.getValue();
             case Opcode::Mul:
-                return p1.get_value() * p2.get_value();
+                return p1.getValue() * p2.getValue();
             default: // case Opcode::Div
-                return p1.get_value() / p2.get_value();
+                return p1.getValue() / p2.getValue();
             }
         }
         }
     }
 
-    bool Parameter::is_constant() const
+    std::ostream &operator<<(std::ostream &os, const Parameter &parameter)
+    {
+        os << parameter.getValue();
+
+        return os;
+    }
+
+    bool Parameter::isConstant() const
     {
         return source.index() == 0;
     }
 
-    bool Parameter::is_pointer() const
+    bool Parameter::isPointer() const
     {
         return source.index() == 1;
     }
 
-    bool Parameter::is_zero() const
+    bool Parameter::isZero() const
     {
-        return is_constant() and std::abs(get_value()) < 1e-10;
+        return isConstant() and std::abs(getValue()) < 1e-10;
     }
 
-    bool Parameter::is_one() const
+    bool Parameter::isOne() const
     {
-        return is_constant() and std::abs(get_value() - 1.) < 1e-10;
+        return isConstant() and std::abs(getValue() - 1.) < 1e-10;
     }
 
     Parameter Parameter::operator+(const Parameter &other) const
     {
-        if (other.is_zero())
+        if (other.isZero())
         {
             return *this;
         }
-        if (is_constant() and other.is_constant())
+        if (isConstant() and other.isConstant())
         {
-            return Parameter(get_value() + other.get_value());
+            return Parameter(getValue() + other.getValue());
         }
 
         return Parameter(Opcode::Add, *this, other);
@@ -86,13 +96,13 @@ namespace op
 
     Parameter Parameter::operator-(const Parameter &other) const
     {
-        if (other.is_zero())
+        if (other.isZero())
         {
             return *this;
         }
-        if (is_constant() and other.is_constant())
+        if (isConstant() and other.isConstant())
         {
-            return Parameter(get_value() - other.get_value());
+            return Parameter(getValue() - other.getValue());
         }
 
         return Parameter(Opcode::Sub, *this, other);
@@ -100,13 +110,13 @@ namespace op
 
     Parameter Parameter::operator*(const Parameter &other) const
     {
-        if (is_zero() or other.is_zero())
+        if (isZero() or other.isZero())
         {
             return Parameter(0.);
         }
-        if (is_constant() and other.is_constant())
+        if (isConstant() and other.isConstant())
         {
-            return Parameter(get_value() * other.get_value());
+            return Parameter(getValue() * other.getValue());
         }
 
         return Parameter(Opcode::Mul, *this, other);
@@ -114,15 +124,15 @@ namespace op
 
     Parameter Parameter::operator/(const Parameter &other) const
     {
-        assert(not other.is_zero());
+        assert(not other.isZero());
 
-        if (other.is_one())
+        if (other.isOne())
         {
             return *this;
         }
-        if (is_constant() and other.is_constant())
+        if (isConstant() and other.isConstant())
         {
-            return Parameter(get_value() / other.get_value());
+            return Parameter(getValue() / other.getValue());
         }
 
         return Parameter(Opcode::Div, *this, other);
