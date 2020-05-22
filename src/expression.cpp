@@ -1,4 +1,4 @@
-#include "scalar.hpp"
+#include "expression.hpp"
 
 namespace op
 {
@@ -29,33 +29,35 @@ namespace op
         return os;
     }
 
-    std::ostream &operator<<(std::ostream &os, const Scalar &scalar)
+    std::ostream &operator<<(std::ostream &os, const Expression &expr)
     {
-        if (not scalar.squared_affine.empty())
+        if (not expr.squared_affine.empty())
         {
             os << "(";
-            for (size_t i = 0; i < scalar.squared_affine.size(); i++)
+            for (size_t i = 0; i < expr.squared_affine.size(); i++)
             {
-                os << "(" << scalar.squared_affine[i] << ")^2 ";
-                if (i != scalar.squared_affine.size() - 1)
+                os << "(" << expr.squared_affine[i] << ")^2 ";
+                if (i != expr.squared_affine.size() - 1)
                 {
                     os << " + ";
                 }
             }
             os << ")";
-            if (scalar.sqrt)
+            if (expr.sqrt)
             {
                 os << "^(1/2)";
             }
         }
 
-        if (not scalar.affine.terms.empty())
+        if (not expr.affine.terms.empty())
         {
-            os << " + " << scalar.affine;
+            os << " + " << expr.affine;
         }
 
         return os;
     }
+
+    // Term
 
     Term::Term()
         : parameter(0.) {}
@@ -121,26 +123,7 @@ namespace op
         return Parameter(1.) * *this;
     }
 
-    Term::operator Affine() const
-    {
-        Affine affine;
-        affine.terms = {*this};
-        return affine;
-    }
-
-    Parameter::operator Scalar() const
-    {
-        Scalar scalar;
-        scalar.affine = Term(*this);
-        return scalar;
-    }
-
-    Variable::operator Scalar() const
-    {
-        Scalar scalar;
-        scalar.affine = Term(*this);
-        return scalar;
-    }
+    // Affine
 
     double Affine::evaluate(const std::vector<double> &soln_values) const
     {
@@ -223,32 +206,41 @@ namespace op
                            [](const Term &t) { return t.variable.has_value(); });
     }
 
-    Scalar::Scalar(double x)
+    Term::operator Affine() const
+    {
+        Affine affine;
+        affine.terms = {*this};
+        return affine;
+    }
+
+    // Expression
+
+    Expression::Expression(double x)
     {
         affine = Term(Parameter(x));
     }
 
-    bool Scalar::isConstant() const
+    bool Expression::isConstant() const
     {
         return squared_affine.empty() and affine.isConstant();
     }
 
-    bool Scalar::isFirstOrder() const
+    bool Expression::isFirstOrder() const
     {
         return squared_affine.empty() and not sqrt;
     }
 
-    bool Scalar::isSecondOrder() const
+    bool Expression::isSecondOrder() const
     {
         return not squared_affine.empty() and not sqrt;
     }
 
-    bool Scalar::isNorm() const
+    bool Expression::isNorm() const
     {
         return not squared_affine.empty() and sqrt;
     }
 
-    Scalar &Scalar::operator+=(const Scalar &other)
+    Expression &Expression::operator+=(const Expression &other)
     {
         if (this->sqrt and other.sqrt)
         {
@@ -264,23 +256,23 @@ namespace op
         return *this;
     }
 
-    Scalar Scalar::operator+(const Scalar &other) const
+    Expression Expression::operator+(const Expression &other) const
     {
-        Scalar result = *this;
+        Expression result = *this;
 
         result += other;
 
         return result;
     }
 
-    Scalar Scalar::operator-(const Scalar &other) const
+    Expression Expression::operator-(const Expression &other) const
     {
         if (this->sqrt and other.sqrt)
         {
             throw std::runtime_error("Subtracting two norms is not supported.");
         }
 
-        Scalar result = *this;
+        Expression result = *this;
 
         std::transform(other.affine.terms.cbegin(),
                        other.affine.terms.cend(),
@@ -290,7 +282,7 @@ namespace op
         return result;
     }
 
-    Scalar Scalar::operator*(const Scalar &other) const
+    Expression Expression::operator*(const Expression &other) const
     {
         if (this->isSecondOrder() or
             other.isSecondOrder())
@@ -303,7 +295,7 @@ namespace op
             throw std::runtime_error("Cannot multiply a norm.");
         }
 
-        Scalar result;
+        Expression result;
 
         if (this->isConstant() or other.isConstant())
         {
@@ -321,7 +313,7 @@ namespace op
         return result;
     }
 
-    bool Scalar::operator==(const Scalar &other) const
+    bool Expression::operator==(const Expression &other) const
     {
         return this == &other or
                (this->affine == other.affine and
@@ -329,7 +321,21 @@ namespace op
                 this->sqrt == other.sqrt);
     }
 
-    Scalar sqrt(Scalar s)
+    Parameter::operator Expression() const
+    {
+        Expression expr;
+        expr.affine = Term(*this);
+        return expr;
+    }
+
+    Variable::operator Expression() const
+    {
+        Expression expr;
+        expr.affine = Term(*this);
+        return expr;
+    }
+
+    Expression sqrt(Expression s)
     {
         if (s.isFirstOrder() or
             s.isNorm())
@@ -341,6 +347,8 @@ namespace op
 
         return s;
     }
+
+    // Parameter and Variable creation
 
     MatrixXe createVariables(const std::string &name, size_t rows, size_t cols)
     {
@@ -356,18 +364,14 @@ namespace op
         return variables;
     }
 
-    MatrixXe createParameter(double p)
+    Expression createParameter(double p)
     {
-        MatrixXe parameter(1, 1);
-        parameter(0, 0) = Parameter(p);
-        return parameter;
+        return Parameter(p);
     }
 
-    MatrixXe createParameter(double *p)
+    Expression createParameter(double *p)
     {
-        MatrixXe parameter(1, 1);
-        parameter(0, 0) = Parameter(p);
-        return parameter;
+        return Parameter(p);
     }
 
 } // namespace op

@@ -7,12 +7,12 @@ namespace Eigen
 {
 
     template <>
-    struct NumTraits<op::Scalar>
+    struct NumTraits<op::Expression>
         : NumTraits<double>
     {
-        using Real = op::Scalar;
-        using NonInteger = op::Scalar;
-        using Nested = op::Scalar;
+        using Real = op::Expression;
+        using NonInteger = op::Expression;
+        using Nested = op::Expression;
 
         enum
         {
@@ -33,7 +33,7 @@ namespace op
 
     struct Affine;
     struct Constraint;
-    class Scalar;
+    class Expression;
 
     struct Term
     {
@@ -68,21 +68,21 @@ namespace op
         bool isFirstOrder() const;
     };
 
-    using MatrixXe = Eigen::Matrix<op::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
-    using VectorXe = Eigen::Matrix<op::Scalar, Eigen::Dynamic, 1>;
+    using MatrixXe = Eigen::Matrix<op::Expression, Eigen::Dynamic, Eigen::Dynamic>;
+    using VectorXe = Eigen::Matrix<op::Expression, Eigen::Dynamic, 1>;
 
-    class Scalar
+    class Expression
     {
     public:
-        Scalar() = default;
-        explicit Scalar(double x);
+        Expression() = default;
+        explicit Expression(double x);
 
-        Scalar &operator+=(const Scalar &other);
-        Scalar operator+(const Scalar &other) const;
-        Scalar operator-(const Scalar &other) const;
-        Scalar operator*(const Scalar &other) const;
+        Expression &operator+=(const Expression &other);
+        Expression operator+(const Expression &other) const;
+        Expression operator-(const Expression &other) const;
+        Expression operator*(const Expression &other) const;
 
-        bool operator==(const Scalar &other) const;
+        bool operator==(const Expression &other) const;
 
         bool isConstant() const;
         bool isFirstOrder() const;
@@ -94,7 +94,7 @@ namespace op
         std::vector<Affine> squared_affine;
         bool sqrt = false;
 
-        friend std::ostream &operator<<(std::ostream &os, const Scalar &scalar);
+        friend std::ostream &operator<<(std::ostream &os, const Expression &scalar);
 
         /**
          * Useful to call .norm() on a matrix.
@@ -102,23 +102,22 @@ namespace op
          * Possible when only squared expressions are present.
          * 
          */
-        friend Scalar sqrt(Scalar s);
-        friend Parameter::operator Scalar() const;
-        friend Variable::operator Scalar() const;
+        friend Expression sqrt(Expression s);
+
+        friend Parameter::operator Expression() const;
+        friend Variable::operator Expression() const;
 
         friend std::vector<Constraint> operator<=(const MatrixXe &lhs, const MatrixXe &rhs);
         friend std::vector<Constraint> operator>=(const MatrixXe &lhs, const MatrixXe &rhs);
         friend std::vector<Constraint> operator==(const MatrixXe &lhs, const MatrixXe &rhs);
     };
 
-    MatrixXe createVariables(const std::string &name, size_t rows = 1, size_t cols = 1);
-
-    MatrixXe createParameter(double p);
-
-    MatrixXe createParameter(double *p);
+    MatrixXe createVariables(const std::string &name,
+                             size_t rows = 1,
+                             size_t cols = 1);
 
     template <typename Derived>
-    MatrixXe createParameter(const Eigen::MatrixBase<Derived> &m)
+    MatrixXe parameterMatrix(const Eigen::MatrixBase<Derived> &m)
     {
         MatrixXe parameters(m.rows(), m.cols());
 
@@ -133,7 +132,7 @@ namespace op
     }
 
     template <typename Derived>
-    MatrixXe createParameter(Eigen::MatrixBase<Derived> *m)
+    MatrixXe parameterMatrix(Eigen::MatrixBase<Derived> *m)
     {
         MatrixXe parameters(m.rows(), m.cols());
 

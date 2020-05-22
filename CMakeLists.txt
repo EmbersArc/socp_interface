@@ -13,7 +13,7 @@ set(TARGET_INCLUDE
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
-    src/scalar.cpp
+    src/expression.cpp
     src/constraint.cpp
     # src/optimizationProblem.cpp
     # src/secondOrderConeProgram.cpp

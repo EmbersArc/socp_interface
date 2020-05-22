@@ -12,7 +12,7 @@ namespace op
 {
 
     struct Term;
-    class Scalar;
+    class Expression;
 
     class Parameter
     {
@@ -36,7 +36,7 @@ namespace op
         Parameter operator*(const Parameter &other) const;
         Parameter operator/(const Parameter &other) const;
         operator Term() const;
-        operator Scalar() const;
+        operator Expression() const;
 
         friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);
 
