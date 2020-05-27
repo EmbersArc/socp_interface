@@ -8,7 +8,7 @@
 
 namespace op
 {
-    struct Term;
+    class Term;
     class Expression;
 
     class Variable

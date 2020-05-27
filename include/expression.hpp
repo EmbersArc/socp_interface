@@ -31,16 +31,17 @@ namespace Eigen
 namespace op
 {
 
-    struct Affine;
-    struct Constraint;
+    class Affine;
+    class Constraint;
     class Expression;
 
-    struct Term
+    class Term
     {
+    public:
         Term();
 
         Parameter parameter;
-        std::optional<Variable> variable;
+        Variable variable;
 
         bool operator==(const Term &other) const;
         Term &operator*=(const Parameter &param);
@@ -52,11 +53,14 @@ namespace op
     };
     Term operator*(const Parameter &parameter, const Variable &variable);
 
-    struct Affine
+    class Affine
     {
+    public:
         bool operator==(const Affine &other) const;
 
+        Parameter constant = Parameter(0.);
         std::vector<Term> terms;
+
         friend std::ostream &operator<<(std::ostream &os, const Affine &affine);
         double evaluate(const std::vector<double> &soln_values) const;
         Affine &operator+=(const Affine &other);
@@ -97,11 +101,11 @@ namespace op
         friend std::ostream &operator<<(std::ostream &os, const Expression &scalar);
 
         /**
-         * Useful to call .norm() on a matrix.
-         * 
-         * Possible when only squared expressions are present.
-         * 
-         */
+     * Useful to call .norm() on a matrix.
+     * 
+     * Possible when only squared expressions are present.
+     * 
+     */
         friend Expression sqrt(Expression s);
 
         friend Parameter::operator Expression() const;

@@ -3,6 +3,34 @@
 namespace op
 {
 
+    std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint)
+    {
+        os << constraint.affine << " == 0";
+    }
+    std::ostream &operator<<(std::ostream &os, const PositiveConstraint &constraint)
+    {
+        os << constraint.affine << " >= 0";
+    }
+    std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint)
+    {
+        // os << "(";
+        // for (size_t i = 0; i < constriant.norm.size(); i++)
+        // {
+        //     os << "(" << constraint.norm[i] << ")^2 ";
+        //     if (i != constraint.norm.size() - 1)
+        //     {
+        //         os << " + ";
+        //     }
+        // }
+        // os << ")^(1/2)";
+
+        // if (not expr.affine.terms.empty())
+        // {
+        //     os << " + " << expr.affine;
+        // }
+        // os << " <= " constraint.affine;
+    }
+
     Constraint::Type Constraint::getType() const
     {
         return Type(data.index());

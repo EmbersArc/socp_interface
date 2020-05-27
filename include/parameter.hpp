@@ -11,8 +11,8 @@
 namespace op
 {
 
-    struct Term;
     class Expression;
+    class Affine;
 
     class Parameter
     {
@@ -35,7 +35,7 @@ namespace op
         Parameter operator-(const Parameter &other) const;
         Parameter operator*(const Parameter &other) const;
         Parameter operator/(const Parameter &other) const;
-        operator Term() const;
+        operator Affine() const;
         operator Expression() const;
 
         friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);

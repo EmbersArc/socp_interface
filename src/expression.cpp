@@ -6,11 +6,7 @@ namespace op
     std::ostream &operator<<(std::ostream &os, const Term &term)
     {
         os << term.parameter.getValue();
-
-        if (term.variable.has_value())
-        {
-            os << " * " << term.variable.value();
-        }
+        os << " * " << term.variable;
         return os;
     }
 
@@ -70,51 +66,29 @@ namespace op
 
     double Term::evaluate(const std::vector<double> &soln_values) const
     {
-        if (variable.has_value())
-        {
-            return parameter.getValue() * soln_values[variable.value().getProblemIndex()];
-        }
-        else
-        {
-            return parameter.getValue();
-        }
+        return parameter.getValue() * soln_values[variable.getProblemIndex()];
     }
 
     Term &Term::operator*=(const Parameter &param)
     {
-        Term term;
-        if (param.isZero())
+        if (param.isOne())
         {
-            *this = term;
+            return *this;
         }
         else
         {
             this->parameter = param * this->parameter;
+            return *this;
         }
-        return *this;
     }
 
     Term operator*(const Parameter &parameter, const Variable &variable)
     {
         Term term;
 
-        if (parameter.isZero())
-        {
-            term = Parameter(0.);
-        }
-        else
-        {
-            term.parameter = parameter;
-            term.variable = variable;
-        }
+        term.parameter = parameter;
+        term.variable = variable;
 
-        return term;
-    }
-
-    Parameter::operator Term() const
-    {
-        Term term;
-        term.parameter = *this;
         return term;
     }
 
@@ -127,7 +101,7 @@ namespace op
 
     double Affine::evaluate(const std::vector<double> &soln_values) const
     {
-        double sum = 0;
+        double sum = this->constant.getValue();
         for (const Term &term : terms)
         {
             sum += term.evaluate(soln_values);
@@ -150,16 +124,22 @@ namespace op
     {
         Affine result;
 
+        result.constant = this->constant + other.constant;
+
         for (const Term &term : this->terms)
         {
             if (not term.parameter.isZero())
+            {
                 result.terms.push_back(term);
+            }
         }
 
         for (const Term &term : other.terms)
         {
             if (not term.parameter.isZero())
+            {
                 result.terms.push_back(term);
+            }
         }
 
         return result;
@@ -168,7 +148,7 @@ namespace op
     Affine Affine::operator-(const Affine &other) const
     {
         Affine result = *this;
-        result = result + Affine(Term(Parameter(-1.))) * other;
+        result += Affine(Parameter(-1.)) * other;
         return result;
     }
 
@@ -180,7 +160,7 @@ namespace op
         }
 
         const Affine &affine = this->isFirstOrder() ? *this : other;
-        const Parameter &param = other.isConstant() ? other.terms[0].parameter : this->terms[0].parameter;
+        const Parameter &param = other.isConstant() ? other.constant : this->constant;
 
         Affine result;
         for (Term term : affine.terms)
@@ -191,19 +171,19 @@ namespace op
                 result.terms.push_back(term);
             }
         }
+        result.constant = param * affine.constant;
+
         return result;
     }
 
     bool Affine::isConstant() const
     {
-        return not isFirstOrder();
+        return this->terms.empty();
     }
 
     bool Affine::isFirstOrder() const
     {
-        return std::any_of(terms.cbegin(),
-                           terms.cend(),
-                           [](const Term &t) { return t.variable.has_value(); });
+        return not this->terms.empty();
     }
 
     Term::operator Affine() const
@@ -217,7 +197,7 @@ namespace op
 
     Expression::Expression(double x)
     {
-        affine = Term(Parameter(x));
+        this->affine.constant = Parameter(x);
     }
 
     bool Expression::isConstant() const
@@ -321,10 +301,17 @@ namespace op
                 this->sqrt == other.sqrt);
     }
 
+    Parameter::operator Affine() const
+    {
+        Affine affine;
+        affine.constant = *this;
+        return affine;
+    }
+
     Parameter::operator Expression() const
     {
         Expression expr;
-        expr.affine = Term(*this);
+        expr.affine.constant = *this;
         return expr;
     }
 
