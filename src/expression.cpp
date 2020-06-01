@@ -25,29 +25,36 @@ namespace op
         return os;
     }
 
-    std::ostream &operator<<(std::ostream &os, const Expression &expr)
+    std::ostream &operator<<(std::ostream &os, const Expression &exp)
     {
-        if (not expr.squared_affine.empty())
+        if (not exp.affine.isZero())
         {
-            os << "(";
-            for (size_t i = 0; i < expr.squared_affine.size(); i++)
-            {
-                os << "(" << expr.squared_affine[i] << ")^2 ";
-                if (i != expr.squared_affine.size() - 1)
-                {
-                    os << " + ";
-                }
-            }
-            os << ")";
-            if (expr.sqrt)
-            {
-                os << "^(1/2)";
-            }
+            os << exp.affine;
+
+            os << " + ";
         }
 
-        if (not expr.affine.terms.empty())
+        os << "(";
+
+        for (const std::vector<Affine> &hot : exp.higher_order)
         {
-            os << " + " << expr.affine;
+            if (hot.size() == 1)
+            {
+                os << "(" << hot[0] << ")^2";
+            }
+            else if (hot.size() == 2)
+            {
+                os << "(" << hot[0] << ")*(" << hot[1] << ")";
+            }
+
+            os << " + ";
+        }
+
+        os << ")";
+
+        if (exp.isNorm())
+        {
+            os << "^(1/2)";
         }
 
         return os;
@@ -116,31 +123,28 @@ namespace op
 
     Affine &Affine::operator+=(const Affine &other)
     {
-        *this = *this + other;
+        for (const Term &term : other.terms)
+        {
+            auto existing_term = std::find_if(this->terms.begin(),
+                                              this->terms.end(),
+                                              [&term](const Term &t) { return t.variable == term.variable; });
+            if (existing_term != this->terms.cend())
+            {
+                // Variable already exists as term. Add to parameter.
+                existing_term->parameter += term.parameter;
+            }
+        }
+
+        this->constant += other.constant;
+
         return *this;
     }
 
     Affine Affine::operator+(const Affine &other) const
     {
-        Affine result;
+        Affine result = *this;
 
-        result.constant = this->constant + other.constant;
-
-        for (const Term &term : this->terms)
-        {
-            if (not term.parameter.isZero())
-            {
-                result.terms.push_back(term);
-            }
-        }
-
-        for (const Term &term : other.terms)
-        {
-            if (not term.parameter.isZero())
-            {
-                result.terms.push_back(term);
-            }
-        }
+        result += other;
 
         return result;
     }
@@ -176,6 +180,11 @@ namespace op
         return result;
     }
 
+    bool Affine::isZero() const
+    {
+        return this->terms.empty() and this->constant.isZero();
+    }
+
     bool Affine::isConstant() const
     {
         return this->terms.empty();
@@ -193,6 +202,13 @@ namespace op
         return affine;
     }
 
+    Parameter::operator Affine() const
+    {
+        Affine affine;
+        affine.constant = *this;
+        return affine;
+    }
+
     // Expression
 
     Expression::Expression(double x)
@@ -200,38 +216,20 @@ namespace op
         this->affine.constant = Parameter(x);
     }
 
-    bool Expression::isConstant() const
-    {
-        return squared_affine.empty() and affine.isConstant();
-    }
-
-    bool Expression::isFirstOrder() const
-    {
-        return squared_affine.empty() and not sqrt;
-    }
-
-    bool Expression::isSecondOrder() const
-    {
-        return not squared_affine.empty() and not sqrt;
-    }
-
-    bool Expression::isNorm() const
-    {
-        return not squared_affine.empty() and sqrt;
-    }
-
     Expression &Expression::operator+=(const Expression &other)
     {
-        if (this->sqrt and other.sqrt)
+        if ((this->isNorm() and other.getOrder() == 2) or
+            (other.getOrder() == 2 and other.isNorm()) or
+            (this->isNorm() and other.isNorm()))
         {
-            throw std::runtime_error("Adding two norms is not supported.");
+            throw std::runtime_error("Incompatible addition.");
         }
 
         this->affine += other.affine;
 
-        this->squared_affine.insert(this->squared_affine.end(),
-                                    other.squared_affine.cbegin(),
-                                    other.squared_affine.cend());
+        this->higher_order.insert(this->higher_order.end(),
+                                  other.higher_order.cbegin(),
+                                  other.higher_order.cend());
 
         return *this;
     }
@@ -245,94 +243,109 @@ namespace op
         return result;
     }
 
-    Expression Expression::operator-(const Expression &other) const
+    Expression &Expression::operator-=(const Expression &other)
     {
-        if (this->sqrt and other.sqrt)
+        if (other.getOrder() > 1)
         {
-            throw std::runtime_error("Subtracting two norms is not supported.");
+            throw std::runtime_error("Subtraction is not supported for higher-order terms.");
         }
 
+        this->affine += Affine(Parameter(-1.)) * other.affine;
+
+        return *this;
+    }
+
+    Expression Expression::operator-(const Expression &other) const
+    {
         Expression result = *this;
 
-        std::transform(other.affine.terms.cbegin(),
-                       other.affine.terms.cend(),
-                       std::back_inserter(result.affine.terms),
-                       [](Term t) {t.parameter = Parameter(-1) * t.parameter; return t; });
+        result -= other;
 
         return result;
     }
 
     Expression Expression::operator*(const Expression &other) const
     {
-        if (this->isSecondOrder() or
-            other.isSecondOrder())
+        if (this->isNorm() or this->getOrder() == 2 or
+            other.isNorm() or other.getOrder() == 2)
         {
-            throw std::runtime_error("Cannot multiply a sum of squares.");
-        }
-        else if (this->isNorm() or
-                 other.isNorm())
-        {
-            throw std::runtime_error("Cannot multiply a norm.");
+            throw std::runtime_error("Listen here you little shit.");
         }
 
         Expression result;
 
-        if (this->isConstant() or other.isConstant())
+        if (this->affine.isFirstOrder() and other.affine.isFirstOrder())
         {
-            result.affine = this->affine * other.affine;
-        }
-        else if (*this == other)
-        {
-            result.squared_affine = {this->affine};
+            result.higher_order.emplace_back();
+
+            // If quadratic, add only one factor.
+            result.higher_order.back().emplace_back(this->affine);
+
+            // If not quadratic, add both factors.
+            if (not(other.affine == this->affine))
+            {
+                result.higher_order.back().emplace_back(other.affine);
+            }
         }
         else
         {
-            throw std::runtime_error("Only squared terms are supported at this point.");
+            result.affine = this->affine * other.affine;
         }
 
         return result;
     }
 
-    bool Expression::operator==(const Expression &other) const
+    size_t Expression::getOrder() const
     {
-        return this == &other or
-               (this->affine == other.affine and
-                this->squared_affine == other.squared_affine and
-                this->sqrt == other.sqrt);
+        if (not this->higher_order.empty())
+        {
+            return 2;
+        }
+        else if (not this->affine.isFirstOrder())
+        {
+            return 1;
+        }
+        else // if (this->affine.isConstant())
+        {
+            return 0;
+        }
     }
 
-    Parameter::operator Affine() const
+    bool Expression::isNorm() const
     {
-        Affine affine;
-        affine.constant = *this;
-        return affine;
+        return this->sqrt;
+    }
+
+    Expression sqrt(Expression e)
+    {
+        const bool all_quadratic = std::all_of(e.higher_order.cbegin(),
+                                               e.higher_order.cend(),
+                                               [](const std::vector<Affine> &p) { return p.size() == 1; });
+
+        if (all_quadratic and e.affine.isConstant())
+        {
+            e.sqrt = true;
+        }
+        else
+        {
+            throw std::runtime_error("Can only take the square root when all terms are quadratic and no linear terms are present.");
+        }
+
+        return e;
     }
 
     Parameter::operator Expression() const
     {
-        Expression expr;
-        expr.affine.constant = *this;
-        return expr;
+        Expression expression;
+        expression.affine.constant = *this;
+        return expression;
     }
 
     Variable::operator Expression() const
     {
-        Expression expr;
-        expr.affine = Term(*this);
-        return expr;
-    }
-
-    Expression sqrt(Expression s)
-    {
-        if (s.isFirstOrder() or
-            s.isNorm())
-        {
-            throw std::runtime_error("listen here you little shit"); // TODO
-        }
-
-        s.sqrt = true;
-
-        return s;
+        Expression expression;
+        expression.affine.terms = {*this};
+        return expression;
     }
 
     // Parameter and Variable creation

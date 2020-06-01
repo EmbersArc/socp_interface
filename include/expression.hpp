@@ -68,6 +68,7 @@ namespace op
         Affine operator-(const Affine &other) const;
         Affine operator*(const Affine &other) const;
 
+        bool isZero() const;
         bool isConstant() const;
         bool isFirstOrder() const;
     };
@@ -82,30 +83,27 @@ namespace op
         explicit Expression(double x);
 
         Expression &operator+=(const Expression &other);
+        Expression &operator-=(const Expression &other);
         Expression operator+(const Expression &other) const;
         Expression operator-(const Expression &other) const;
         Expression operator*(const Expression &other) const;
 
-        bool operator==(const Expression &other) const;
-
-        bool isConstant() const;
-        bool isFirstOrder() const;
-        bool isSecondOrder() const;
+        size_t getOrder() const;
         bool isNorm() const;
 
     private:
         Affine affine;
-        std::vector<Affine> squared_affine;
+        std::vector<std::vector<Affine>> higher_order;
         bool sqrt = false;
 
         friend std::ostream &operator<<(std::ostream &os, const Expression &scalar);
 
         /**
-     * Useful to call .norm() on a matrix.
-     * 
-     * Possible when only squared expressions are present.
-     * 
-     */
+         * Useful to call .norm() on a matrix.
+         * 
+         * Possible when only squared expressions are present.
+         * 
+         */
         friend Expression sqrt(Expression s);
 
         friend Parameter::operator Expression() const;

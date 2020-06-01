@@ -15,6 +15,9 @@ namespace op
     Parameter::Parameter(double *value_ptr)
         : source(value_ptr) {}
 
+    Parameter::Parameter(Opcode op, const Parameter &p1)
+        : source(std::make_pair(op, std::vector({p1}))) {}
+
     Parameter::Parameter(Opcode op, const Parameter &p1, const Parameter &p2)
         : source(std::make_pair(op, std::vector({p1, p2}))) {}
 
@@ -35,19 +38,20 @@ namespace op
         {
             const operation_source_t &op_params = std::get<2>(source);
             const Opcode op = op_params.first;
-            const Parameter &p1 = op_params.second[0];
-            const Parameter &p2 = op_params.second[1];
+            const std::vector<Parameter> &p = op_params.second;
 
             switch (op)
             {
             case Opcode::Add:
-                return p1.getValue() + p2.getValue();
+                return p[0].getValue() + p[1].getValue();
             case Opcode::Sub:
-                return p1.getValue() - p2.getValue();
+                return p[0].getValue() - p[1].getValue();
             case Opcode::Mul:
-                return p1.getValue() * p2.getValue();
-            default: // case Opcode::Div
-                return p1.getValue() / p2.getValue();
+                return p[0].getValue() * p[1].getValue();
+            case Opcode::Div:
+                return p[0].getValue() / p[1].getValue();
+            default: // case Opcode::Sqrt
+                return std::sqrt(p[0].getValue());
             }
         }
         }
@@ -68,6 +72,11 @@ namespace op
     bool Parameter::isPointer() const
     {
         return source.index() == 1;
+    }
+
+    bool Parameter::isOperation() const
+    {
+        return source.index() == 2;
     }
 
     bool Parameter::isZero() const
@@ -92,6 +101,12 @@ namespace op
         }
 
         return Parameter(Opcode::Add, *this, other);
+    }
+
+    Parameter &Parameter::operator+=(const Parameter &other)
+    {
+        *this = *this + other;
+        return *this;
     }
 
     Parameter Parameter::operator-(const Parameter &other) const
@@ -136,6 +151,24 @@ namespace op
         }
 
         return Parameter(Opcode::Div, *this, other);
+    }
+
+    Parameter sqrt(Parameter p)
+    {
+        if (p.isZero())
+        {
+            return Parameter(0.);
+        }
+        if (p.isOne())
+        {
+            return Parameter(1.);
+        }
+        if (p.isConstant())
+        {
+            return Parameter(std::sqrt(p.getValue()));
+        }
+
+        return Parameter(Parameter::Opcode::Sqrt, p);
     }
 
 } // namespace op

@@ -6,29 +6,29 @@ namespace op
     std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint)
     {
         os << constraint.affine << " == 0";
+        return os;
     }
     std::ostream &operator<<(std::ostream &os, const PositiveConstraint &constraint)
     {
         os << constraint.affine << " >= 0";
+        return os;
     }
     std::ostream &operator<<(std::ostream &os, const SecondOrderConeConstraint &constraint)
     {
-        // os << "(";
-        // for (size_t i = 0; i < constriant.norm.size(); i++)
-        // {
-        //     os << "(" << constraint.norm[i] << ")^2 ";
-        //     if (i != constraint.norm.size() - 1)
-        //     {
-        //         os << " + ";
-        //     }
-        // }
-        // os << ")^(1/2)";
+        os << "(";
+        for (size_t i = 0; i < constraint.norm.size(); i++)
+        {
+            os << "(" << constraint.norm[i] << ")^2 ";
+            if (i != constraint.norm.size() - 1)
+            {
+                os << " + ";
+            }
+        }
+        os << ")^(1/2)";
 
-        // if (not expr.affine.terms.empty())
-        // {
-        //     os << " + " << expr.affine;
-        // }
-        // os << " <= " constraint.affine;
+        os << " <= " << constraint.affine;
+
+        return os;
     }
 
     Constraint::Type Constraint::getType() const
@@ -107,13 +107,18 @@ namespace op
             for (size_t col = 0; col < cols; col++)
             {
                 Constraint constraint;
-                if (lhs(row, col).isFirstOrder())
+                if (lhs(row, col).getOrder() == 1)
                 {
                     constraint.asPositive(lhs(row, col).affine - rhs(row, col).affine);
                 }
                 else if (lhs(row, col).isNorm())
                 {
-                    constraint.asSecondOrderCone(lhs(row, col).squared_affine,
+                    std::vector<Affine> norm2_terms;
+                    for (const std::vector<Affine> &affine : lhs(row, col).higher_order)
+                    {
+                        norm2_terms.push_back(affine[0]);
+                    }
+                    constraint.asSecondOrderCone(norm2_terms,
                                                  rhs(row, col).affine - lhs(row, col).affine);
                 }
                 else

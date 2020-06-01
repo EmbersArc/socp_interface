@@ -25,6 +25,7 @@ namespace op
 
         bool isConstant() const;
         bool isPointer() const;
+        bool isOperation() const;
 
         bool isZero() const;
         bool isOne() const;
@@ -32,12 +33,14 @@ namespace op
         bool operator==(const Parameter &other) const;
 
         Parameter operator+(const Parameter &other) const;
+        Parameter &operator+=(const Parameter &other);
         Parameter operator-(const Parameter &other) const;
         Parameter operator*(const Parameter &other) const;
         Parameter operator/(const Parameter &other) const;
         operator Affine() const;
         operator Expression() const;
 
+        friend Parameter sqrt(Parameter other);
         friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);
 
     private:
@@ -46,9 +49,11 @@ namespace op
             Add,
             Sub,
             Mul,
-            Div
+            Div,
+            Sqrt,
         };
 
+        Parameter(Opcode op, const Parameter &p1);
         Parameter(Opcode op, const Parameter &p1, const Parameter &p2);
 
         using operation_source_t = std::pair<Opcode, std::vector<Parameter>>;
