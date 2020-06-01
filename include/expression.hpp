@@ -90,6 +90,7 @@ namespace op
 
         size_t getOrder() const;
         bool isNorm() const;
+        bool operator==(const Expression& other) const;
 
     private:
         Affine affine;
@@ -147,5 +148,9 @@ namespace op
         }
         return parameters;
     }
+
+    inline const Expression &conj(const Expression &x) { return x; }
+    inline const Expression &real(const Expression &x) { return x; }
+    inline Expression imag(const Expression &) { return Expression(0.); }
 
 } // namespace op

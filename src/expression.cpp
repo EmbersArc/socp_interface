@@ -5,21 +5,29 @@ namespace op
 
     std::ostream &operator<<(std::ostream &os, const Term &term)
     {
-        os << term.parameter.getValue();
-        os << " * " << term.variable;
+        if (not term.parameter.isOne())
+        {
+            os << term.parameter.getValue() << " * ";
+        }
+        os << term.variable;
         return os;
     }
 
     std::ostream &operator<<(std::ostream &os, const Affine &affine)
     {
-        for (size_t i = 0; i < affine.terms.size(); i++)
+        for (const Term &term : affine.terms)
         {
-            os << affine.terms[i];
+            os << term;
+        }
 
-            if (i != affine.terms.size() - 1)
-            {
-                os << " + ";
-            }
+        if (not affine.terms.empty() and not affine.constant.isZero())
+        {
+            os << " + ";
+        }
+
+        if (affine.terms.empty() or not affine.constant.isZero())
+        {
+            os << affine.constant;
         }
 
         return os;
@@ -27,36 +35,39 @@ namespace op
 
     std::ostream &operator<<(std::ostream &os, const Expression &exp)
     {
-        if (not exp.affine.isZero())
-        {
-            os << exp.affine;
+        os << exp.affine;
 
+        if (exp.getOrder() == 2)
+        {
             os << " + ";
-        }
+            os << "(";
 
-        os << "(";
-
-        for (const std::vector<Affine> &hot : exp.higher_order)
-        {
-            if (hot.size() == 1)
+            for (size_t i = 0; i < exp.higher_order.size(); i++)
             {
-                os << "(" << hot[0] << ")^2";
+                const std::vector<Affine> &hot = exp.higher_order[i];
+
+                if (hot.size() == 1)
+                {
+                    os << "(" << hot[0] << ")^2";
+                }
+                else if (hot.size() == 2)
+                {
+                    os << "(" << hot[0] << ")*(" << hot[1] << ")";
+                }
+
+                if (i < exp.higher_order.size() - 1)
+                {
+                    os << " + ";
+                }
             }
-            else if (hot.size() == 2)
+
+            os << ")";
+
+            if (exp.isNorm())
             {
-                os << "(" << hot[0] << ")*(" << hot[1] << ")";
+                os << "^(1/2)";
             }
-
-            os << " + ";
         }
-
-        os << ")";
-
-        if (exp.isNorm())
-        {
-            os << "^(1/2)";
-        }
-
         return os;
     }
 
@@ -133,6 +144,10 @@ namespace op
                 // Variable already exists as term. Add to parameter.
                 existing_term->parameter += term.parameter;
             }
+            else
+            {
+                this->terms.push_back(term);
+            }
         }
 
         this->constant += other.constant;
@@ -167,6 +182,12 @@ namespace op
         const Parameter &param = other.isConstant() ? other.constant : this->constant;
 
         Affine result;
+
+        if (param.isZero())
+        {
+            return result;
+        }
+
         for (Term term : affine.terms)
         {
             if (not term.parameter.isZero())
@@ -314,6 +335,17 @@ namespace op
     bool Expression::isNorm() const
     {
         return this->sqrt;
+    }
+
+    bool Expression::operator==(const Expression &other) const
+    {
+        bool equal = true;
+
+        equal &= this->affine == other.affine;
+        equal &= this->higher_order == other.higher_order;
+        equal &= this->sqrt == other.sqrt;
+
+        return equal;
     }
 
     Expression sqrt(Expression e)
