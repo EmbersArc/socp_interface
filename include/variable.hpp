@@ -4,7 +4,7 @@
 #include <ostream>
 #include <vector>
 #include <string>
-#include <optional>
+#include <memory>
 
 namespace op
 {
@@ -19,8 +19,9 @@ namespace op
 
         bool operator==(const Variable &other) const;
 
-        size_t getProblemIndex() const;
-        bool hasProblemIndex() const;
+        bool isLinkedToProblem() const;
+        void linkToProblem(double *solution_ptr, size_t problem_index);
+        double getSolution() const;
 
         friend std::ostream &operator<<(std::ostream &os,
                                         const Variable &variable);
@@ -29,7 +30,8 @@ namespace op
         std::string name;
 
     private:
-        std::optional<size_t> problem_index;
+        using solution_reference_t = std::pair<double *, size_t>;
+        std::shared_ptr<solution_reference_t> solution_reference;
         std::pair<size_t, size_t> index;
     };
 

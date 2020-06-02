@@ -49,7 +49,7 @@ namespace op
         operator Affine() const;
 
         friend std::ostream &operator<<(std::ostream &os, const Term &term);
-        double evaluate(const std::vector<double> &soln_values) const;
+        double evaluate() const;
     };
     Term operator*(const Parameter &parameter, const Variable &variable);
 
@@ -62,7 +62,7 @@ namespace op
         std::vector<Term> terms;
 
         friend std::ostream &operator<<(std::ostream &os, const Affine &affine);
-        double evaluate(const std::vector<double> &soln_values) const;
+        double evaluate() const;
         Affine &operator+=(const Affine &other);
         Affine operator+(const Affine &other) const;
         Affine operator-(const Affine &other) const;

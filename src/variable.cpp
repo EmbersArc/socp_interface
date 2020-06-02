@@ -13,14 +13,27 @@ namespace op
         return this->name == other.name and this->index == other.index;
     }
 
-    bool Variable::hasProblemIndex() const
+    bool Variable::isLinkedToProblem() const
     {
-        return problem_index.has_value();
+        return solution_reference != nullptr;
     }
 
-    size_t Variable::getProblemIndex() const
+    void Variable::linkToProblem(double *solution_ptr, size_t problem_index)
     {
-        return problem_index.value();
+        this->solution_reference = std::make_shared<solution_reference_t>(solution_ptr, problem_index);
+    }
+
+    double Variable::getSolution() const
+    {
+        if (not this->isLinkedToProblem())
+        {
+            // Cannot throw error here since parts of a matrix might indeed be unused.
+            return 0.;
+        }
+        else
+        {
+            return this->solution_reference->first[this->solution_reference->second];
+        }
     }
 
     std::ostream &operator<<(std::ostream &os, const Variable &variable)
@@ -28,8 +41,8 @@ namespace op
         os << variable.name
            << "[" << variable.index.first << ", " << variable.index.second << "]";
 
-        if (variable.hasProblemIndex())
-            os << "@(" << variable.problem_index.value() << ")";
+        if (variable.isLinkedToProblem())
+            os << "@(" << variable.solution_reference->second << ")";
 
         return os;
     }

@@ -82,9 +82,9 @@ namespace op
                this->variable == other.variable;
     }
 
-    double Term::evaluate(const std::vector<double> &soln_values) const
+    double Term::evaluate() const
     {
-        return parameter.getValue() * soln_values[variable.getProblemIndex()];
+        return parameter.getValue() * variable.getSolution();
     }
 
     Term &Term::operator*=(const Parameter &param)
@@ -117,12 +117,12 @@ namespace op
 
     // Affine
 
-    double Affine::evaluate(const std::vector<double> &soln_values) const
+    double Affine::evaluate() const
     {
         double sum = this->constant.getValue();
         for (const Term &term : terms)
         {
-            sum += term.evaluate(soln_values);
+            sum += term.evaluate();
         }
         return sum;
     }

@@ -91,10 +91,12 @@ namespace op
     {
         std::vector<Constraint> constraints;
 
+        const bool first_scalar = lhs.rows() == 1 and lhs.cols() == 1;
+        const bool second_scalar = rhs.rows() == 1 and rhs.cols() == 1;
+        const bool same_shape = lhs.rows() == rhs.rows() and lhs.cols() == rhs.cols();
+
         // If they are both matrices then the dimensions have to match
-        if ((lhs.rows() > 1 or lhs.cols() > 1) and
-            (rhs.rows() > 1 or rhs.cols() > 1) and
-            (lhs.rows() != rhs.rows() or lhs.cols() != rhs.cols()))
+        if (not (first_scalar or second_scalar) and not same_shape)
         {
             throw std::runtime_error("Invalid dimensions in constraint.");
         }
@@ -102,14 +104,17 @@ namespace op
         const size_t rows = std::max(lhs.rows(), rhs.rows());
         const size_t cols = std::max(lhs.cols(), rhs.cols());
 
+        // TODO: check if rhs is linear of first order
+
         for (size_t row = 0; row < rows; row++)
         {
             for (size_t col = 0; col < cols; col++)
             {
                 Constraint constraint;
-                if (lhs(row, col).getOrder() == 1)
+                if (lhs(row, col).getOrder() < 2)
                 {
-                    constraint.asPositive(lhs(row, col).affine - rhs(row, col).affine);
+                    if (lhs(row, col).getOrder() > 0 or rhs(row, col).getOrder() > 0)
+                        constraint.asPositive(lhs(row, col).affine - rhs(row, col).affine);
                 }
                 else if (lhs(row, col).isNorm())
                 {
