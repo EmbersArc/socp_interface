@@ -1,4 +1,20 @@
 #include "expression.hpp"
+#include <iostream>
+
+namespace Eigen::internal
+{
+    bool operator==(const op::Expression &lhs, const op::Expression &rhs)
+    {
+        bool equal = true;
+
+        equal &= lhs.affine == rhs.affine;
+        equal &= lhs.higher_order == rhs.higher_order;
+        equal &= lhs.sqrt == rhs.sqrt;
+
+        return equal;
+    }
+
+} // namespace Eigen::internal
 
 namespace op
 {
@@ -15,9 +31,11 @@ namespace op
 
     std::ostream &operator<<(std::ostream &os, const Affine &affine)
     {
-        for (const Term &term : affine.terms)
+        for (size_t i = 0; i < affine.terms.size(); i++)
         {
-            os << term;
+            os << affine.terms[i];
+            if (i != affine.terms.size() - 1)
+                os << " + ";
         }
 
         if (not affine.terms.empty() and not affine.constant.isZero())
@@ -173,32 +191,42 @@ namespace op
 
     Affine Affine::operator*(const Affine &other) const
     {
-        if (not(this->isConstant() or other.isConstant()))
+        if (this->isFirstOrder() and other.isFirstOrder())
         {
             throw(std::runtime_error("Invalid multiplication."));
         }
-
-        const Affine &affine = this->isFirstOrder() ? *this : other;
-        const Parameter &param = other.isConstant() ? other.constant : this->constant;
-
-        Affine result;
-
-        if (param.isZero())
+        if (this->isConstant() and other.isConstant())
         {
+            return Affine(this->constant * other.constant);
+        }
+        else
+        {
+            const Parameter &param = other.isConstant() ? other.constant : this->constant;
+            const Affine &affine = this->isFirstOrder() ? *this : other;
+
+            Affine result;
+
+            if (param.isZero())
+            {
+                return result;
+            }
+            else if (param.isOne())
+            {
+                return affine;
+            }
+
+            for (Term term : affine.terms)
+            {
+                if (not term.parameter.isZero())
+                {
+                    term *= param;
+                    result.terms.push_back(term);
+                }
+            }
+            result.constant = param * affine.constant;
+
             return result;
         }
-
-        for (Term term : affine.terms)
-        {
-            if (not term.parameter.isZero())
-            {
-                term *= param;
-                result.terms.push_back(term);
-            }
-        }
-        result.constant = param * affine.constant;
-
-        return result;
     }
 
     bool Affine::isZero() const
@@ -335,17 +363,6 @@ namespace op
     bool Expression::isNorm() const
     {
         return this->sqrt;
-    }
-
-    bool Expression::operator==(const Expression &other) const
-    {
-        bool equal = true;
-
-        equal &= this->affine == other.affine;
-        equal &= this->higher_order == other.higher_order;
-        equal &= this->sqrt == other.sqrt;
-
-        return equal;
     }
 
     Expression sqrt(Expression e)

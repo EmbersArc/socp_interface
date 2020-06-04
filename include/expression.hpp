@@ -26,6 +26,13 @@ namespace Eigen
         };
     };
 
+    // Check this out
+    namespace internal
+    {
+        // Needed for .diagonal() and possibly other Eigen access functions.
+        bool operator==(const op::Expression &lhs, const op::Expression &rhs);
+    } // namespace internal
+
 } // namespace Eigen
 
 namespace op
@@ -88,9 +95,10 @@ namespace op
         Expression operator-(const Expression &other) const;
         Expression operator*(const Expression &other) const;
 
+        friend bool Eigen::internal::operator==(const op::Expression &lhs, const op::Expression &rhs);
+
         size_t getOrder() const;
         bool isNorm() const;
-        bool operator==(const Expression& other) const;
 
     private:
         Affine affine;
@@ -110,9 +118,8 @@ namespace op
         friend Parameter::operator Expression() const;
         friend Variable::operator Expression() const;
 
-        friend std::vector<Constraint> operator<=(const MatrixXe &lhs, const MatrixXe &rhs);
-        friend std::vector<Constraint> operator>=(const MatrixXe &lhs, const MatrixXe &rhs);
-        friend std::vector<Constraint> operator==(const MatrixXe &lhs, const MatrixXe &rhs);
+        friend std::vector<Constraint> equalTo(const Expression &lhs, const Expression &rhs);
+        friend std::vector<Constraint> lessThan(const Expression &lhs, const Expression &rhs);
     };
 
     MatrixXe createVariables(const std::string &name,

@@ -6,28 +6,34 @@ namespace op
 {
 
     Variable::Variable(const std::string &name, size_t row, size_t col)
-        : name(name), index(row, col) {}
+        : name(name), index(row, col)
+    {
+        this->solution_reference = std::make_shared<solution_reference_t>(nullptr, 0);
+    }
 
     bool Variable::operator==(const Variable &other) const
     {
-        return this->name == other.name and this->index == other.index;
+        return this->name == other.name and
+               this->index == other.index and
+               this->solution_reference == other.solution_reference;
     }
 
     bool Variable::isLinkedToProblem() const
     {
-        return solution_reference != nullptr;
+        return solution_reference->first != nullptr;
     }
 
     void Variable::linkToProblem(double *solution_ptr, size_t problem_index)
     {
-        this->solution_reference = std::make_shared<solution_reference_t>(solution_ptr, problem_index);
+        this->solution_reference->first = solution_ptr;
+        this->solution_reference->second = problem_index;
     }
 
     double Variable::getSolution() const
     {
         if (not this->isLinkedToProblem())
         {
-            // Cannot throw error here since parts of a matrix might indeed be unused.
+            // Cannot throw error here since variables might indeed be unused.
             return 0.;
         }
         else
