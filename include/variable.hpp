@@ -8,6 +8,7 @@
 
 namespace op
 {
+
     class Term;
     class Expression;
 
@@ -20,8 +21,9 @@ namespace op
         bool operator==(const Variable &other) const;
 
         bool isLinkedToProblem() const;
-        void linkToProblem(double *solution_ptr, size_t problem_index);
+        void linkToProblem(std::vector<double> *solution_ptr, size_t problem_index);
         double getSolution() const;
+        size_t getProblemIndex() const;
 
         friend std::ostream &operator<<(std::ostream &os,
                                         const Variable &variable);
@@ -30,7 +32,7 @@ namespace op
         std::string name;
 
     private:
-        using solution_reference_t = std::pair<double *, size_t>;
+        using solution_reference_t = std::pair<std::vector<double> *, size_t>;
         std::shared_ptr<solution_reference_t> solution_reference;
         std::pair<size_t, size_t> index;
     };

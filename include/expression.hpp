@@ -26,7 +26,6 @@ namespace Eigen
         };
     };
 
-    // Check this out
     namespace internal
     {
         // Needed for .diagonal() and possibly other Eigen access functions.
@@ -41,6 +40,7 @@ namespace op
     class Affine;
     class Constraint;
     class Expression;
+    class OptimizationProblem;
 
     class Term
     {
@@ -99,6 +99,8 @@ namespace op
 
         size_t getOrder() const;
         bool isNorm() const;
+
+        friend OptimizationProblem;
 
     private:
         Affine affine;

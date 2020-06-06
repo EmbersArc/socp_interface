@@ -9,7 +9,10 @@ namespace op
     Parameter::Parameter()
         : source(0.) {}
 
-    Parameter::Parameter(const double const_value)
+    Parameter::Parameter(int const_value)
+        : source(double(const_value)) {}
+
+    Parameter::Parameter(double const_value)
         : source(const_value) {}
 
     Parameter::Parameter(double *value_ptr)

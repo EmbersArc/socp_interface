@@ -15,7 +15,7 @@ set(SOCP_SOURCES
     src/variable.cpp
     src/expression.cpp
     src/constraint.cpp
-    # src/optimizationProblem.cpp
+    src/problem.cpp
     # src/secondOrderConeProgram.cpp
 
     # solvers/wrappers/src/wrapperBase.cpp

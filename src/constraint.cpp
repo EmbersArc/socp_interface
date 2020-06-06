@@ -55,6 +55,7 @@ namespace op
         return Type(data.index());
     }
 
+    // affine == 0
     void Constraint::asEquality(const Affine &affine)
     {
         EqualityConstraint constraint;
@@ -62,6 +63,7 @@ namespace op
         data = constraint;
     }
 
+    // affine >= 0
     void Constraint::asPositive(const Affine &affine)
     {
         PositiveConstraint constraint;
@@ -69,6 +71,7 @@ namespace op
         data = constraint;
     }
 
+    // norm <= affine
     void Constraint::asSecondOrderCone(const std::vector<Affine> &norm, const Affine &affine)
     {
         SecondOrderConeConstraint constraint;

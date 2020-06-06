@@ -18,7 +18,8 @@ namespace op
     {
     public:
         Parameter();
-        explicit Parameter(const double const_value);
+        explicit Parameter(int const_value);
+        explicit Parameter(double const_value);
         explicit Parameter(double *value_ptr);
 
         double getValue() const;

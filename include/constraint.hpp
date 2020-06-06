@@ -25,7 +25,7 @@ namespace op
     class Constraint
     {
     public:
-        enum class Type
+        enum Type
         {
             Equality,
             Positive,
@@ -39,7 +39,6 @@ namespace op
 
         friend std::ostream &operator<<(std::ostream &os, const Constraint &constraint);
 
-    private:
         using constraint_variant_t = std::variant<EqualityConstraint,
                                                   PositiveConstraint,
                                                   SecondOrderConeConstraint>;
