@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <cassert>
+#include <cmath>
 
 namespace op
 {
@@ -58,6 +59,11 @@ namespace op
             }
         }
         }
+    }
+
+    Parameter::operator double() const
+    {
+        return this->getValue();
     }
 
     std::ostream &operator<<(std::ostream &os, const Parameter &parameter)

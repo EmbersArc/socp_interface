@@ -12,15 +12,6 @@ static_assert(std::is_same_v<idxint, SuiteSparse_long> and std::is_same_v<idxint
 namespace op
 {
 
-void ecos_get_parameter_values(const std::vector<internal::ParameterSource> &params,
-                               double factor,
-                               std::vector<double> &values)
-{
-    assert(values.size() == params.size());
-    std::transform(params.begin(), params.end(), values.begin(),
-                   [factor](const auto &param) { return param.get_value() * factor; });
-}
-
 void EcosWrapper::initialize()
 {
     G_data_CCS_values1.resize(G_data_CCS.size());

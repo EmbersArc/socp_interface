@@ -258,11 +258,42 @@ namespace op
         return affine;
     }
 
-    // Expression
+    // Expressionevaluate
 
     Expression::Expression(double x)
     {
         this->affine.constant = Parameter(x);
+    }
+
+    double Expression::evaluate() const
+    {
+        double sum = 0.;
+
+        for (const std::vector<Affine> &affine_v : this->higher_order)
+        {
+            if (affine_v.size() == 1)
+            {
+                sum += std::pow(affine_v[0].evaluate(), 2);
+            }
+            else if (affine_v.size() == 2)
+            {
+                sum += affine_v[0].evaluate() * affine_v[1].evaluate();
+            }
+        }
+
+        if (this->sqrt)
+        {
+            sum = std::sqrt(sum);
+        }
+
+        sum += this->affine.evaluate();
+
+        return sum;
+    }
+
+    Expression::operator double() const
+    {
+        return this->evaluate();
     }
 
     Expression &Expression::operator+=(const Expression &other)

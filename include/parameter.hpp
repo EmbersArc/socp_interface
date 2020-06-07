@@ -6,8 +6,6 @@
 #include <variant>
 #include <memory>
 
-#include <Eigen/Dense>
-
 namespace op
 {
 
@@ -40,6 +38,7 @@ namespace op
         Parameter operator/(const Parameter &other) const;
         operator Affine() const;
         operator Expression() const;
+        operator double() const;
 
         friend Parameter sqrt(Parameter other);
         friend std::ostream &operator<<(std::ostream &os, const Parameter &parameter);

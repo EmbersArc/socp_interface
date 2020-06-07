@@ -16,11 +16,10 @@ set(SOCP_SOURCES
     src/expression.cpp
     src/constraint.cpp
     src/problem.cpp
-    # src/secondOrderConeProgram.cpp
 
-    # solvers/wrappers/src/wrapperBase.cpp
+    solvers/wrappers/src/wrapperBase.cpp
     # solvers/wrappers/src/ecosWrapper.cpp
-    # solvers/wrappers/src/eicosWrapper.cpp
+    solvers/wrappers/src/eicosWrapper.cpp
 )
 
 # ==== Solvers ====

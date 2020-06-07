@@ -1,7 +1,7 @@
-#include <Eigen/Core>
-
 #include "parameter.hpp"
 #include "variable.hpp"
+
+#include <Eigen/Core>
 
 namespace Eigen
 {
@@ -41,6 +41,7 @@ namespace op
     class Constraint;
     class Expression;
     class OptimizationProblem;
+    class WrapperBase;
 
     class Term
     {
@@ -97,10 +98,14 @@ namespace op
 
         friend bool Eigen::internal::operator==(const op::Expression &lhs, const op::Expression &rhs);
 
+        double evaluate() const;
         size_t getOrder() const;
         bool isNorm() const;
 
         friend OptimizationProblem;
+        friend WrapperBase;
+
+        operator double() const;
 
     private:
         Affine affine;
@@ -156,6 +161,12 @@ namespace op
             }
         }
         return parameters;
+    }
+
+    template <typename Derived>
+    auto evaluate(Eigen::MatrixBase<Derived> m)
+    {
+        return m.template cast<double>();
     }
 
     inline const Expression &conj(const Expression &x) { return x; }

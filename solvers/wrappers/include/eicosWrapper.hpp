@@ -15,11 +15,11 @@ class EicosWrapper : public WrapperBase
 
     std::unique_ptr<EiCOS::Solver> solver;
 
-    std::vector<double> c_values;
-    std::vector<double> h_values;
-    std::vector<double> b_values;
-    std::vector<double> G_data_CCS_values;
-    std::vector<double> A_data_CCS_values;
+    Eigen::SparseMatrix<double> A_values;
+    Eigen::SparseMatrix<double> G_values;
+    Eigen::VectorXd c_values;
+    Eigen::VectorXd h_values;
+    Eigen::VectorXd b_values;
 
 public:
     void initialize() override;

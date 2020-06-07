@@ -23,17 +23,17 @@ class EcosWrapper : public WrapperBase
     std::vector<long> A_rows_CCS_l;
     std::vector<long> G_rows_CCS_l;
 
-    std::vector<double> c_values1;
-    std::vector<double> h_values1;
-    std::vector<double> b_values1;
-    std::vector<double> G_data_CCS_values1;
-    std::vector<double> A_data_CCS_values1;
+    Eigen::VectorXd c_values1;
+    Eigen::VectorXd h_values1;
+    Eigen::VectorXd b_values1;
+    Eigen::VectorXd G_data_CCS_values1;
+    Eigen::VectorXd A_data_CCS_values1;
 
-    std::vector<double> c_values2;
-    std::vector<double> h_values2;
-    std::vector<double> b_values2;
-    std::vector<double> G_data_CCS_values2;
-    std::vector<double> A_data_CCS_values2;
+    Eigen::VectorXd c_values2;
+    Eigen::VectorXd h_values2;
+    Eigen::VectorXd b_values2;
+    Eigen::VectorXd G_data_CCS_values2;
+    Eigen::VectorXd A_data_CCS_values2;
 
 public:
     void initialize() override;
