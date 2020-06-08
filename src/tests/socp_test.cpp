@@ -58,7 +58,7 @@ int main()
     for (size_t i = 0; i < m; i++)
     {
         op::Expression lhs = (op::createParameter(A[i]) * x + op::createParameter(b[i])).norm();
-        op::Expression rhs = op::createParameter(c[i]).dot(x) + op::createParameter(d[i]);
+        op::Expression rhs = op::createParameter(c[i]).transpose().dot(x) + op::createParameter(d[i]);
         auto constraint = op::lessThan(lhs, rhs);
         socp.addConstraint(constraint);
     }
@@ -103,6 +103,18 @@ int main()
     std::cout << "First solution:\n"
               << x_sol << "\n\n";
 
+    // First solution:
+    // 0.859947
+    // 0.0760788
+    // 0.0157263
+    // 0.00550263
+    // -0.537155
+    // -0.0344149
+    // -0.676446
+    // 0.0850391
+    // 0.475255
+    // -1.13711
+
     // Change the problem parameters and solve again.
     f.setRandom();
     solver.solveProblem(false);
@@ -111,4 +123,17 @@ int main()
     // Print the new solution.
     std::cout << "Solution after changing the cost function:\n"
               << x_sol << "\n\n";
+
+    // Solution after changing the cost function:
+    // 1.04428
+    // 0.37218
+    // -0.389004
+    // 0.0957543
+    // -0.135829
+    // 1.04661
+    // -0.459681
+    // 0.126881
+    // 0.794843
+    // -0.840825
+
 }

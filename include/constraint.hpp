@@ -1,3 +1,5 @@
+#pragma once
+
 #include "expression.hpp"
 
 namespace op

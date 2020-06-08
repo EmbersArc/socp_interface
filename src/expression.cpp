@@ -314,7 +314,7 @@ namespace op
         return *this;
     }
 
-    Expression Expression::operator+(Expression other) const
+    Expression Expression::operator+(const Expression &other) const
     {
         Expression result = *this;
 

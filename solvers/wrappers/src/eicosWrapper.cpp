@@ -23,11 +23,11 @@ namespace op
     {
         assert(solver != nullptr && "You must first call initialize()!");
 
-        G_values = G.cast<double>();
-        A_values = A.cast<double>();
-        c_values = c.cast<double>();
-        h_values = h.cast<double>();
-        b_values = b.cast<double>();
+        G_values = evaluate(G);
+        A_values = evaluate(A);
+        c_values = evaluate(c);
+        h_values = evaluate(h);
+        b_values = evaluate(b);
 
         // The signs for A and G must be flipped because they are negative in the EiCOS interface
         G_values *= -1;

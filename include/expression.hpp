@@ -1,3 +1,5 @@
+#pragma once
+
 #include "parameter.hpp"
 #include "variable.hpp"
 
@@ -92,7 +94,7 @@ namespace op
 
         Expression &operator+=(const Expression &other);
         Expression &operator-=(const Expression &other);
-        Expression operator+(Expression other) const;
+        Expression operator+(const Expression &other) const;
         Expression operator-(const Expression &other) const;
         Expression operator*(const Expression &other) const;
 
@@ -143,7 +145,7 @@ namespace op
     template <typename Derived>
     auto createParameter(const Eigen::MatrixBase<Derived> &m)
     {
-        Eigen::Matrix<Expression, Eigen::MatrixBase<Derived>::RowsAtCompileTime, Eigen::MatrixBase<Derived>::ColsAtCompileTime> parameters(m.rows(), m.cols());
+        auto parameters = m.template cast<Expression>().eval();
 
         for (int row = 0; row < m.rows(); row++)
         {
@@ -158,7 +160,7 @@ namespace op
     template <typename Derived>
     auto createParameter(Eigen::MatrixBase<Derived> *m)
     {
-        Eigen::Matrix<Expression, Eigen::MatrixBase<Derived>::RowsAtCompileTime, Eigen::MatrixBase<Derived>::ColsAtCompileTime> parameters(m->rows(), m->cols());
+        auto parameters = m->template cast<Expression>().eval();
 
         for (int row = 0; row < m->rows(); row++)
         {
@@ -170,11 +172,16 @@ namespace op
         return parameters;
     }
 
-    // TODO: doesn't work
     template <typename Derived>
-    inline auto evaluate(Eigen::MatrixBase<Derived> m)
+    inline auto evaluate(const Eigen::MatrixBase<Derived> &m)
     {
-        return m.template cast<double>().eval();
+        return m.template cast<double>();
+    }
+
+    template <typename Derived>
+    inline auto evaluate(const Eigen::SparseMatrixBase<Derived> &m)
+    {
+        return m.template cast<double>();
     }
 
     inline const Expression &conj(const Expression &x) { return x; }
