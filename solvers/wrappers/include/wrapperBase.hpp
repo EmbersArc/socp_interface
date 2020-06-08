@@ -15,8 +15,6 @@ namespace op
         virtual void initialize() = 0;
 
     protected:
-        OptimizationProblem &problem;
-
         using MatrixXp = Eigen::Matrix<Parameter, Eigen::Dynamic, Eigen::Dynamic>;
         using VectorXp = Eigen::Matrix<Parameter, Eigen::Dynamic, 1>;
 

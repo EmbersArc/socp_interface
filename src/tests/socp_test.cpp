@@ -66,7 +66,7 @@ int main()
     socp.addConstraint(op::equalTo(op::createParameter(F) * x, op::createParameter(g)));
 
     // Here we use a pointer to a parameter. This allows changing it dynamically.
-    socp.addMinimizationTerm(op::createParameter(&f).transpose() * x);
+    socp.addMinimizationTerm(op::createDynamicParameter(f).transpose() * x);
 
     // Print the problem for inspection.
     std::cout << socp << "\n\n";

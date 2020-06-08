@@ -260,7 +260,17 @@ namespace op
 
     // Scalar
 
+    Scalar::Scalar(int x)
+    {
+        this->affine.constant = Parameter(double(x));
+    }
+
     Scalar::Scalar(double x)
+    {
+        this->affine.constant = Parameter(x);
+    }
+
+    Scalar::Scalar(double *x)
     {
         this->affine.constant = Parameter(x);
     }

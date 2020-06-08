@@ -90,7 +90,9 @@ namespace op
     {
     public:
         Scalar() = default;
+        explicit Scalar(int x);
         explicit Scalar(double x);
+        explicit Scalar(double *x);
 
         Scalar &operator+=(const Scalar &other);
         Scalar &operator-=(const Scalar &other);
@@ -132,44 +134,31 @@ namespace op
     };
 
     VectorX createVariables(const std::string &name,
-                             size_t rows = 1);
+                            size_t rows = 1);
 
     MatrixX createVariables(const std::string &name,
-                             size_t rows,
-                             size_t cols);
+                            size_t rows,
+                            size_t cols);
 
     Scalar createParameter(double m);
 
-    Scalar createParameter(double *m);
+    Scalar createDynamicParameter(double m);
 
     template <typename Derived>
-    auto createParameter(const Eigen::MatrixBase<Derived> &m)
+    inline auto createParameter(const Eigen::MatrixBase<Derived> &m)
     {
-        auto parameters = m.template cast<Scalar>().eval();
+        return m.template cast<Scalar>().eval();
+    }
 
-        for (int row = 0; row < m.rows(); row++)
-        {
-            for (int col = 0; col < m.cols(); col++)
-            {
-                parameters(row, col) = Parameter(m.coeff(row, col));
-            }
-        }
-        return parameters;
+    op::Scalar createScalar(double &d)
+    {
+        return op::Scalar(&d);
     }
 
     template <typename Derived>
-    auto createParameter(Eigen::MatrixBase<Derived> *m)
+    inline auto createDynamicParameter(Eigen::MatrixBase<Derived> &m)
     {
-        auto parameters = m->template cast<Scalar>().eval();
-
-        for (int row = 0; row < m->rows(); row++)
-        {
-            for (int col = 0; col < m->cols(); col++)
-            {
-                parameters(row, col) = Parameter(&m->coeffRef(row, col));
-            }
-        }
-        return parameters;
+        return m.unaryExpr(&createScalar);
     }
 
     template <typename Derived>

@@ -13,7 +13,7 @@ set(TARGET_INCLUDE
 set(SOCP_SOURCES
     src/parameter.cpp
     src/variable.cpp
-    src/expression.cpp
+    src/expressions.cpp
     src/constraint.cpp
     src/problem.cpp
 

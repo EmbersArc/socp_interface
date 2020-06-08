@@ -4,7 +4,6 @@ namespace op
 {
 
     WrapperBase::WrapperBase(OptimizationProblem &problem)
-        : problem(problem)
     {
         std::vector<Eigen::Triplet<Parameter>> A_coeffs, G_coeffs;
         std::vector<Parameter> b_coeffs, h_coeffs;
