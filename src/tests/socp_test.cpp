@@ -51,22 +51,20 @@ int main()
     op::OptimizationProblem socp;
 
     // Add variables. Those can be scalars, vectors or matrices.
-    op::VectorX x = op::createVariables("x", n);
+    op::VectorX x = op::var("x", n);
 
     // Add constraints.
     // SOCP
     for (size_t i = 0; i < m; i++)
     {
-        op::Scalar lhs = (op::createParameter(A[i]) * x + op::createParameter(b[i])).norm();
-        op::Scalar rhs = op::createParameter(c[i]).transpose().dot(x) + op::createParameter(d[i]);
-        auto constraint = op::lessThan(lhs, rhs);
-        socp.addConstraint(constraint);
+        socp.addConstraint(op::lessThan((op::par(A[i]) * x + op::par(b[i])).norm(),
+                                        op::par(c[i]).dot(x) + op::par(d[i])));
     }
     // Equality
-    socp.addConstraint(op::equalTo(op::createParameter(F) * x, op::createParameter(g)));
+    socp.addConstraint(op::equalTo(op::par(F) * x, op::par(g)));
 
     // Here we use a pointer to a parameter. This allows changing it dynamically.
-    socp.addMinimizationTerm(op::createDynamicParameter(f).transpose() * x);
+    socp.addMinimizationTerm(op::dynpar(f).transpose() * x);
 
     // Print the problem for inspection.
     std::cout << socp << "\n\n";
@@ -97,43 +95,26 @@ int main()
     std::cout << "\nSolver duration: " << t_solve << "μs.\n\n";
 
     // Get Solution.
-    Eigen::Matrix<double, n, 1> x_sol = x.cast<double>();
+    Eigen::Matrix<double, n, 1> x_sol = op::eval(x);
 
     // Print the first solution.
     std::cout << "First solution:\n"
               << x_sol << "\n\n";
 
-    // First solution:
-    // 0.859947
-    // 0.0760788
-    // 0.0157263
-    // 0.00550263
-    // -0.537155
-    // -0.0344149
-    // -0.676446
-    // 0.0850391
-    // 0.475255
-    // -1.13711
+    Eigen::VectorXd x_sol1(n);
+    x_sol1 << 0.859947, 0.0760788, 0.0157263, 0.00550263, -0.537155, -0.0344149, -0.676446, 0.0850391, 0.475255, -1.13711;
+    assert((x_sol - x_sol1).norm() < 1e-5);
 
     // Change the problem parameters and solve again.
     f.setRandom();
     solver.solveProblem(false);
-    x_sol = x.cast<double>();
+    x_sol = op::eval(x);
 
     // Print the new solution.
     std::cout << "Solution after changing the cost function:\n"
               << x_sol << "\n\n";
 
-    // Solution after changing the cost function:
-    // 1.04428
-    // 0.37218
-    // -0.389004
-    // 0.0957543
-    // -0.135829
-    // 1.04661
-    // -0.459681
-    // 0.126881
-    // 0.794843
-    // -0.840825
-
+    Eigen::VectorXd x_sol2(n);
+    x_sol2 << 1.04428, 0.37218, -0.389004, 0.0957543, -0.135829, 1.04661, -0.459681, 0.126881, 0.794843, -0.840825;
+    assert((x_sol - x_sol2).norm() < 1e-5);
 }

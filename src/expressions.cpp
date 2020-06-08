@@ -441,7 +441,7 @@ namespace op
 
     // Parameter and Variable creation
 
-    VectorX createVariables(const std::string &name, size_t rows)
+    VectorX var(const std::string &name, size_t rows)
     {
         VectorX variables(rows);
 
@@ -452,7 +452,7 @@ namespace op
         return variables;
     }
 
-    MatrixX createVariables(const std::string &name, size_t rows, size_t cols)
+    MatrixX var(const std::string &name, size_t rows, size_t cols)
     {
         MatrixX variables(rows, cols);
 
@@ -466,12 +466,12 @@ namespace op
         return variables;
     }
 
-    Scalar createParameter(double m)
+    Scalar par(double m)
     {
         return Parameter(m);
     }
 
-    Scalar createParameter(double *m)
+    Scalar par(double *m)
     {
         return Parameter(m);
     }

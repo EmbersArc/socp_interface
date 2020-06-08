@@ -23,11 +23,11 @@ namespace op
     {
         assert(solver != nullptr && "You must first call initialize()!");
 
-        G_values = evaluate(G);
-        A_values = evaluate(A);
-        c_values = evaluate(c);
-        h_values = evaluate(h);
-        b_values = evaluate(b);
+        G_values = eval(G);
+        A_values = eval(A);
+        c_values = eval(c);
+        h_values = eval(h);
+        b_values = eval(b);
 
         // The signs for A and G must be flipped because they are negative in the EiCOS interface
         G_values *= -1;

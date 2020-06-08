@@ -133,42 +133,49 @@ namespace op
         friend Constraint lessThan(const Scalar &lhs, const Scalar &rhs);
     };
 
-    VectorX createVariables(const std::string &name,
-                            size_t rows = 1);
+    VectorX var(const std::string &name,
+                size_t rows = 1);
 
-    MatrixX createVariables(const std::string &name,
-                            size_t rows,
-                            size_t cols);
+    MatrixX var(const std::string &name,
+                size_t rows,
+                size_t cols);
 
-    Scalar createParameter(double m);
+    Scalar par(double m);
 
-    Scalar createDynamicParameter(double m);
+    Scalar dynpar(double m);
 
     template <typename Derived>
-    inline auto createParameter(const Eigen::MatrixBase<Derived> &m)
+    inline auto par(const Eigen::MatrixBase<Derived> &m)
     {
         return m.template cast<Scalar>().eval();
     }
 
-    op::Scalar createScalar(double &d)
+    template <typename Derived>
+    auto dynpar(Eigen::MatrixBase<Derived> &m)
     {
-        return op::Scalar(&d);
+        // TODO: Maybe find something better here
+
+        auto result = m.template cast<Scalar>().eval();
+
+        for (int row = 0; row < m.rows(); row++)
+        {
+            for (int col = 0; col < m.cols(); col++)
+            {
+                result.coeffRef(row, col) = Scalar(&m.coeffRef(row, col));
+            }
+        }
+
+        return result;
     }
 
     template <typename Derived>
-    inline auto createDynamicParameter(Eigen::MatrixBase<Derived> &m)
-    {
-        return m.unaryExpr(&createScalar);
-    }
-
-    template <typename Derived>
-    inline auto evaluate(const Eigen::MatrixBase<Derived> &m)
+    inline auto eval(const Eigen::MatrixBase<Derived> &m)
     {
         return m.template cast<double>();
     }
 
     template <typename Derived>
-    inline auto evaluate(const Eigen::SparseMatrixBase<Derived> &m)
+    inline auto eval(const Eigen::SparseMatrixBase<Derived> &m)
     {
         return m.template cast<double>();
     }
