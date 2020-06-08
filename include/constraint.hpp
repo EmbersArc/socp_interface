@@ -47,15 +47,15 @@ namespace op
         constraint_variant_t data;
     };
 
-    Constraint equalTo(const Expression &lhs, const Expression &rhs);
-    Constraint lessThan(const Expression &lhs, const Expression &rhs);
-    Constraint greaterThan(const Expression &lhs, const Expression &rhs);
+    Constraint equalTo(const Scalar &lhs, const Scalar &rhs);
+    Constraint lessThan(const Scalar &lhs, const Scalar &rhs);
+    Constraint greaterThan(const Scalar &lhs, const Scalar &rhs);
 
     template <typename DerivedLhs, typename DerivedRhs>
     std::vector<Constraint> equalTo(const Eigen::MatrixBase<DerivedLhs> &lhs, const Eigen::MatrixBase<DerivedRhs> &rhs)
     {
-        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedLhs>::Scalar, Expression>);
-        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedRhs>::Scalar, Expression>);
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedLhs>::Scalar, Scalar>);
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedRhs>::Scalar, Scalar>);
 
         std::vector<Constraint> constraints;
 
@@ -103,8 +103,8 @@ namespace op
     template <typename DerivedLhs, typename DerivedRhs>
     std::vector<Constraint> lessThan(const Eigen::MatrixBase<DerivedLhs> &lhs, const Eigen::MatrixBase<DerivedRhs> &rhs)
     {
-        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedLhs>::Scalar, Expression>);
-        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedRhs>::Scalar, Expression>);
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedLhs>::Scalar, Scalar>);
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<DerivedRhs>::Scalar, Scalar>);
 
         std::vector<Constraint> constraints;
 

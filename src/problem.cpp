@@ -26,9 +26,9 @@ namespace op
         }
     }
 
-    void OptimizationProblem::addMinimizationTerm(const Expression &expression)
+    void OptimizationProblem::addMinimizationTerm(const Scalar &term)
     {
-        this->costFunction += expression;
+        this->costFunction += term;
     }
 
     bool OptimizationProblem::isFeasible() const

@@ -3,12 +3,12 @@
 
 int main()
 {
-    op::MatrixXe par_matrix = op::createParameter(Eigen::Vector3d::Ones());
-    op::MatrixXe var_matrix = op::createVariables("x", 3, 3);
+    op::MatrixX par_matrix = op::createParameter(Eigen::Vector3d::Ones());
+    op::MatrixX var_matrix = op::createVariables("x", 3, 3);
 
-    op::MatrixXe matrix = var_matrix*par_matrix;
+    op::MatrixX matrix = var_matrix*par_matrix;
 
-    op::Constraint constraint = op::lessThan(var_matrix.norm(), op::Expression(0.));
+    op::Constraint constraint = op::lessThan(var_matrix.norm(), op::Scalar(0.));
 
     std::cout << constraint << "\n\n";
     std::cout << par_matrix << "\n\n";

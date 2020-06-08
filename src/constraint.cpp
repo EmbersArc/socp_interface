@@ -80,14 +80,14 @@ namespace op
         data = constraint;
     }
 
-    Constraint equalTo(const Expression &lhs, const Expression &rhs)
+    Constraint equalTo(const Scalar &lhs, const Scalar &rhs)
     {
         Constraint constraint;
         constraint.asEquality(lhs.affine - rhs.affine);
         return {constraint};
     }
 
-    Constraint lessThan(const Expression &lhs, const Expression &rhs)
+    Constraint lessThan(const Scalar &lhs, const Scalar &rhs)
     {
         Constraint constraint;
         if (lhs.isNorm())
@@ -111,7 +111,7 @@ namespace op
         return {constraint};
     }
 
-    Constraint greaterThan(const Expression &lhs, const Expression &rhs)
+    Constraint greaterThan(const Scalar &lhs, const Scalar &rhs)
     {
         return lessThan(rhs, lhs);
     }

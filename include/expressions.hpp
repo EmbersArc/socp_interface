@@ -9,12 +9,12 @@ namespace Eigen
 {
 
     template <>
-    struct NumTraits<op::Expression>
+    struct NumTraits<op::Scalar>
         : NumTraits<double>
     {
-        using Real = op::Expression;
-        using NonInteger = op::Expression;
-        using Nested = op::Expression;
+        using Real = op::Scalar;
+        using NonInteger = op::Scalar;
+        using Nested = op::Scalar;
 
         enum
         {
@@ -31,7 +31,7 @@ namespace Eigen
     namespace internal
     {
         // Needed for .diagonal() and possibly other Eigen access functions.
-        bool operator==(const op::Expression &lhs, const op::Expression &rhs);
+        bool operator==(const op::Scalar &lhs, const op::Scalar &rhs);
     } // namespace internal
 
 } // namespace Eigen
@@ -41,7 +41,7 @@ namespace op
 
     class Affine;
     class Constraint;
-    class Expression;
+    class Scalar;
     class OptimizationProblem;
     class WrapperBase;
 
@@ -83,22 +83,22 @@ namespace op
         bool isFirstOrder() const;
     };
 
-    using MatrixXe = Eigen::Matrix<op::Expression, Eigen::Dynamic, Eigen::Dynamic>;
-    using VectorXe = Eigen::Matrix<op::Expression, Eigen::Dynamic, 1>;
+    using MatrixX = Eigen::Matrix<op::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
+    using VectorX = Eigen::Matrix<op::Scalar, Eigen::Dynamic, 1>;
 
-    class Expression
+    class Scalar
     {
     public:
-        Expression() = default;
-        explicit Expression(double x);
+        Scalar() = default;
+        explicit Scalar(double x);
 
-        Expression &operator+=(const Expression &other);
-        Expression &operator-=(const Expression &other);
-        Expression operator+(const Expression &other) const;
-        Expression operator-(const Expression &other) const;
-        Expression operator*(const Expression &other) const;
+        Scalar &operator+=(const Scalar &other);
+        Scalar &operator-=(const Scalar &other);
+        Scalar operator+(const Scalar &other) const;
+        Scalar operator-(const Scalar &other) const;
+        Scalar operator*(const Scalar &other) const;
 
-        friend bool Eigen::internal::operator==(const op::Expression &lhs, const op::Expression &rhs);
+        friend bool Eigen::internal::operator==(const op::Scalar &lhs, const op::Scalar &rhs);
 
         double evaluate() const;
         size_t getOrder() const;
@@ -114,7 +114,7 @@ namespace op
         std::vector<std::vector<Affine>> higher_order;
         bool sqrt = false;
 
-        friend std::ostream &operator<<(std::ostream &os, const Expression &scalar);
+        friend std::ostream &operator<<(std::ostream &os, const Scalar &scalar);
 
         /**
          * Useful to call .norm() on a matrix.
@@ -122,30 +122,30 @@ namespace op
          * Possible when only squared expressions are present.
          * 
          */
-        friend Expression sqrt(const Expression &expression);
+        friend Scalar sqrt(const Scalar &scalar);
 
-        friend Parameter::operator Expression() const;
-        friend Variable::operator Expression() const;
+        friend Parameter::operator Scalar() const;
+        friend Variable::operator Scalar() const;
 
-        friend Constraint equalTo(const Expression &lhs, const Expression &rhs);
-        friend Constraint lessThan(const Expression &lhs, const Expression &rhs);
+        friend Constraint equalTo(const Scalar &lhs, const Scalar &rhs);
+        friend Constraint lessThan(const Scalar &lhs, const Scalar &rhs);
     };
 
-    VectorXe createVariables(const std::string &name,
+    VectorX createVariables(const std::string &name,
                              size_t rows = 1);
 
-    MatrixXe createVariables(const std::string &name,
+    MatrixX createVariables(const std::string &name,
                              size_t rows,
                              size_t cols);
 
-    Expression createParameter(double m);
+    Scalar createParameter(double m);
 
-    Expression createParameter(double *m);
+    Scalar createParameter(double *m);
 
     template <typename Derived>
     auto createParameter(const Eigen::MatrixBase<Derived> &m)
     {
-        auto parameters = m.template cast<Expression>().eval();
+        auto parameters = m.template cast<Scalar>().eval();
 
         for (int row = 0; row < m.rows(); row++)
         {
@@ -160,7 +160,7 @@ namespace op
     template <typename Derived>
     auto createParameter(Eigen::MatrixBase<Derived> *m)
     {
-        auto parameters = m->template cast<Expression>().eval();
+        auto parameters = m->template cast<Scalar>().eval();
 
         for (int row = 0; row < m->rows(); row++)
         {
@@ -184,8 +184,8 @@ namespace op
         return m.template cast<double>();
     }
 
-    inline const Expression &conj(const Expression &x) { return x; }
-    inline const Expression &real(const Expression &x) { return x; }
-    inline Expression imag(const Expression &) { return Expression(0.); }
+    inline const Scalar &conj(const Scalar &x) { return x; }
+    inline const Scalar &real(const Scalar &x) { return x; }
+    inline Scalar imag(const Scalar &) { return Scalar(0.); }
 
 } // namespace op

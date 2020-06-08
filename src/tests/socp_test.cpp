@@ -51,14 +51,14 @@ int main()
     op::OptimizationProblem socp;
 
     // Add variables. Those can be scalars, vectors or matrices.
-    op::VectorXe x = op::createVariables("x", n);
+    op::VectorX x = op::createVariables("x", n);
 
     // Add constraints.
     // SOCP
     for (size_t i = 0; i < m; i++)
     {
-        op::Expression lhs = (op::createParameter(A[i]) * x + op::createParameter(b[i])).norm();
-        op::Expression rhs = op::createParameter(c[i]).transpose().dot(x) + op::createParameter(d[i]);
+        op::Scalar lhs = (op::createParameter(A[i]) * x + op::createParameter(b[i])).norm();
+        op::Scalar rhs = op::createParameter(c[i]).transpose().dot(x) + op::createParameter(d[i]);
         auto constraint = op::lessThan(lhs, rhs);
         socp.addConstraint(constraint);
     }

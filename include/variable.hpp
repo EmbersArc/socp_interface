@@ -10,7 +10,7 @@ namespace op
 {
 
     class Term;
-    class Expression;
+    class Scalar;
 
     class Variable
     {
@@ -28,7 +28,7 @@ namespace op
         friend std::ostream &operator<<(std::ostream &os,
                                         const Variable &variable);
         operator Term() const;
-        operator Expression() const;
+        operator Scalar() const;
         std::string name;
 
     private:

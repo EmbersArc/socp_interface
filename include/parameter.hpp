@@ -9,7 +9,7 @@
 namespace op
 {
 
-    class Expression;
+    class Scalar;
     class Affine;
 
     class Parameter
@@ -37,7 +37,7 @@ namespace op
         Parameter operator*(const Parameter &other) const;
         Parameter operator/(const Parameter &other) const;
         operator Affine() const;
-        operator Expression() const;
+        operator Scalar() const;
         operator double() const;
 
         friend Parameter sqrt(Parameter other);

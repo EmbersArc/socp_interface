@@ -1,9 +1,9 @@
-#include "expression.hpp"
+#include "expressions.hpp"
 #include <iostream>
 
 namespace Eigen::internal
 {
-    bool operator==(const op::Expression &lhs, const op::Expression &rhs)
+    bool operator==(const op::Scalar &lhs, const op::Scalar &rhs)
     {
         bool equal = true;
 
@@ -51,7 +51,7 @@ namespace op
         return os;
     }
 
-    std::ostream &operator<<(std::ostream &os, const Expression &exp)
+    std::ostream &operator<<(std::ostream &os, const Scalar &exp)
     {
         os << exp.affine;
 
@@ -258,14 +258,14 @@ namespace op
         return affine;
     }
 
-    // Expressionevaluate
+    // Scalar
 
-    Expression::Expression(double x)
+    Scalar::Scalar(double x)
     {
         this->affine.constant = Parameter(x);
     }
 
-    double Expression::evaluate() const
+    double Scalar::evaluate() const
     {
         double sum = 0.;
 
@@ -291,12 +291,12 @@ namespace op
         return sum;
     }
 
-    Expression::operator double() const
+    Scalar::operator double() const
     {
         return this->evaluate();
     }
 
-    Expression &Expression::operator+=(const Expression &other)
+    Scalar &Scalar::operator+=(const Scalar &other)
     {
         if ((this->isNorm() and other.getOrder() == 2) or
             (other.getOrder() == 2 and other.isNorm()) or
@@ -314,16 +314,16 @@ namespace op
         return *this;
     }
 
-    Expression Expression::operator+(const Expression &other) const
+    Scalar Scalar::operator+(const Scalar &other) const
     {
-        Expression result = *this;
+        Scalar result = *this;
 
         result += other;
 
         return result;
     }
 
-    Expression &Expression::operator-=(const Expression &other)
+    Scalar &Scalar::operator-=(const Scalar &other)
     {
         if (other.getOrder() > 1)
         {
@@ -335,16 +335,16 @@ namespace op
         return *this;
     }
 
-    Expression Expression::operator-(const Expression &other) const
+    Scalar Scalar::operator-(const Scalar &other) const
     {
-        Expression result = *this;
+        Scalar result = *this;
 
         result -= other;
 
         return result;
     }
 
-    Expression Expression::operator*(const Expression &other) const
+    Scalar Scalar::operator*(const Scalar &other) const
     {
         if (this->isNorm() or this->getOrder() == 2 or
             other.isNorm() or other.getOrder() == 2)
@@ -352,7 +352,7 @@ namespace op
             throw std::runtime_error("Listen here you little shit.");
         }
 
-        Expression result;
+        Scalar result;
 
         if (this->affine.isFirstOrder() and other.affine.isFirstOrder())
         {
@@ -375,7 +375,7 @@ namespace op
         return result;
     }
 
-    size_t Expression::getOrder() const
+    size_t Scalar::getOrder() const
     {
         if (not this->higher_order.empty())
         {
@@ -391,14 +391,14 @@ namespace op
         }
     }
 
-    bool Expression::isNorm() const
+    bool Scalar::isNorm() const
     {
         return this->sqrt;
     }
 
-    Expression sqrt(const Expression &expression)
+    Scalar sqrt(const Scalar &scalar)
     {
-        Expression e = expression;
+        Scalar e = scalar;
         const bool all_quadratic = std::all_of(e.higher_order.cbegin(),
                                                e.higher_order.cend(),
                                                [](const std::vector<Affine> &p) { return p.size() == 1; });
@@ -415,25 +415,25 @@ namespace op
         return e;
     }
 
-    Parameter::operator Expression() const
+    Parameter::operator Scalar() const
     {
-        Expression expression;
-        expression.affine.constant = *this;
-        return expression;
+        Scalar scalar;
+        scalar.affine.constant = *this;
+        return scalar;
     }
 
-    Variable::operator Expression() const
+    Variable::operator Scalar() const
     {
-        Expression expression;
-        expression.affine.terms = {*this};
-        return expression;
+        Scalar scalar;
+        scalar.affine.terms = {*this};
+        return scalar;
     }
 
     // Parameter and Variable creation
 
-    VectorXe createVariables(const std::string &name, size_t rows)
+    VectorX createVariables(const std::string &name, size_t rows)
     {
-        VectorXe variables(rows);
+        VectorX variables(rows);
 
         for (size_t row = 0; row < rows; row++)
         {
@@ -442,9 +442,9 @@ namespace op
         return variables;
     }
 
-    MatrixXe createVariables(const std::string &name, size_t rows, size_t cols)
+    MatrixX createVariables(const std::string &name, size_t rows, size_t cols)
     {
-        MatrixXe variables(rows, cols);
+        MatrixX variables(rows, cols);
 
         for (size_t row = 0; row < rows; row++)
         {
@@ -456,12 +456,12 @@ namespace op
         return variables;
     }
 
-    Expression createParameter(double m)
+    Scalar createParameter(double m)
     {
         return Parameter(m);
     }
 
-    Expression createParameter(double *m)
+    Scalar createParameter(double *m)
     {
         return Parameter(m);
     }
