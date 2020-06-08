@@ -44,6 +44,11 @@ namespace op
 
     size_t Variable::getProblemIndex() const
     {
+        if (not this->isLinkedToProblem())
+        {
+            throw std::runtime_error("Variable must be linked to a problem first!");
+        }
+
         return this->solution_reference->second;
     }
 

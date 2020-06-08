@@ -10,6 +10,7 @@ namespace op
         std::vector<Parameter> b_coeffs, h_coeffs;
         std::vector<int> cone_dimensions;
 
+        // Build equality constraint parameters (b - A * x == 0)
         for (EqualityConstraint &c : problem.equality_constraints)
         {
             for (Term &term : c.affine.terms)
@@ -23,6 +24,7 @@ namespace op
             b_coeffs.push_back(c.affine.constant);
         }
 
+        // Build positive constraint parameters
         for (PositiveConstraint &constraint : problem.positive_constraints)
         {
             for (Term &term : constraint.affine.terms)
@@ -36,6 +38,7 @@ namespace op
             h_coeffs.push_back(constraint.affine.constant);
         }
 
+        // Build second order cone constraint parameters
         for (SecondOrderConeConstraint &constraint : problem.second_order_cone_constraints)
         {
             // affine part
@@ -58,7 +61,7 @@ namespace op
                                           term.variable.getProblemIndex(),
                                           term.parameter);
                 }
-                h_coeffs.push_back(constraint.affine.constant);
+                h_coeffs.push_back(affine.constant);
             }
 
             cone_dimensions.push_back(constraint.norm.size() + 1);

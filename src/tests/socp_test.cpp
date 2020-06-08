@@ -54,14 +54,15 @@ int main()
     op::VectorXe x = op::createVariables("x", n);
 
     // Add constraints.
+    // SOCP
     for (size_t i = 0; i < m; i++)
     {
         op::Expression lhs = (op::createParameter(A[i]) * x + op::createParameter(b[i])).norm();
         op::Expression rhs = op::createParameter(c[i]).dot(x) + op::createParameter(d[i]);
-        auto constraint = op::lessThan(lhs,
-                                       rhs);
+        auto constraint = op::lessThan(lhs, rhs);
         socp.addConstraint(constraint);
     }
+    // Equality
     socp.addConstraint(op::equalTo(op::createParameter(F) * x, op::createParameter(g)));
 
     // Here we use a pointer to a parameter. This allows changing it dynamically.
