@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-namespace op
+namespace cvx
 {
 
     Variable::Variable(const std::string &name, size_t row, size_t col)
@@ -64,4 +64,4 @@ namespace op
         return os;
     }
 
-} // namespace op
+} // namespace cvx

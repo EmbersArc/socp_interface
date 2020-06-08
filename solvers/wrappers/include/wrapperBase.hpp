@@ -2,7 +2,7 @@
 
 #include "problem.hpp"
 
-namespace op
+namespace cvx
 {
 
     class WrapperBase
@@ -32,4 +32,4 @@ namespace op
         void addVariable(Variable &variable);
     };
 
-} // namespace op
+} // namespace cvx

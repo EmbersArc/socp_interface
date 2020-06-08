@@ -48,29 +48,29 @@ int main()
     auto t0 = std::chrono::high_resolution_clock::now();
 
     // Create the SOCP instance.
-    op::OptimizationProblem socp;
+    cvx::OptimizationProblem socp;
 
     // Add variables. Those can be scalars, vectors or matrices.
-    op::VectorX x = op::var("x", n);
+    cvx::VectorX x = cvx::var("x", n);
 
     // Add constraints.
     // SOCP
     for (size_t i = 0; i < m; i++)
     {
-        socp.addConstraint(op::lessThan((op::par(A[i]) * x + op::par(b[i])).norm(),
-                                        op::par(c[i]).dot(x) + op::par(d[i])));
+        socp.addConstraint(cvx::lessThan((cvx::par(A[i]) * x + cvx::par(b[i])).norm(),
+                                        cvx::par(c[i]).dot(x) + cvx::par(d[i])));
     }
     // Equality
-    socp.addConstraint(op::equalTo(op::par(F) * x, op::par(g)));
+    socp.addConstraint(cvx::equalTo(cvx::par(F) * x, cvx::par(g)));
 
     // Here we use a pointer to a parameter. This allows changing it dynamically.
-    socp.addMinimizationTerm(op::dynpar(f).transpose() * x);
+    socp.addMinimizationTerm(cvx::dynpar(f).transpose() * x);
 
     // Print the problem for inspection.
     std::cout << socp << "\n\n";
 
     // Create the solver instance.
-    op::EicosWrapper solver(socp);
+    cvx::EicosWrapper solver(socp);
     solver.initialize();
 
     auto t = std::chrono::high_resolution_clock::now();
@@ -95,7 +95,7 @@ int main()
     std::cout << "\nSolver duration: " << t_solve << "μs.\n\n";
 
     // Get Solution.
-    Eigen::Matrix<double, n, 1> x_sol = op::eval(x);
+    Eigen::Matrix<double, n, 1> x_sol = cvx::eval(x);
 
     // Print the first solution.
     std::cout << "First solution:\n"
@@ -108,7 +108,7 @@ int main()
     // Change the problem parameters and solve again.
     f.setRandom();
     solver.solveProblem(false);
-    x_sol = op::eval(x);
+    x_sol = cvx::eval(x);
 
     // Print the new solution.
     std::cout << "Solution after changing the cost function:\n"

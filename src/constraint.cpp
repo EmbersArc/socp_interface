@@ -1,6 +1,6 @@
 #include "constraint.hpp"
 
-namespace op
+namespace cvx
 {
 
     std::ostream &operator<<(std::ostream &os, const EqualityConstraint &constraint)
@@ -116,4 +116,4 @@ namespace op
         return lessThan(rhs, lhs);
     }
 
-} // namespace op
+} // namespace cvx

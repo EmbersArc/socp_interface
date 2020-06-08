@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace op
+namespace cvx
 {
 
     Parameter::Parameter()
@@ -180,4 +180,4 @@ namespace op
         return Parameter(Parameter::Opcode::Sqrt, p);
     }
 
-} // namespace op
+} // namespace cvx

@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 
-namespace op
+namespace cvx
 {
 
     class Term;
@@ -37,4 +37,4 @@ namespace op
         std::pair<size_t, size_t> index;
     };
 
-} // namespace op
+} // namespace cvx

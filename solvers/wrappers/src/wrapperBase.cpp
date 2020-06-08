@@ -1,6 +1,6 @@
 #include "wrapperBase.hpp"
 
-namespace op
+namespace cvx
 {
 
     WrapperBase::WrapperBase(OptimizationProblem &problem)
@@ -104,4 +104,4 @@ namespace op
         }
     }
 
-} // namespace op
+} // namespace cvx

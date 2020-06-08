@@ -2,7 +2,7 @@
 
 #include "expressions.hpp"
 
-namespace op
+namespace cvx
 {
 
     struct EqualityConstraint
@@ -158,4 +158,4 @@ namespace op
         return lessThan(rhs, lhs);
     }
 
-} // namespace op
+} // namespace cvx

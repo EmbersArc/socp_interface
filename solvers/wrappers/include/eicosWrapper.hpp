@@ -4,7 +4,7 @@
 
 #include "EiCOS/include/eicos.hpp"
 
-namespace op
+namespace cvx
 {
 
 class EicosWrapper : public WrapperBase
@@ -27,4 +27,4 @@ public:
     std::string getResultString() const override;
 };
 
-} // namespace op
+} // namespace cvx

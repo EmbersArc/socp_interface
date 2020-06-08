@@ -9,12 +9,12 @@ namespace Eigen
 {
 
     template <>
-    struct NumTraits<op::Scalar>
+    struct NumTraits<cvx::Scalar>
         : NumTraits<double>
     {
-        using Real = op::Scalar;
-        using NonInteger = op::Scalar;
-        using Nested = op::Scalar;
+        using Real = cvx::Scalar;
+        using NonInteger = cvx::Scalar;
+        using Nested = cvx::Scalar;
 
         enum
         {
@@ -31,12 +31,12 @@ namespace Eigen
     namespace internal
     {
         // Needed for .diagonal() and possibly other Eigen access functions.
-        bool operator==(const op::Scalar &lhs, const op::Scalar &rhs);
+        bool operator==(const cvx::Scalar &lhs, const cvx::Scalar &rhs);
     } // namespace internal
 
 } // namespace Eigen
 
-namespace op
+namespace cvx
 {
 
     class Affine;
@@ -83,8 +83,8 @@ namespace op
         bool isFirstOrder() const;
     };
 
-    using MatrixX = Eigen::Matrix<op::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
-    using VectorX = Eigen::Matrix<op::Scalar, Eigen::Dynamic, 1>;
+    using MatrixX = Eigen::Matrix<cvx::Scalar, Eigen::Dynamic, Eigen::Dynamic>;
+    using VectorX = Eigen::Matrix<cvx::Scalar, Eigen::Dynamic, 1>;
 
     class Scalar
     {
@@ -100,7 +100,7 @@ namespace op
         Scalar operator-(const Scalar &other) const;
         Scalar operator*(const Scalar &other) const;
 
-        friend bool Eigen::internal::operator==(const op::Scalar &lhs, const op::Scalar &rhs);
+        friend bool Eigen::internal::operator==(const cvx::Scalar &lhs, const cvx::Scalar &rhs);
 
         double evaluate() const;
         size_t getOrder() const;
@@ -184,4 +184,4 @@ namespace op
     inline const Scalar &real(const Scalar &x) { return x; }
     inline Scalar imag(const Scalar &) { return Scalar(0.); }
 
-} // namespace op
+} // namespace cvx

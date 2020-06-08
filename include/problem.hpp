@@ -3,7 +3,7 @@
 #include "constraint.hpp"
 #include <Eigen/Sparse>
 
-namespace op
+namespace cvx
 {
 
     class WrapperBase;
@@ -40,4 +40,4 @@ namespace op
         std::vector<SecondOrderConeConstraint> second_order_cone_constraints;
     };
 
-} // namespace op
+} // namespace cvx

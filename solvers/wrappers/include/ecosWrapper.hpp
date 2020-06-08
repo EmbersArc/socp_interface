@@ -4,7 +4,7 @@
 
 #include <any>
 
-namespace op
+namespace cvx
 {
 
 class EcosWrapper : public WrapperBase
@@ -41,4 +41,4 @@ public:
     std::string getResultString() const override;
 };
 
-} // namespace op
+} // namespace cvx

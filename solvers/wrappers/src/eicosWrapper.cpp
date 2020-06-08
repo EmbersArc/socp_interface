@@ -1,6 +1,6 @@
 #include "eicosWrapper.hpp"
 
-namespace op
+namespace cvx
 {
 
     void EicosWrapper::initialize()
@@ -77,4 +77,4 @@ namespace op
         }
     }
 
-} // namespace op
+} // namespace cvx

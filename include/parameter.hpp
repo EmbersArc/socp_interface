@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-namespace op
+namespace cvx
 {
 
     class Scalar;
@@ -63,4 +63,4 @@ namespace op
         source_variant_t source;
     };
 
-} // namespace op
+} // namespace cvx

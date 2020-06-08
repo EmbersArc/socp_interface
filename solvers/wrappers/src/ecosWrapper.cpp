@@ -9,7 +9,7 @@ static_assert(std::is_same_v<idxint, SuiteSparse_long> and std::is_same_v<idxint
               "Definitions of idxint are not consistent."
               "Make sure ECOS is compiled with USE_LONG = 1.");
 
-namespace op
+namespace cvx
 {
 
 void EcosWrapper::initialize()
@@ -154,4 +154,4 @@ std::string EcosWrapper::getResultString() const
     }
 }
 
-} // namespace op
+} // namespace cvx

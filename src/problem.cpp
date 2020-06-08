@@ -1,6 +1,6 @@
 #include "problem.hpp"
 
-namespace op
+namespace cvx
 {
     void OptimizationProblem::addConstraint(const Constraint &constraint)
     {
@@ -68,4 +68,4 @@ namespace op
         return os;
     }
 
-} // namespace op
+} // namespace cvx

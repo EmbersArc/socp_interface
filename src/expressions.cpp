@@ -3,7 +3,7 @@
 
 namespace Eigen::internal
 {
-    bool operator==(const op::Scalar &lhs, const op::Scalar &rhs)
+    bool operator==(const cvx::Scalar &lhs, const cvx::Scalar &rhs)
     {
         bool equal = true;
 
@@ -16,7 +16,7 @@ namespace Eigen::internal
 
 } // namespace Eigen::internal
 
-namespace op
+namespace cvx
 {
 
     std::ostream &operator<<(std::ostream &os, const Term &term)
@@ -476,4 +476,4 @@ namespace op
         return Parameter(m);
     }
 
-} // namespace op
+} // namespace cvx

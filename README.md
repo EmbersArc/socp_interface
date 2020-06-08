@@ -28,37 +28,37 @@ Parameters are symbolic representations of constants. Parameters can be scalars,
 ```cpp
 // scalar parameter
 const double scalar = 5.;
-op::Parameter scalar_par(scalar);
+cvx::Parameter scalar_par(scalar);
 
 // vector parameter
 const auto vector = Eigen::Vector3d::Ones();
-op::Parameter vector_par(vector);
+cvx::Parameter vector_par(vector);
 
 // matrix parameter
 const auto matrix = Eigen::Matrix3d::Identity();
-op::Parameter matrix_par(matrix);
+cvx::Parameter matrix_par(matrix);
 
 // all parameters may also be pointers to values so that their values can be changed dynamically
 auto mutable_matrix = Eigen::Matrix3d::Identity();
-op::Parameter matrix_ptr_par(&matrix);
+cvx::Parameter matrix_ptr_par(&matrix);
 ```
 
 ### Variables
 Problem variables can again be scalars, vectors or matrices and have to be added directly to the problem.
 ```cpp
-op::SecondOrderConeProgram socp;
+cvx::SecondOrderConeProgram socp;
 
 // scalar variable
-op::Variable scalar_var = socp.createVariable("x_scalar");
+cvx::Variable scalar_var = socp.createVariable("x_scalar");
 
 // vector variable
-op::Variable vector_var = socp.createVariable("x_vector", 3);
+cvx::Variable vector_var = socp.createVariable("x_vector", 3);
 
 // matrix variable
-op::Variable matrix_var = socp.createVariable("x_matrix", 3, 3);
+cvx::Variable matrix_var = socp.createVariable("x_matrix", 3, 3);
 
 // the problem can always return existing variables if you lose track of them
-op::Variable matrix_var_copy = socp.getVariable("x_matrix");
+cvx::Variable matrix_var_copy = socp.getVariable("x_matrix");
 ```
 
 ### Expressions
@@ -67,14 +67,14 @@ op::Variable matrix_var_copy = socp.getVariable("x_matrix");
 Affine expressions include Parameters, Variables and sums or products of the two.
 
 ```cpp
-op::Affine affine_vector = op::Parameter(Eigen::Matrix3d::Random()) * vector_var;
+cvx::Affine affine_vector = cvx::Parameter(Eigen::Matrix3d::Random()) * vector_var;
 ```
 
 #### SOCLhs
-This is the left hand side of a second order cone constraint and gets created by calling `op::norm(Affine affine, int axis)`. Apart from the 2-norm, it can also contain an `Affine` expression of the same dimension.
+This is the left hand side of a second order cone constraint and gets created by calling `cvx::norm(Affine affine, int axis)`. Apart from the 2-norm, it can also contain an `Affine` expression of the same dimension.
 
 ```cpp
-op::SOCLhs soc_lhs = op::norm(vector_var);
+cvx::SOCLhs soc_lhs = cvx::norm(vector_var);
 soc_lhs += scalar_par;
 soc_lhs += scalar_var;
 ```
@@ -104,16 +104,16 @@ As opposed to the other constraint types, the left hand side can not be a scalar
 ```
 
 ### Cost Function
-A cost term can be added to the SOCP with the `addMinimizationTerm` method e.g. `socp.addMinimizationTerm(op::sum(affine_vector))`. The `Affine` term has to be a scalar.
+A cost term can be added to the SOCP with the `addMinimizationTerm` method e.g. `socp.addMinimizationTerm(cvx::sum(affine_vector))`. The `Affine` term has to be a scalar.
 
 ### Solving the Problem
-First, create a solver instance with `op::Solver solver(socp)` and call `solver.solveProblem()` to solve the problem. If `true` is passed to the function, the solver output will be shown. This method returns `true` if it was successful and a solution is available. The solution for a variable `x` can be retrieved by calling `socp.readSolution("x", x_sol)` where `x_sol` is the solution variable of type `double` for scalars and `Eigen::Matrix` for higher dimensional variables.
+First, create a solver instance with `cvx::Solver solver(socp)` and call `solver.solveProblem()` to solve the problem. If `true` is passed to the function, the solver output will be shown. This method returns `true` if it was successful and a solution is available. The solution for a variable `x` can be retrieved by calling `socp.readSolution("x", x_sol)` where `x_sol` is the solution variable of type `double` for scalars and `Eigen::Matrix` for higher dimensional variables.
 
 ### Matrix Access
 All matrix expressions can be accessed like Eigen matrices i.e. `operator()` for coefficient-wise access and [Eigen Block Operations](https://eigen.tuxfamily.org/dox/group__TutorialBlockOperations.html) that return matrices.
 
 ### Other Functions
-Matrices can be stacked horizontally and vertically using the `op::hstack({...})` and `op::vstack({...})` functions. For convenience, `op::sum(Affine affine, int axis)` can sum up elements of `Affine` matrices.
+Matrices can be stacked horizontally and vertically using the `cvx::hstack({...})` and `cvx::vstack({...})` functions. For convenience, `cvx::sum(Affine affine, int axis)` can sum up elements of `Affine` matrices.
 
 ## Example
 
@@ -168,27 +168,27 @@ int main()
     auto t0 = std::chrono::high_resolution_clock::now();
 
     // Create the SOCP instance.
-    op::SecondOrderConeProgram socp;
+    cvx::SecondOrderConeProgram socp;
 
     // Add variables. Those can be scalars, vectors or matrices.
-    op::Variable x = socp.createVariable("x", n);
+    cvx::Variable x = socp.createVariable("x", n);
 
     // Add constraints.
     for (size_t i = 0; i < m; i++)
     {
-        socp.addConstraint(op::norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
-                           op::Parameter(c[i]).transpose() * x + op::Parameter(d[i]));
+        socp.addConstraint(cvx::norm2(cvx::Parameter(A[i]) * x + cvx::Parameter(b[i])) <=
+                           cvx::Parameter(c[i]).transpose() * x + cvx::Parameter(d[i]));
     }
-    socp.addConstraint(op::Parameter(F) * x == op::Parameter(g));
+    socp.addConstraint(cvx::Parameter(F) * x == cvx::Parameter(g));
 
     // Here we use a pointer to a parameter. This allows changing it dynamically.
-    socp.addMinimizationTerm(op::Parameter(&f).transpose() * x);
+    socp.addMinimizationTerm(cvx::Parameter(&f).transpose() * x);
 
     // Print the problem for inspection.
     std::cout << socp << "\n\n";
 
     // Create and initialize the solver instance.
-    op::Solver solver(socp);
+    cvx::Solver solver(socp);
     solver.initialize();
 
     auto t = std::chrono::high_resolution_clock::now();
