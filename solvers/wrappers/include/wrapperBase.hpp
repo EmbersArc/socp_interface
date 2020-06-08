@@ -25,8 +25,8 @@ namespace op
         Eigen::SparseMatrix<Parameter> A;
         Eigen::SparseMatrix<Parameter> G;
         VectorXp c;
-        VectorXp b;
         VectorXp h;
+        VectorXp b;
 
         std::vector<double> solution;
 

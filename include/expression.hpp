@@ -92,7 +92,7 @@ namespace op
 
         Expression &operator+=(const Expression &other);
         Expression &operator-=(const Expression &other);
-        Expression operator+(const Expression &other) const;
+        Expression operator+(Expression other) const;
         Expression operator-(const Expression &other) const;
         Expression operator*(const Expression &other) const;
 
@@ -120,23 +120,30 @@ namespace op
          * Possible when only squared expressions are present.
          * 
          */
-        friend Expression sqrt(Expression s);
+        friend Expression sqrt(const Expression &expression);
 
         friend Parameter::operator Expression() const;
         friend Variable::operator Expression() const;
 
-        friend std::vector<Constraint> equalTo(const Expression &lhs, const Expression &rhs);
-        friend std::vector<Constraint> lessThan(const Expression &lhs, const Expression &rhs);
+        friend Constraint equalTo(const Expression &lhs, const Expression &rhs);
+        friend Constraint lessThan(const Expression &lhs, const Expression &rhs);
     };
 
+    VectorXe createVariables(const std::string &name,
+                             size_t rows = 1);
+
     MatrixXe createVariables(const std::string &name,
-                             size_t rows = 1,
-                             size_t cols = 1);
+                             size_t rows,
+                             size_t cols);
+
+    Expression createParameter(double m);
+
+    Expression createParameter(double *m);
 
     template <typename Derived>
-    MatrixXe parameterMatrix(const Eigen::MatrixBase<Derived> &m)
+    auto createParameter(const Eigen::MatrixBase<Derived> &m)
     {
-        MatrixXe parameters(m.rows(), m.cols());
+        Eigen::Matrix<Expression, Eigen::MatrixBase<Derived>::RowsAtCompileTime, Eigen::MatrixBase<Derived>::ColsAtCompileTime> parameters(m.rows(), m.cols());
 
         for (int row = 0; row < m.rows(); row++)
         {
@@ -149,24 +156,25 @@ namespace op
     }
 
     template <typename Derived>
-    MatrixXe parameterMatrix(Eigen::MatrixBase<Derived> *m)
+    auto createParameter(Eigen::MatrixBase<Derived> *m)
     {
-        MatrixXe parameters(m.rows(), m.cols());
+        Eigen::Matrix<Expression, Eigen::MatrixBase<Derived>::RowsAtCompileTime, Eigen::MatrixBase<Derived>::ColsAtCompileTime> parameters(m->rows(), m->cols());
 
-        for (int row = 0; row < m.rows(); row++)
+        for (int row = 0; row < m->rows(); row++)
         {
-            for (int col = 0; col < m.cols(); col++)
+            for (int col = 0; col < m->cols(); col++)
             {
-                parameters(row, col) = Parameter(&m.coeffRef(row, col));
+                parameters(row, col) = Parameter(&m->coeffRef(row, col));
             }
         }
         return parameters;
     }
 
+    // TODO: doesn't work
     template <typename Derived>
-    auto evaluate(Eigen::MatrixBase<Derived> m)
+    inline auto evaluate(Eigen::MatrixBase<Derived> m)
     {
-        return m.template cast<double>();
+        return m.template cast<double>().eval();
     }
 
     inline const Expression &conj(const Expression &x) { return x; }

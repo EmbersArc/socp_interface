@@ -1,4 +1,4 @@
-#include "socpInterface.hpp"
+#include "eicosWrapper.hpp"
 
 #include <array>
 #include <iostream>
@@ -48,27 +48,30 @@ int main()
     auto t0 = std::chrono::high_resolution_clock::now();
 
     // Create the SOCP instance.
-    op::SecondOrderConeProgram socp;
+    op::OptimizationProblem socp;
 
     // Add variables. Those can be scalars, vectors or matrices.
-    op::Variable x = socp.createVariable("x", n);
+    op::VectorXe x = op::createVariables("x", n);
 
     // Add constraints.
     for (size_t i = 0; i < m; i++)
     {
-        socp.addConstraint(op::norm2(op::Parameter(A[i]) * x + op::Parameter(b[i])) <=
-                           op::Parameter(c[i]).transpose() * x + op::Parameter(d[i]));
+        op::Expression lhs = (op::createParameter(A[i]) * x + op::createParameter(b[i])).norm();
+        op::Expression rhs = op::createParameter(c[i]).dot(x) + op::createParameter(d[i]);
+        auto constraint = op::lessThan(lhs,
+                                       rhs);
+        socp.addConstraint(constraint);
     }
-    socp.addConstraint(op::Parameter(F) * x == op::Parameter(g));
+    socp.addConstraint(op::equalTo(op::createParameter(F) * x, op::createParameter(g)));
 
     // Here we use a pointer to a parameter. This allows changing it dynamically.
-    socp.addMinimizationTerm(op::Parameter(&f).transpose() * x);
+    socp.addMinimizationTerm(op::createParameter(&f).transpose() * x);
 
     // Print the problem for inspection.
     std::cout << socp << "\n\n";
 
     // Create the solver instance.
-    op::Solver solver(socp);
+    op::EicosWrapper solver(socp);
     solver.initialize();
 
     auto t = std::chrono::high_resolution_clock::now();
@@ -93,8 +96,7 @@ int main()
     std::cout << "\nSolver duration: " << t_solve << "μs.\n\n";
 
     // Get Solution.
-    Eigen::Matrix<double, n, 1> x_sol;
-    socp.readSolution("x", x_sol);
+    Eigen::Matrix<double, n, 1> x_sol = x.cast<double>();
 
     // Print the first solution.
     std::cout << "First solution:\n"
@@ -103,7 +105,7 @@ int main()
     // Change the problem parameters and solve again.
     f.setRandom();
     solver.solveProblem(false);
-    socp.readSolution("x", x_sol);
+    x_sol = x.cast<double>();
 
     // Print the new solution.
     std::cout << "Solution after changing the cost function:\n"

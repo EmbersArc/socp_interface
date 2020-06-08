@@ -5,6 +5,12 @@ namespace op
 
     void EicosWrapper::initialize()
     {
+        G_values = G.cast<double>();
+        A_values = A.cast<double>();
+        c_values = c.cast<double>();
+        h_values = h.cast<double>();
+        b_values = b.cast<double>();
+
         solver = std::make_unique<EiCOS::Solver>(G_values,
                                                  A_values,
                                                  c_values,

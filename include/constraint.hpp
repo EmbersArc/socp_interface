@@ -45,9 +45,9 @@ namespace op
         constraint_variant_t data;
     };
 
-    std::vector<Constraint> equalTo(const Expression &lhs, const Expression &rhs);
-    std::vector<Constraint> lessThan(const Expression &lhs, const Expression &rhs);
-    std::vector<Constraint> greaterThan(const Expression &lhs, const Expression &rhs);
+    Constraint equalTo(const Expression &lhs, const Expression &rhs);
+    Constraint lessThan(const Expression &lhs, const Expression &rhs);
+    Constraint greaterThan(const Expression &lhs, const Expression &rhs);
 
     template <typename DerivedLhs, typename DerivedRhs>
     std::vector<Constraint> equalTo(const Eigen::MatrixBase<DerivedLhs> &lhs, const Eigen::MatrixBase<DerivedRhs> &rhs)
@@ -90,7 +90,7 @@ namespace op
                     r_col = col;
                 }
 
-                Constraint constraint = equalTo(lhs(l_row, l_col), rhs(r_row, r_col))[0];
+                Constraint constraint = equalTo(lhs(l_row, l_col), rhs(r_row, r_col));
                 constraints.push_back(constraint);
             }
         }
@@ -141,7 +141,7 @@ namespace op
                     r_col = col;
                 }
 
-                Constraint constraint = lessThan(lhs(l_row, l_col), rhs(r_row, r_col))[0];
+                Constraint constraint = lessThan(lhs(l_row, l_col), rhs(r_row, r_col));
 
                 constraints.push_back(constraint);
             }

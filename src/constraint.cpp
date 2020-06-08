@@ -80,14 +80,14 @@ namespace op
         data = constraint;
     }
 
-    std::vector<Constraint> equalTo(const Expression &lhs, const Expression &rhs)
+    Constraint equalTo(const Expression &lhs, const Expression &rhs)
     {
         Constraint constraint;
         constraint.asEquality(lhs.affine - rhs.affine);
         return {constraint};
     }
 
-    std::vector<Constraint> lessThan(const Expression &lhs, const Expression &rhs)
+    Constraint lessThan(const Expression &lhs, const Expression &rhs)
     {
         Constraint constraint;
         if (lhs.isNorm())
@@ -111,7 +111,7 @@ namespace op
         return {constraint};
     }
 
-    std::vector<Constraint> greaterThan(const Expression &lhs, const Expression &rhs)
+    Constraint greaterThan(const Expression &lhs, const Expression &rhs)
     {
         return lessThan(rhs, lhs);
     }

@@ -314,7 +314,7 @@ namespace op
         return *this;
     }
 
-    Expression Expression::operator+(const Expression &other) const
+    Expression Expression::operator+(Expression other) const
     {
         Expression result = *this;
 
@@ -381,11 +381,11 @@ namespace op
         {
             return 2;
         }
-        else if (not this->affine.isFirstOrder())
+        else if (this->affine.isFirstOrder())
         {
             return 1;
         }
-        else // if (this->affine.isConstant())
+        else // if (not this->affine.isConstant())
         {
             return 0;
         }
@@ -396,8 +396,9 @@ namespace op
         return this->sqrt;
     }
 
-    Expression sqrt(Expression e)
+    Expression sqrt(const Expression &expression)
     {
+        Expression e = expression;
         const bool all_quadratic = std::all_of(e.higher_order.cbegin(),
                                                e.higher_order.cend(),
                                                [](const std::vector<Affine> &p) { return p.size() == 1; });
@@ -430,6 +431,17 @@ namespace op
 
     // Parameter and Variable creation
 
+    VectorXe createVariables(const std::string &name, size_t rows)
+    {
+        VectorXe variables(rows);
+
+        for (size_t row = 0; row < rows; row++)
+        {
+            variables(row) = Variable(name, row, 1);
+        }
+        return variables;
+    }
+
     MatrixXe createVariables(const std::string &name, size_t rows, size_t cols)
     {
         MatrixXe variables(rows, cols);
@@ -444,14 +456,14 @@ namespace op
         return variables;
     }
 
-    Expression createParameter(double p)
+    Expression createParameter(double m)
     {
-        return Parameter(p);
+        return Parameter(m);
     }
 
-    Expression createParameter(double *p)
+    Expression createParameter(double *m)
     {
-        return Parameter(p);
+        return Parameter(m);
     }
 
 } // namespace op

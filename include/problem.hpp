@@ -11,9 +11,10 @@ namespace op
     class OptimizationProblem
     {
     public:
-        void addConstraint(std::vector<Constraint> constraints);
+        void addConstraint(const Constraint &constraint);
+        void addConstraint(const std::vector<Constraint> &constraints);
 
-        void addMinimizationTerm(const Expression &term);
+        void addMinimizationTerm(const Expression &expression);
 
         bool isFeasible() const;
 
@@ -21,6 +22,16 @@ namespace op
 
         friend std::ostream &operator<<(std::ostream &os, const OptimizationProblem &socp);
         friend WrapperBase;
+
+        template <typename Derived>
+        void addMinimizationTerm(const Eigen::MatrixBase<Derived> &expression)
+        {
+            if (not(expression.rows() == 1 and expression.cols() == 1))
+            {
+                throw std::runtime_error("Minimization term has to be a scalar!");
+            }
+            addMinimizationTerm(expression(0, 0));
+        }
 
     private:
         Expression costFunction;

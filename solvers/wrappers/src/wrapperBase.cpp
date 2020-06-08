@@ -78,6 +78,9 @@ namespace op
             c(term.variable.getProblemIndex()) = term.parameter;
         }
 
+        A.resize(b_coeffs.size(), n_variables);
+        G.resize(h_coeffs.size(), n_variables);
+
         A.setFromTriplets(A_coeffs.begin(), A_coeffs.end());
         G.setFromTriplets(G_coeffs.begin(), G_coeffs.end());
         b = Eigen::Map<VectorXp>(b_coeffs.data(), b_coeffs.size());

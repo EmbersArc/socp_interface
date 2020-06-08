@@ -50,8 +50,8 @@ target_compile_options(socp_interface PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTI
 
 target_link_libraries(socp_interface Eigen3::Eigen eicos)
 
-# add_executable(socp_test src/tests/socp_test.cpp)
-# target_link_libraries(socp_test socp_interface)
+add_executable(socp_test src/tests/socp_test.cpp)
+target_link_libraries(socp_test socp_interface)
 # add_executable(portfolio_test src/tests/portfolio_test.cpp)
 # target_link_libraries(portfolio_test socp_interface)
 
