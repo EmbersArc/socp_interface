@@ -51,6 +51,30 @@ namespace cvx
     Constraint lessThan(const Scalar &lhs, const Scalar &rhs);
     Constraint greaterThan(const Scalar &lhs, const Scalar &rhs);
 
+    template <typename Derived>
+    std::vector<Constraint> equalTo(const Eigen::MatrixBase<Derived> &lhs, const Scalar &rhs)
+    {
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<Derived>::Scalar, Scalar>);
+
+        std::vector<Constraint> constraints;
+
+        for (int row = 0; row < lhs.rows(); row++)
+        {
+            for (int col = 0; col < lhs.cols(); col++)
+            {
+                constraints.push_back(equalTo(lhs(row, col), rhs));
+            }
+        }
+
+        return constraints;
+    }
+
+    template <typename Derived>
+    std::vector<Constraint> equalTo(const Scalar &lhs, const Eigen::MatrixBase<Derived> &rhs)
+    {
+        return equalTo(rhs, lhs);
+    }
+
     template <typename DerivedLhs, typename DerivedRhs>
     std::vector<Constraint> equalTo(const Eigen::MatrixBase<DerivedLhs> &lhs, const Eigen::MatrixBase<DerivedRhs> &rhs)
     {
@@ -69,31 +93,64 @@ namespace cvx
             throw std::runtime_error("Invalid dimensions in constraint.");
         }
 
-        const size_t rows = std::max(lhs.rows(), rhs.rows());
-        const size_t cols = std::max(lhs.cols(), rhs.cols());
-
-        for (size_t row = 0; row < rows; row++)
+        if (first_scalar and second_scalar)
         {
-            for (size_t col = 0; col < cols; col++)
+            constraints = {equalTo(lhs(0, 0), rhs(0, 0))};
+        }
+        else if (first_scalar)
+        {
+            std::vector<Constraint> new_constraints = equalTo(lhs(0, 0), rhs);
+            constraints.insert(constraints.end(), new_constraints.begin(), new_constraints.end());
+        }
+        else if (second_scalar)
+        {
+            std::vector<Constraint> new_constraints = equalTo(lhs, rhs(0, 0));
+            constraints.insert(constraints.end(), new_constraints.begin(), new_constraints.end());
+        }
+        else
+        {
+            for (int row = 0; row < rhs.rows(); row++)
             {
-                size_t l_row = 0;
-                size_t l_col = 0;
-                size_t r_row = 0;
-                size_t r_col = 0;
-
-                if (not first_scalar)
+                for (int col = 0; col < rhs.cols(); col++)
                 {
-                    l_row = row;
-                    l_col = col;
+                    constraints.push_back(equalTo(lhs(row, col), rhs(row, col)));
                 }
-                if (not second_scalar)
-                {
-                    r_row = row;
-                    r_col = col;
-                }
+            }
+        }
 
-                Constraint constraint = equalTo(lhs(l_row, l_col), rhs(r_row, r_col));
-                constraints.push_back(constraint);
+        return constraints;
+    }
+
+    template <typename Derived>
+    std::vector<Constraint> lessThan(const Eigen::MatrixBase<Derived> &lhs, const Scalar &rhs)
+    {
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<Derived>::Scalar, Scalar>);
+
+        std::vector<Constraint> constraints;
+
+        for (int row = 0; row < lhs.rows(); row++)
+        {
+            for (int col = 0; col < lhs.cols(); col++)
+            {
+                constraints.push_back(lessThan(lhs(row, col), rhs));
+            }
+        }
+
+        return constraints;
+    }
+
+    template <typename Derived>
+    std::vector<Constraint> lessThan(const Scalar &lhs, const Eigen::MatrixBase<Derived> &rhs)
+    {
+        static_assert(std::is_same_v<typename Eigen::MatrixBase<Derived>::Scalar, Scalar>);
+
+        std::vector<Constraint> constraints;
+
+        for (int row = 0; row < rhs.rows(); row++)
+        {
+            for (int col = 0; col < rhs.cols(); col++)
+            {
+                constraints.push_back(lessThan(lhs, rhs(row, col)));
             }
         }
 
@@ -118,34 +175,30 @@ namespace cvx
             throw std::runtime_error("Invalid dimensions in constraint.");
         }
 
-        const size_t rows = std::max(lhs.rows(), rhs.rows());
-        const size_t cols = std::max(lhs.cols(), rhs.cols());
-
         // TODO: check if rhs is linear or first order
 
-        for (size_t row = 0; row < rows; row++)
+        if (first_scalar and second_scalar)
         {
-            for (size_t col = 0; col < cols; col++)
+            constraints = {lessThan(lhs(0, 0), rhs(0, 0))};
+        }
+        else if (first_scalar)
+        {
+            std::vector<Constraint> new_constraints = lessThan(lhs(0, 0), rhs);
+            constraints.insert(constraints.end(), new_constraints.begin(), new_constraints.end());
+        }
+        else if (second_scalar)
+        {
+            std::vector<Constraint> new_constraints = lessThan(lhs, rhs(0, 0));
+            constraints.insert(constraints.end(), new_constraints.begin(), new_constraints.end());
+        }
+        else
+        {
+            for (int row = 0; row < rhs.rows(); row++)
             {
-                size_t l_row = 0;
-                size_t l_col = 0;
-                size_t r_row = 0;
-                size_t r_col = 0;
-
-                if (not first_scalar)
+                for (int col = 0; col < rhs.cols(); col++)
                 {
-                    l_row = row;
-                    l_col = col;
+                    constraints.push_back(lessThan(lhs(row, col), rhs(row, col)));
                 }
-                if (not second_scalar)
-                {
-                    r_row = row;
-                    r_col = col;
-                }
-
-                Constraint constraint = lessThan(lhs(l_row, l_col), rhs(r_row, r_col));
-
-                constraints.push_back(constraint);
             }
         }
 
@@ -154,6 +207,16 @@ namespace cvx
 
     template <typename DerivedLhs, typename DerivedRhs>
     std::vector<Constraint> greaterThan(const Eigen::MatrixBase<DerivedLhs> &lhs, const Eigen::MatrixBase<DerivedRhs> &rhs)
+    {
+        return lessThan(rhs, lhs);
+    }
+    template <typename DerivedLhs, typename DerivedRhs>
+    std::vector<Constraint> greaterThan(const Scalar &lhs, const Eigen::MatrixBase<DerivedRhs> &rhs)
+    {
+        return lessThan(rhs, lhs);
+    }
+    template <typename DerivedLhs, typename DerivedRhs>
+    std::vector<Constraint> greaterThan(const Eigen::MatrixBase<DerivedLhs> &lhs, const Scalar &rhs)
     {
         return lessThan(rhs, lhs);
     }

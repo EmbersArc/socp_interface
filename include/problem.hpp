@@ -23,16 +23,6 @@ namespace cvx
         friend std::ostream &operator<<(std::ostream &os, const OptimizationProblem &socp);
         friend WrapperBase;
 
-        template <typename Derived>
-        void addMinimizationTerm(const Eigen::MatrixBase<Derived> &term)
-        {
-            if (not(term.rows() == 1 and term.cols() == 1))
-            {
-                throw std::runtime_error("Minimization term has to be a scalar!");
-            }
-            addMinimizationTerm(term.value());
-        }
-
     private:
         Scalar costFunction;
         std::vector<EqualityConstraint> equality_constraints;

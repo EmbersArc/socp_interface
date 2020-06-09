@@ -63,7 +63,7 @@ int main()
     // Equality
     socp.addConstraint(cvx::equalTo(cvx::par(F) * x, cvx::par(g)));
 
-    // Here we use a pointer to a parameter. This allows changing it dynamically.
+    // Here we use dynamic parameter. This allows changing it without reformulating the problem.
     socp.addMinimizationTerm(cvx::dynpar(f).transpose() * x);
 
     // Print the problem for inspection.
