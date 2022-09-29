@@ -1,3 +1,5 @@
+DEPRECATED: Renamed and moved [here](https://github.com/EmbersArc/Epigraph).
+
 # socp_interface
 
 A C++ interface to formulate and solve Second Order Cone Problems.
